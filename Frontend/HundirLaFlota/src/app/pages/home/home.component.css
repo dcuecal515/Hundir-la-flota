@@ -1,0 +1,9 @@
+.principal-section{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.information{
+    width: 50%;
+    text-align: justify;
+}
