@@ -3,9 +3,9 @@
     src: url('/assets/fonts/oldtimer.regular.ttf');
 }
 .body{
-    background-image: url(/assets/background.png);
-    background-repeat: repeat-y;
-    background-size: 100% auto;
+    background-image: url(../../../../public/assets/background.png);
+    background-repeat: no-repeat;
+    background-size: cover;
     background-position: top center;
 }
 .title{
@@ -19,6 +19,35 @@
 .information{
     width: 50%;
     text-align: justify;
+
+    background-color: rgb(126, 126, 126);
+    color: black;
+    padding: 1%;
+    border-radius: 20px;
+}
+.centerShip{
+    background-image: url(../../../../public/assets/CenteredShip.png);
+    position: fixed;
+    left: 49%;
+    top: 70%;
+    width: 15vw;
+    height: 15vw;
+    max-width: 200px;
+    max-height: 200px;
+    background-repeat: no-repeat;
+    background-size: contain;
+}
+.buttonContainer{
+    text-align: center;
+}
+.loginButton{
+    background-color: rgb(126, 126, 126);
+    color: rgb(63, 16, 16);
+    padding: 1%;
+    padding-left: 2%;
+    padding-right: 2%;
+    border-radius: 20px;
+    text-transform: uppercase;
 }
 .title-rule{
     font-family: titulo;
