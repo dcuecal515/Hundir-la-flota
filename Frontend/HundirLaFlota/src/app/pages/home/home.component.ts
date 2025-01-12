@@ -12,6 +12,7 @@ export class HomeComponent {
   currentOpacity2: number=0
   currentOpacity3: number=0
   currentOpacity4: number=0
+  curretTop: string = "80%"
   @ViewChild('rule1', { static: true }) rule1!: ElementRef;
   @ViewChild('rule2', { static: true }) rule2!: ElementRef;
   @ViewChild('rule3', { static: true }) rule3!: ElementRef;
@@ -19,7 +20,6 @@ export class HomeComponent {
   @HostListener('window:scroll', [])
   checkScroll(){
     const currentScroll = window.scrollY;
-    curretTop: string = "80%"
     /*if(currentScroll<400){
       this.ship.nativeElement.style.top = this.curretTop;
     }else{
