@@ -29,7 +29,7 @@
     background-image: url(../../../../public/assets/CenteredShip.png);
     position: fixed;
     left: 49%;
-    top: 70%;
+    top: 75%;
     width: 15vw;
     height: 15vw;
     max-width: 200px;
@@ -75,7 +75,7 @@
 }
 .right-rule-image{
     width: 100%;
-    max-width: 490px;
+    max-width: 40%;
     border-radius: 10px;
 }
 .left-rule{
@@ -99,7 +99,7 @@
 }
 .left-rule-image{
     width: 100%;
-    max-width: 490px;
+    max-width: 40%;
     max-height: 300px;
     border-radius: 10px;
 }
