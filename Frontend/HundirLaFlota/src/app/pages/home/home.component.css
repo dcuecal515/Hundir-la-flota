@@ -26,10 +26,12 @@
     border-radius: 20px;
 }
 .centerShip{
+    transition: 2s;
+    transform: translate(-50%, -50%);
     background-image: url(../../../../public/assets/CenteredShip.png);
     position: fixed;
-    left: 49%;
-    top: 75%;
+    left: 54.6%;
+    top: 80%;
     width: 15vw;
     height: 15vw;
     max-width: 200px;
