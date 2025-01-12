@@ -1,8 +1,15 @@
+@font-face{
+    font-family: titulo;
+    src: url('/assets/fonts/oldtimer.regular.ttf');
+}
 .body{
     background-image: url(../../../../public/assets/background.png);
     background-repeat: no-repeat;
     background-size: cover;
     background-position: top center;
+}
+.title{
+    font-family: titulo;
 }
 .principal-section{
     display: flex;
@@ -12,6 +19,7 @@
 .information{
     width: 50%;
     text-align: justify;
+
     background-color: rgb(126, 126, 126);
     color: black;
     padding: 1%;
@@ -40,4 +48,58 @@
     padding-right: 2%;
     border-radius: 20px;
     text-transform: uppercase;
+}
+.title-rule{
+    font-family: titulo;
+    margin-bottom: 5%;
+}
+.right-rule{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 20%;
+    margin-bottom: 5%;
+}
+.right-rule-contain-title{
+    text-align: center;
+    font-family: titulo;
+}
+.right-rule-contain{
+    width: 30%;
+    text-align: left;
+    background-color: grey;
+    border-radius: 10px;
+    padding: 1%;
+    margin-right: 3%;
+}
+.right-rule-image{
+    width: 100%;
+    max-width: 490px;
+    border-radius: 10px;
+}
+.left-rule{
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: center;
+    justify-content: center;
+    gap: 20%;
+}
+.left-rule-contain{
+    width: 30%;
+    text-align: left;
+    background-color: grey;
+    border-radius: 10px;
+    padding: 1%;
+    margin-left: 4%;
+}
+.left-rule-contain-title{
+    text-align: center;
+    font-family: titulo;
+}
+.left-rule-image{
+    width: 100%;
+    max-width: 490px;
+    max-height: 300px;
+    border-radius: 10px;
 }
