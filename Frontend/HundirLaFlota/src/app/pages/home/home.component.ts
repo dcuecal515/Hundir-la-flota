@@ -19,6 +19,12 @@ export class HomeComponent {
   @HostListener('window:scroll', [])
   checkScroll(){
     const currentScroll = window.scrollY;
+    curretTop: string = "80%"
+    /*if(currentScroll<400){
+      this.ship.nativeElement.style.top = this.curretTop;
+    }else{
+      this.ship.nativeElement.style.top = "80%";
+    }*/
     if(currentScroll>250 && this.rule1.nativeElement.style.opacity !== ('1')){
       this.currentOpacity1+=0.05;
       this.rule1.nativeElement.style.opacity = this.currentOpacity1.toString();
