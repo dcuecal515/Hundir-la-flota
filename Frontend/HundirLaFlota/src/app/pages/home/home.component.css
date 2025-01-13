@@ -10,6 +10,7 @@
 }
 .title{
     font-family: titulo;
+    color: #2c2b31;
 }
 .principal-section{
     display: flex;
@@ -39,6 +40,21 @@
     background-repeat: no-repeat;
     background-size: contain;
 }
+
+.centerShipStop{
+    transition: 2s;
+    transform: translate(-50%, -50%);
+    background-image: url(/assets/CenteredShip.png);
+    position: fixed;
+    left: 54.6%;
+    top: 80%;
+    width: 15vw;
+    height: 15vw;
+    max-width: 200px;
+    max-height: 200px;
+    background-repeat: no-repeat;
+    background-size: contain;
+}
 .buttonContainer{
     text-align: center;
 }
@@ -52,6 +68,7 @@
     text-transform: uppercase;
     cursor: pointer;
     font-family: titulo;
+    margin-bottom: 1%;
 }
 .title-rule{
     font-family: titulo;
@@ -68,6 +85,7 @@
 .right-rule-contain-title{
     text-align: center;
     font-family: titulo;
+    color: rgb(63, 16, 16);
 }
 .right-rule-contain{
     width: 30%;
@@ -99,6 +117,7 @@
 .left-rule-contain-title{
     text-align: center;
     font-family: titulo;
+    color: rgb(63, 16, 16);
 }
 .left-rule-image{
     width: 100%;
@@ -152,14 +171,42 @@
 }
 /*responsive*/
 
+@media(max-width: 1024px){
+    .centerShip{
+        top: 88%;
+        left: 56.3%;
+    }
+    .centerShipStop{
+        left: 56.3%;
+    }
+}
+
 @media (max-width: 768px){
     .centerShip{
-        top: 94%;
+        top: 90%;
+    }
+    .centerShipStop{
+        top: 85%;
+    }
+    .right-rule-3{
+        margin-top: 3%;
     }
 }
 @media(max-width: 426px){
+    .information{
+        width: 70%;
+    }
     .centerShip{
         display: none;
+    }
+    .centerShipStop{
+        display: none;
+    }
+    .loginButton{
+        font-size: large;
+        padding: 2%;
+        padding-left: 4%;
+        padding-right: 4%;
     }
     .right-rule{
         flex-direction: column;
@@ -169,6 +216,7 @@
     }
     .right-rule-image{
         max-width: 70%;
+        margin-top: 5%;
     }
     .left-rule{
         flex-direction: column;
@@ -179,6 +227,7 @@
     }
     .left-rule-image{
         max-width: 70%;
+        margin-top: 5%;
     }
     .right-rule-3{
         flex-direction: column;
@@ -188,6 +237,8 @@
     }
     .right-rule-image-rule-3{
         width: 70%;
+        margin-top: 5%;
+        max-width: 100%;
     }
     .left-rule-4{
         flex-direction: column;
@@ -197,6 +248,8 @@
     }
     .left-rule-image-rule-4{
         width: 70%;
+        margin-top: 5%;
+        max-width: 100%;
     }
 
 }
