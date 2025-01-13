@@ -1,0 +1,56 @@
+<div class="body">
+    <div class="principal-section">
+        <div class="title">
+            <h1>Hundir la flota</h1>
+        </div>
+        <div class="image">
+            <img src="assets/Ship.png" alt="imagen principal del barco de la web">
+        </div>
+        <div class="information" >
+            <p>Bienvenido al juego de barcos más dibertido y estrategico que vas a ver.</p>
+            <p>Prepárate para desplegar tus habilidades tácticas y llevar a cabo una emocionante batalla naval. </p>
+            <p>En Hundir la Flota, cada movimiento cuenta y cada disparo puede marcar la diferencia entre la victoria y la derrota.</p>
+        </div>
+        <div class="title-rule">
+            <h1>Reglas</h1>
+        </div>
+        <div class="right-rule" #rule1>
+            <div class="right-rule-contain">
+                <h3 class="right-rule-contain-title">Regla 1</h3>
+                <p>Cada jugador cuenta con dos cuadrículas de 10×10.</p>
+                <p>En una, debe colocar estratégicamente 10 barcos de diferentes tamaños en posiciones horizontal y vertical dejando siempre una cuadrícula en blanco entre barco y barco. Se pueden colocar en el borde de la cuadrícula.</p>
+                <p>Cantidad de barcos:</p>
+                <p>1 barco de 4 cuadrados</p>
+                <p>2 barcos de 3 cuadrados</p>
+                <p>1 barcos de 2 cuadrados</p>
+            </div>
+            <img class="right-rule-image" src="assets/Regla1.jpg" alt="imagen de las cuadriculas del juego">
+        </div>
+        <div class="left-rule" #rule2>
+            <div class="left-rule-contain">
+                <h3 class="left-rule-contain-title">Regla 2</h3>
+                <p>El jugador que le toque turno eligira una de las cuadriculas la cual puede ser de ejemplo D-5 en estas circunstacias puede que la posicion que halla elegido sea agua o tocado un barco si es agua se le marcara la cuadricula en blanco y si es barco se le marcara la cuadricula en rojo si el disparo ha dado a un barco entonces tendra otro turno el jugador que ha tocado el barco</p>
+            </div>
+            <img class="left-rule-image" src="assets/Regla2.jpg" alt="imagen de las cuadriculas del juego">
+        </div>
+        <div class="right-rule-3" #rule3>
+            <div class="right-rule-contain-rule-3">
+                <h3 class="right-rule-contain-title">Regla 3</h3>
+                <p>El juego finalizara en el momento en el que uno de los jugadores haya hundido todos los barcos del rival</p>
+            </div>
+            <img class="right-rule-image-rule-3" src="assets/Regla3.jpg" alt="imagen de las cuadriculas del juego">
+        </div>
+        <div class="left-rule-4" #rule4>
+            <div class="left-rule-contain-rule-4">
+                <h3 class="left-rule-contain-title">Regla 4</h3>
+                <p>Esta es la regla mas importante que es pasarselo bien y divertirse jugando a hundir la flota asi que a divertirse</p>
+            </div>
+            <img class="left-rule-image-rule-4" src="assets/Regla4.jpg" alt="imagen de las cuadriculas del juego">
+        </div>
+    </div>
+
+    <div class="centerShip" id="centeredShip"></div>
+    <div class="buttonContainer">
+        <button class="loginButton" [routerLink]="'login'">Empezar a navegar</button>
+    </div>
+</div>
