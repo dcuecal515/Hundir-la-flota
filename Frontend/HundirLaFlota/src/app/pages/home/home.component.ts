@@ -26,6 +26,12 @@ export class HomeComponent {
     }else{
       this.ship.nativeElement.style.top = "80%";
     }*/
+   if(screen.width<=500){
+    this.rule1.nativeElement.style.opacity='1'
+    this.rule2.nativeElement.style.opacity='1'
+    this.rule3.nativeElement.style.opacity='1'
+    this.rule4.nativeElement.style.opacity='1'
+   }else{
     if(currentScroll>250 && this.rule1.nativeElement.style.opacity !== ('1')){
       this.currentOpacity1+=0.05;
       this.rule1.nativeElement.style.opacity = this.currentOpacity1.toString();
@@ -42,5 +48,6 @@ export class HomeComponent {
       this.currentOpacity4+=0.05;
       this.rule4.nativeElement.style.opacity = this.currentOpacity4.toString();
     }
+  }
   }
 }
