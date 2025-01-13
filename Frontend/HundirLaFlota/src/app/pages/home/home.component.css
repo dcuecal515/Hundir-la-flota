@@ -3,7 +3,7 @@
     src: url('/assets/fonts/oldtimer.regular.ttf');
 }
 .body{
-    background-image: url(../../../../public/assets/background.png);
+    background-image: url(/assets/background.png);
     background-repeat: no-repeat;
     background-size: cover;
     background-position: top center;
@@ -28,7 +28,7 @@
 .centerShip{
     transition: 2s;
     transform: translate(-50%, -50%);
-    background-image: url(../../../../public/assets/CenteredShip.png);
+    background-image: url(/assets/CenteredShip.png);
     position: fixed;
     left: 54.6%;
     top: 80%;
@@ -50,6 +50,7 @@
     padding-right: 2%;
     border-radius: 20px;
     text-transform: uppercase;
+    cursor: pointer;
     font-family: titulo;
 }
 .title-rule{
@@ -148,4 +149,54 @@
     max-width: 33%;
     max-height: 300px;
     border-radius: 10px;
+}
+/*responsive*/
+
+@media (max-width: 768px){
+    .centerShip{
+        top: 94%;
+    }
+}
+@media(max-width: 426px){
+    .centerShip{
+        display: none;
+    }
+    .right-rule{
+        flex-direction: column;
+    }
+    .right-rule-contain{
+        width: 70%;
+    }
+    .right-rule-image{
+        max-width: 70%;
+    }
+    .left-rule{
+        flex-direction: column;
+        margin-bottom: 8%;
+    }
+    .left-rule-contain{
+        width: 70%;
+    }
+    .left-rule-image{
+        max-width: 70%;
+    }
+    .right-rule-3{
+        flex-direction: column;
+    }
+    .right-rule-contain-rule-3{
+        width: 70%;
+    }
+    .right-rule-image-rule-3{
+        width: 70%;
+    }
+    .left-rule-4{
+        flex-direction: column;
+    }
+    .left-rule-contain-rule-4{
+        width: 70%;
+    }
+    .left-rule-image-rule-4{
+        width: 70%;
+    }
+
 }
