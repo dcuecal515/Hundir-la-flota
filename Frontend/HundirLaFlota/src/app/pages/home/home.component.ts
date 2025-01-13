@@ -21,11 +21,14 @@ export class HomeComponent {
   @HostListener('window:scroll', [])
   checkScroll(){
     const currentScroll = window.scrollY;
-    /*if(currentScroll<400){
-      this.ship.nativeElement.style.top = this.curretTop;
+    const centeredShip = document.getElementById("centeredShip");
+    if(currentScroll<400){
+      centeredShip?.classList.remove("centerShipStop");
+      centeredShip?.classList.add("centerShip");
     }else{
-      this.ship.nativeElement.style.top = "80%";
-    }*/
+      centeredShip?.classList.remove("centerShip");
+      centeredShip?.classList.add("centerShipStop");
+    }
    if(screen.width<=500){
     this.rule1.nativeElement.style.opacity='1'
     this.rule2.nativeElement.style.opacity='1'
