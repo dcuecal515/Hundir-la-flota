@@ -15,7 +15,7 @@ import { Router } from '@angular/router';
 export class LoginComponent {
   constructor(private formBuilder: FormBuilder,private authservice:AuthserviceService,private apiService:ApiService,private router:Router){
     this.loginForm = this.formBuilder.group({
-      name: ['', [Validators.required]],
+      identifier: ['', [Validators.required]],
       password: ['', [Validators.required]]
     })
     this.registerForm=this.formBuilder.group({
@@ -26,15 +26,16 @@ export class LoginComponent {
   loginForm: FormGroup;
   registerForm:FormGroup;
   
-  name=""
+  identifier=""
   password=""
   rememberUser=false
 
   async loginUser():Promise<void>{
     if(this.loginForm.valid){
-      const Date:Login={name: this.name.trim(),password: this.password.trim()}//hace la interfaz
+      const Date:Login={identifier: this.identifier.trim(),password: this.password.trim()}//hace la interfaz
       console.log(Date)//mostrar interfaz
       await this.authservice.login(Date);
+      console.log("Mi clave es: "+this.apiService.jwt);
       if(this.apiService.jwt!=""){
         await this.rememberfunction()
       }else{
