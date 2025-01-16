@@ -28,7 +28,7 @@
             <input type="password">
         </label>
         <label>Avatar:
-
+            <input type="file" accept="image/png, image/jpeg, image/jpg" required (change)="onFileSelected($event)">
         </label>
         <button (click)="registerUser()">Registrarte</button>
     </form>

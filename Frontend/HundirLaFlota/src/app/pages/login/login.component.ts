@@ -49,7 +49,7 @@ export class LoginComponent {
   nickname=""
   email=""
   password=""
-  avatar=""
+  avatar: File | null = null
   rememberUser=false
 
   async loginUser():Promise<void>{
@@ -85,13 +85,26 @@ export class LoginComponent {
     if(this.registerForm.controls['password'].value != this.registerForm.controls['confirmPassword'].value){
       alert("Las contraseñas tienen que ser iguales");
     }else if(this.registerForm.valid){
-      const Date:SignUp={nickname: this.nickname.trim(),email: this.email.trim(),password: this.password.trim(), avatar: this.avatar.trim()}
+      const Date:SignUp={nickname: this.nickname.trim(),email: this.email.trim(),password: this.password.trim(), avatar: this.avatar}
       await this.authservice.register(Date)
       if(this.apiService.jwt!=""){
         await this.rememberfunction()
       }
     }else{
       alert("Campos no validos");
+    }
+  }
+
+  onFileSelected(event: any) {
+    const image = event.target.files[0] as File;
+    if(image)
+    {
+      console.log("NUEVA IMAGEN")
+      this.avatar = image
+    }
+    else
+    {
+      console.log("NO HAY IMAGEN")
     }
   }
 
