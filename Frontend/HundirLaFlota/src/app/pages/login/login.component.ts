@@ -14,6 +14,9 @@ import { Router } from '@angular/router';
 })
 export class LoginComponent {
   constructor(private formBuilder: FormBuilder,private authservice:AuthserviceService,private apiService:ApiService,private router:Router){
+    if(localStorage.getItem("token") || sessionStorage.getItem("token")){
+      router.navigateByUrl("menu");
+    }
     this.loginForm = this.formBuilder.group({
       identifier: ['', [Validators.required]],
       password: ['', [Validators.required]]
@@ -38,7 +41,7 @@ export class LoginComponent {
       if(this.apiService.jwt!=""){
         await this.rememberfunction()
       }else{
-        alert("Los datos introducidos son invalidos")//poner sweetalert2
+        alert("Este usuario no existe")//poner sweetalert2
       }
     }else{
       alert("Campos invalidos")//poner sweetalert2
