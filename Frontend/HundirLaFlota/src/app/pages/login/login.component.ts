@@ -4,6 +4,7 @@ import { AuthserviceService } from '../../services/authservice.service';
 import { ApiService } from '../../services/api.service';
 import { Login } from '../../models/Login';
 import { Router } from '@angular/router';
+import { SignUp } from '../../models/SignUp';
 
 @Component({
   selector: 'app-login',
@@ -19,15 +20,36 @@ export class LoginComponent {
       password: ['', [Validators.required]]
     })
     this.registerForm=this.formBuilder.group({
-
-    })
+      nickname: ['', [Validators.required, !Validators.email]],
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', [Validators.required]],
+      avatar: ['', [Validators.required]],
+      confirmPassword: ['', Validators.required]
+    },
+    { validators: this.passwordMatchValidator })
   }
+
+  passwordMatchValidator(form: FormGroup) {
+    const password = form.get('password')?.value;
+    const confirmPasswordControl = form.get('confirmPassword');
+    const confirmPassword = confirmPasswordControl?.value;
+     
+    if (confirmPasswordControl != null) {
+      if (password !== confirmPassword) {
+        confirmPasswordControl.setErrors({ mismatch: true });
+      }
+    }
+  }
+
   /*esto es para las peticiones que hagamos en este componente*/
   loginForm: FormGroup;
   registerForm:FormGroup;
   
   identifier=""
+  nickname=""
+  email=""
   password=""
+  avatar: File | null = null
   rememberUser=false
 
   async loginUser():Promise<void>{
@@ -60,7 +82,32 @@ export class LoginComponent {
     this.router.navigateByUrl("menu");
   }
 
+  async registerUser():Promise<void>{
+    if(this.registerForm.controls['password'].value != this.registerForm.controls['confirmPassword'].value){
+      alert("Las contraseñas tienen que ser iguales");
+    }else if(this.registerForm.valid){
+      const Date:SignUp={nickname: this.nickname.trim(),email: this.email.trim(),password: this.password.trim(), avatar: this.avatar}
+      await this.authservice.register(Date)
+      if(this.apiService.jwt!=""){
+        await this.rememberfunction()
+      }
+    }else{
+      alert("Campos no validos");
+    }
+  }
 
+  onFileSelected(event: any) {
+    const image = event.target.files[0] as File;
+    if(image)
+    {
+      console.log("NUEVA IMAGEN")
+      this.avatar = image
+    }
+    else
+    {
+      console.log("NO HAY IMAGEN")
+    }
+  }
 
 
   /*Esto es typescript para la vison de la pagina*/
