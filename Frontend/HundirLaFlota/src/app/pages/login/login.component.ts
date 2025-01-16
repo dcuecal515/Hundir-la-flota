@@ -57,6 +57,7 @@ export class LoginComponent {
       const Date:Login={identifier: this.identifier.trim(),password: this.password.trim()}//hace la interfaz
       console.log(Date)//mostrar interfaz
       await this.authservice.login(Date);
+      console.log("Mi clave es: "+this.apiService.jwt);
       if(this.apiService.jwt!=""){
         await this.rememberfunction()
       }else{
