@@ -1,7 +1,14 @@
 <div class="login" #login>
     <h1>hola</h1>
-    <form action="">
-        
+    <form  [formGroup]="loginForm">
+        <label>correo o usuario
+            <input type="text" [(ngModel)]="name" formControlName="name">
+        </label>
+        <label>contraseña
+            <input type="password" [(ngModel)]="password" formControlName="password">
+        </label>
+        <input type="checkbox" id="rememberLogin" (click)="rememberUser = !rememberUser"> <p>Recuérdame</p>
+        <button (click)="loginUser()">login</button>
     </form>
     <button (click)=changesignup()>registro</button>
 </div>
