@@ -13,7 +13,9 @@ export class ApiService {
 
   jwt: string="";
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {
+    
+  }
 
   async get<T = void>(path: string, params: any = {}, responseType = null): Promise<Result<T>> {
     const url = `${this.BASE_URL}${path}`;
