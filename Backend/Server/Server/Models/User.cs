@@ -13,7 +13,9 @@ namespace Server.Models
 
         public string Password { get; set; }
 
-        public string Image { get; set; }
+        public string Avatar { get; set; }
+
+        public string Role { get; set; }
 
         public string Status { get; set; }
 
