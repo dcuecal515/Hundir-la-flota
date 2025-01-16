@@ -5,6 +5,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Server.Mappers;
 using Server.Models;
+using Server.DTOs;
 
 namespace Server.Services
 {
@@ -73,12 +74,26 @@ namespace Server.Services
             await _unitOfWork.SaveAsync();
         }
 
-        public async Task<User> InsertUser(User user)
+        public async Task<User> InsertUserAsync(User user)
         {
             // Hace falta añadir aqui un nuevo historial
             User newUser = await _unitOfWork.UserRepository.InsertAsync(user);
             await _unitOfWork.SaveAsync();
             return newUser;
+        }
+
+        public async Task<string> RegisterUser(SignUpDto userDto)
+        {
+            User user = _userMapper.toEntity(userDto);
+
+            PasswordService passwordService = new PasswordService();
+            user.Password = passwordService.Hash(userDto.Password);
+
+            user.Role = "User";
+
+            User newUser = await InsertUserAsync(user);
+
+            return ObtainToken(newUser);
         }
 
     }
