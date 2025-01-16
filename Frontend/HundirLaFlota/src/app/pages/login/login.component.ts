@@ -4,6 +4,7 @@ import { AuthserviceService } from '../../services/authservice.service';
 import { ApiService } from '../../services/api.service';
 import { Login } from '../../models/Login';
 import { Router } from '@angular/router';
+import { SignUp } from '../../models/SignUp';
 
 @Component({
   selector: 'app-login',
@@ -15,28 +16,49 @@ import { Router } from '@angular/router';
 export class LoginComponent {
   constructor(private formBuilder: FormBuilder,private authservice:AuthserviceService,private apiService:ApiService,private router:Router){
     this.loginForm = this.formBuilder.group({
-      name: ['', [Validators.required]],
+      identifier: ['', [Validators.required]],
       password: ['', [Validators.required]]
     })
     this.registerForm=this.formBuilder.group({
-      
-    })
+      nickname: ['', [Validators.required, !Validators.email]],
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', [Validators.required]],
+      avatar: ['', [Validators.required]],
+      confirmPassword: ['', Validators.required]
+    },
+    { validators: this.passwordMatchValidator })
   }
+
+  passwordMatchValidator(form: FormGroup) {
+    const password = form.get('password')?.value;
+    const confirmPasswordControl = form.get('confirmPassword');
+    const confirmPassword = confirmPasswordControl?.value;
+     
+    if (confirmPasswordControl != null) {
+      if (password !== confirmPassword) {
+        confirmPasswordControl.setErrors({ mismatch: true });
+      }
+    }
+  }
+
   /*esto es para las peticiones que hagamos en este componente*/
   loginForm: FormGroup;
   registerForm:FormGroup;
   
-  name=""
+  identifier=""
+  nickname=""
+  email=""
   password=""
-  remenberUser=false
+  avatar=""
+  rememberUser=false
 
   async loginUser():Promise<void>{
     if(this.loginForm.valid){
-      const Date:Login={name: this.name.trim(),password: this.password.trim()}//hace la interfaz
+      const Date:Login={identifier: this.identifier.trim(),password: this.password.trim()}//hace la interfaz
       console.log(Date)//mostrar interfaz
       await this.authservice.login(Date);
       if(this.apiService.jwt!=""){
-        await this.remenberfunction()
+        await this.rememberfunction()
       }else{
         alert("Los datos introducidos son invalidos")//poner sweetalert2
       }
@@ -46,8 +68,8 @@ export class LoginComponent {
   }
   
 
-  async remenberfunction(){
-    if(this.remenberUser){
+  async rememberfunction(){
+    if(this.rememberUser){
       console.log("Recordando al usuario...")
       localStorage.setItem("token", this.apiService.jwt)
       console.log(localStorage.getItem("token"))
@@ -59,7 +81,19 @@ export class LoginComponent {
     this.router.navigateByUrl("menu");
   }
 
-
+  async registerUser():Promise<void>{
+    if(this.registerForm.controls['password'].value != this.registerForm.controls['confirmPassword'].value){
+      alert("Las contraseñas tienen que ser iguales");
+    }else if(this.registerForm.valid){
+      const Date:SignUp={nickname: this.nickname.trim(),email: this.email.trim(),password: this.password.trim(), avatar: this.avatar.trim()}
+      await this.authservice.register(Date)
+      if(this.apiService.jwt!=""){
+        await this.rememberfunction()
+      }
+    }else{
+      alert("Campos no validos");
+    }
+  }
 
 
   /*Esto es typescript para la vison de la pagina*/
