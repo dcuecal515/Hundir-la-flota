@@ -85,8 +85,9 @@ export class LoginComponent {
     if(!this.passwordMatchValidator()){
       alert("Las contraseñas tienen que ser iguales");
     }else if(this.registerForm.valid){
-      const Date:SignUp={nickname: this.nickname.trim(), email: this.email.trim(), password: this.password.trim(), avatar: this.avatar}
-      await this.authservice.register(Date)
+      const User:SignUp={nickname: this.nickname.trim(), email: this.email.trim(), password: this.password.trim(), avatar: this.avatar}
+      console.log(User)
+      await this.authservice.createForm(User)
       if(this.apiService.jwt!=""){
         await this.rememberfunction()
       }
@@ -103,6 +104,7 @@ export class LoginComponent {
     if(image)
     {
       console.log("NUEVA IMAGEN")
+      console.log(image)
       this.registerForm.patchValue({avatar: image})
       this.avatar = image
     }
