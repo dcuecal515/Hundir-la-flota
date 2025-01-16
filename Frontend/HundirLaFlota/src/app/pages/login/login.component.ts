@@ -15,28 +15,29 @@ import { Router } from '@angular/router';
 export class LoginComponent {
   constructor(private formBuilder: FormBuilder,private authservice:AuthserviceService,private apiService:ApiService,private router:Router){
     this.loginForm = this.formBuilder.group({
-      name: ['', [Validators.required]],
+      identifier: ['', [Validators.required]],
       password: ['', [Validators.required]]
     })
     this.registerForm=this.formBuilder.group({
-      
+
     })
   }
   /*esto es para las peticiones que hagamos en este componente*/
   loginForm: FormGroup;
   registerForm:FormGroup;
   
-  name=""
+  identifier=""
   password=""
-  remenberUser=false
+  rememberUser=false
 
   async loginUser():Promise<void>{
     if(this.loginForm.valid){
-      const Date:Login={name: this.name.trim(),password: this.password.trim()}//hace la interfaz
+      const Date:Login={identifier: this.identifier.trim(),password: this.password.trim()}//hace la interfaz
       console.log(Date)//mostrar interfaz
       await this.authservice.login(Date);
+      console.log("Mi clave es: "+this.apiService.jwt);
       if(this.apiService.jwt!=""){
-        await this.remenberfunction()
+        await this.rememberfunction()
       }else{
         alert("Los datos introducidos son invalidos")//poner sweetalert2
       }
@@ -46,8 +47,8 @@ export class LoginComponent {
   }
   
 
-  async remenberfunction(){
-    if(this.remenberUser){
+  async rememberfunction(){
+    if(this.rememberUser){
       console.log("Recordando al usuario...")
       localStorage.setItem("token", this.apiService.jwt)
       console.log(localStorage.getItem("token"))
