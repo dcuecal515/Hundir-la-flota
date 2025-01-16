@@ -19,7 +19,7 @@ export class LoginComponent {
       password: ['', [Validators.required]]
     })
     this.registerForm=this.formBuilder.group({
-      
+
     })
   }
   /*esto es para las peticiones que hagamos en este componente*/
@@ -28,7 +28,7 @@ export class LoginComponent {
   
   name=""
   password=""
-  remenberUser=false
+  rememberUser=false
 
   async loginUser():Promise<void>{
     if(this.loginForm.valid){
@@ -36,7 +36,7 @@ export class LoginComponent {
       console.log(Date)//mostrar interfaz
       await this.authservice.login(Date);
       if(this.apiService.jwt!=""){
-        await this.remenberfunction()
+        await this.rememberfunction()
       }else{
         alert("Los datos introducidos son invalidos")//poner sweetalert2
       }
@@ -46,8 +46,8 @@ export class LoginComponent {
   }
   
 
-  async remenberfunction(){
-    if(this.remenberUser){
+  async rememberfunction(){
+    if(this.rememberUser){
       console.log("Recordando al usuario...")
       localStorage.setItem("token", this.apiService.jwt)
       console.log(localStorage.getItem("token"))

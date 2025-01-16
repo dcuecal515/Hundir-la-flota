@@ -12,7 +12,7 @@ export class AuthserviceService {
 
   constructor(private api: ApiService) { }
   async login(login:Login):Promise<Result<Token>>{
-    const result=await this.api.post<Token>('login',login)
+    const result=await this.api.post<Token>('Auth/login',login)
     if(result.success){
       this.api.jwt=result.data.accessToken;
     }
