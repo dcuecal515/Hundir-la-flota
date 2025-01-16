@@ -14,7 +14,8 @@ export class AuthserviceService {
   async login(login:Login):Promise<Result<Token>>{
     const result=await this.api.post<Token>('login',login)
     if(result.success){
-      return result
+      this.api.jwt=result.data.accessToken;
     }
+    return result
   }
 }

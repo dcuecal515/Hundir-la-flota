@@ -11,7 +11,7 @@ export class ApiService {
 
   private BASE_URL = environment.apiUrl;
 
-  jwt: string;
+  jwt: string="";
 
   constructor(private http: HttpClient) { }
 

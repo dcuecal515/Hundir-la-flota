@@ -1,3 +1,3 @@
 export interface Token{
-    accessToken:String
+    accessToken:string
 }
