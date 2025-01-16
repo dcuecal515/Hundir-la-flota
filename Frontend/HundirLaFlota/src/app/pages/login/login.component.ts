@@ -19,26 +19,22 @@ export class LoginComponent {
       identifier: ['', [Validators.required]],
       password: ['', [Validators.required]]
     })
-    this.registerForm=this.formBuilder.group({
-      nickname: ['', [Validators.required, !Validators.email]],
+    this.registerForm = this.formBuilder.group({
+      nickname: ['', [Validators.required, Validators.pattern("[^@]*")]],
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required]],
-      avatar: ['', [Validators.required]],
-      confirmPassword: ['', Validators.required]
-    },
-    { validators: this.passwordMatchValidator })
+      password:['', [Validators.required]],
+      confirmPassword:['',[Validators.required]],
+      avatar:['',[Validators.required]]
+    })
   }
 
-  passwordMatchValidator(form: FormGroup) {
-    const password = form.get('password')?.value;
-    const confirmPasswordControl = form.get('confirmPassword');
-    const confirmPassword = confirmPasswordControl?.value;
-     
-    if (confirmPasswordControl != null) {
-      if (password !== confirmPassword) {
-        confirmPasswordControl.setErrors({ mismatch: true });
+  passwordMatchValidator(): boolean {
+    if(this.password != "" && this.confirmPassword != ""){
+      if (this.password == this.confirmPassword) {
+        return true
       }
     }
+    return false
   }
 
   /*esto es para las peticiones que hagamos en este componente*/
@@ -49,6 +45,7 @@ export class LoginComponent {
   nickname=""
   email=""
   password=""
+  confirmPassword=""
   avatar: File | null = null
   rememberUser=false
 
@@ -83,17 +80,20 @@ export class LoginComponent {
   }
 
   async registerUser():Promise<void>{
-    if(this.registerForm.controls['password'].value != this.registerForm.controls['confirmPassword'].value){
+    if(!this.passwordMatchValidator()){
       alert("Las contraseñas tienen que ser iguales");
     }else if(this.registerForm.valid){
-      const Date:SignUp={nickname: this.nickname.trim(),email: this.email.trim(),password: this.password.trim(), avatar: this.avatar}
+      const Date:SignUp={nickname: this.nickname.trim(), email: this.email.trim(), password: this.password.trim(), avatar: this.avatar}
       await this.authservice.register(Date)
       if(this.apiService.jwt!=""){
         await this.rememberfunction()
       }
-    }else{
-      alert("Campos no validos");
     }
+    else{
+      alert("Los campos no son validos")
+    }
+
+    
   }
 
   onFileSelected(event: any) {
@@ -101,6 +101,7 @@ export class LoginComponent {
     if(image)
     {
       console.log("NUEVA IMAGEN")
+      this.registerForm.patchValue({avatar: image})
       this.avatar = image
     }
     else
