@@ -22,6 +22,7 @@ export class ApiService {
   deleteToken() {
     this.jwt = null;
     localStorage.removeItem("token");
+    sessionStorage.removeItem("token");
   }
 
   async get<T = void>(path: string, params: any = {}, responseType = null): Promise<Result<T>> {
