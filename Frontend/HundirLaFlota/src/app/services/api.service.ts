@@ -14,7 +14,14 @@ export class ApiService {
   jwt: string="";
 
   constructor(private http: HttpClient) {
-    
+    let token: string | null = localStorage.getItem("token")
+    if (token) {
+      this.jwt = token
+    }
+  }
+  deleteToken() {
+    this.jwt = null;
+    localStorage.removeItem("token");
   }
 
   async get<T = void>(path: string, params: any = {}, responseType = null): Promise<Result<T>> {

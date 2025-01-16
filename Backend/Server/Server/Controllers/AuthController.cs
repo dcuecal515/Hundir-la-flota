@@ -28,7 +28,7 @@ namespace Server.Controllers
             if (user != null)
             {
                 string token = _userService.ObtainToken(user);
-                return Ok(token);
+                return Ok(new LoginResultDto { accessToken = token });
             } else
             {
                 return Unauthorized();

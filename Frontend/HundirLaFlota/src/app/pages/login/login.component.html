@@ -7,7 +7,10 @@
         <label>contraseña
             <input type="password" [(ngModel)]="password" formControlName="password">
         </label>
-        <input type="checkbox" id="rememberLogin" (click)="rememberUser = !rememberUser"> <p>Recuérdame</p>
+        <label>
+            <p>Recuérdame</p>
+            <input type="checkbox" id="rememberLogin" (click)="rememberUser = !rememberUser">
+        </label>
         <button (click)="loginUser()">login</button>
     </form>
     <button (click)=changesignup()>registro</button>
