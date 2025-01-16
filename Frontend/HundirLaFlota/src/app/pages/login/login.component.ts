@@ -18,19 +18,22 @@ export class LoginComponent {
       name: ['', [Validators.required]],
       password: ['', [Validators.required]]
     })
+    this.registerForm=this.formBuilder.group({
+      
+    })
   }
   /*esto es para las peticiones que hagamos en este componente*/
   loginForm: FormGroup;
+  registerForm:FormGroup;
   
   name=""
   password=""
-  jwt=""
   remenberUser=false
 
   async loginUser():Promise<void>{
     if(this.loginForm.valid){
-      const Date:Login={name: this.name.trim(),password: this.password.trim()}
-      console.log(Date)
+      const Date:Login={name: this.name.trim(),password: this.password.trim()}//hace la interfaz
+      console.log(Date)//mostrar interfaz
       await this.authservice.login(Date);
       if(this.apiService.jwt!=""){
         await this.remenberfunction()
