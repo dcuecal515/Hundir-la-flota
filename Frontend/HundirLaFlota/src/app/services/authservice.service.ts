@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Login } from '../models/Login';
+import { SignUp } from '../models/SignUp';
 import { Token } from '../models/token';
 import { Result } from '../models/result';
 import { ApiService } from './api.service';
@@ -15,6 +16,14 @@ export class AuthserviceService {
     const result=await this.api.post<Token>('Auth/login',login)
     if(result.success){
       this.api.jwt=result.data.accessToken;
+    }
+    return result
+  }
+
+  async register(signup:SignUp): Promise<Result<Token>>{
+    const result=await this.api.post<Token>('signup', signup)
+    if(result.success){
+      this.api.jwt = result.data.accessToken;
     }
     return result
   }

@@ -16,7 +16,24 @@
     <button (click)=changesignup()>registro</button>
 </div>
 <div class="sign-up" #signup>
-<h1>adios</h1>
-<form [formGroup]="registerForm"></form>
+    <h1>adios</h1>
+    <form [formGroup]="registerForm">
+        <label>Apodo:
+            <input type="text" [(ngModel)]="nickname" formControlName="nickname">
+        </label>
+        <label>Email:
+            <input type="email" [(ngModel)]="email" formControlName="email">
+        </label>
+        <label>Contraseña:
+            <input type="password" [(ngModel)]="password" formControlName="password">
+        </label>
+        <label>Confirmar contraseña:
+            <input type="password">
+        </label>
+        <label>Avatar:
+            <input type="file" accept="image/png, image/jpeg, image/jpg" required (change)="onFileSelected($event)">
+        </label>
+        <button (click)="registerUser()">Registrarte</button>
+    </form>
     <button (click)=changelogin()>inicio sesion</button>
 </div>
