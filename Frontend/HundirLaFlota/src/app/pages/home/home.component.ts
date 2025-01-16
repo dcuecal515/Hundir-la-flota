@@ -1,5 +1,6 @@
 import { Component,HostListener, ViewChild,ElementRef } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-home',
@@ -9,6 +10,11 @@ import { RouterLink } from '@angular/router';
   styleUrl: './home.component.css'
 })
 export class HomeComponent {
+  constructor(private router:Router){
+    if(localStorage.getItem("token") || sessionStorage.getItem("token")){
+      this.router.navigateByUrl("menu")
+    }
+  }
   currentOpacity1: number=0
   currentOpacity2: number=0
   currentOpacity3: number=0

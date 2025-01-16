@@ -15,6 +15,9 @@ import { SignUp } from '../../models/SignUp';
 })
 export class LoginComponent {
   constructor(private formBuilder: FormBuilder,private authservice:AuthserviceService,private apiService:ApiService,private router:Router){
+    if(localStorage.getItem("token") || sessionStorage.getItem("token")){
+      router.navigateByUrl("menu");
+    }
     this.loginForm = this.formBuilder.group({
       identifier: ['', [Validators.required]],
       password: ['', [Validators.required]]
@@ -57,11 +60,10 @@ export class LoginComponent {
       const Date:Login={identifier: this.identifier.trim(),password: this.password.trim()}//hace la interfaz
       console.log(Date)//mostrar interfaz
       await this.authservice.login(Date);
-      console.log("Mi clave es: "+this.apiService.jwt);
       if(this.apiService.jwt!=""){
         await this.rememberfunction()
       }else{
-        alert("Los datos introducidos son invalidos")//poner sweetalert2
+        alert("Este usuario no existe")//poner sweetalert2
       }
     }else{
       alert("Campos invalidos")//poner sweetalert2
@@ -71,11 +73,11 @@ export class LoginComponent {
 
   async rememberfunction(){
     if(this.rememberUser){
-      console.log("Recordando al usuario...")
+      console.log("Recordando al de forma permanente...")
       localStorage.setItem("token", this.apiService.jwt)
       console.log(localStorage.getItem("token"))
     }else{
-      console.log("Recordando al usuario...")
+      console.log("Recordando al de forma leve...")
       sessionStorage.setItem("token", this.apiService.jwt)
       console.log(sessionStorage.getItem("token"))
     }
