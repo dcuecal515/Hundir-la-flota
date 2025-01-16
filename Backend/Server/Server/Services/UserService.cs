@@ -35,7 +35,8 @@ namespace Server.Services
             if(passwordService.IsPasswordCorrect(user.Password, password))
             {
                 return user;
-            } else
+            }
+            else
             {
                 return null;
             }
