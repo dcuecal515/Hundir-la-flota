@@ -35,7 +35,6 @@ export class LoginComponent {
       const Date:Login={identifier: this.identifier.trim(),password: this.password.trim()}//hace la interfaz
       console.log(Date)//mostrar interfaz
       await this.authservice.login(Date);
-      console.log("Mi clave es: "+this.apiService.jwt);
       if(this.apiService.jwt!=""){
         await this.rememberfunction()
       }else{
@@ -49,11 +48,11 @@ export class LoginComponent {
 
   async rememberfunction(){
     if(this.rememberUser){
-      console.log("Recordando al usuario...")
+      console.log("Recordando al de forma permanente...")
       localStorage.setItem("token", this.apiService.jwt)
       console.log(localStorage.getItem("token"))
     }else{
-      console.log("Recordando al usuario...")
+      console.log("Recordando al de forma leve...")
       sessionStorage.setItem("token", this.apiService.jwt)
       console.log(sessionStorage.getItem("token"))
     }

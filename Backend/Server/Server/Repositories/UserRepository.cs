@@ -11,7 +11,7 @@ namespace Server.Repositories
 
         public async Task<User> GetByIdentifierAsync(string identifier)
         {
-            bool isEmail = Regex.IsMatch(identifier, "/^[a-z0-9.]+@[a-z0-9]+.[a-z]+.([a-z]+)?$/i"); // Comprueba si es un email o no
+            bool isEmail = Regex.IsMatch(identifier, "^[a-z0-9.]+@[a-z0-9]+\\.[a-z]+(\\.[a-z]+)?$", RegexOptions.IgnoreCase); // Comprueba si es un email o no
 
             if (isEmail)
             {

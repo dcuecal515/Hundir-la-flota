@@ -16,8 +16,6 @@ export class AuthserviceService {
     if(result.success){
       this.api.jwt=result.data.accessToken;
     }
-    console.log("Mi clave es desde auth: "+this.api.jwt);
-    console.log("ESTO ES LO QUE DEVUELVE MI SERVER: "+result.data.accessToken);
     return result
   }
 }
