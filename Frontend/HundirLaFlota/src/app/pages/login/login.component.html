@@ -1,6 +1,6 @@
 <div class="login" #login>
     <h1>hola</h1>
-    <form  [formGroup]="loginForm">
+    <form [formGroup]="loginForm">
         <label>correo o usuario
             <input type="text" [(ngModel)]="identifier" formControlName="identifier">
         </label>
@@ -17,7 +17,7 @@
 </div>
 <div class="sign-up" #signup>
     <h1>adios</h1>
-    <form [formGroup]="registerForm">
+    <form [formGroup]="registerForm"> 
         <label>Apodo:
             <input type="text" [(ngModel)]="nickname" formControlName="nickname">
         </label>
@@ -28,12 +28,12 @@
             <input type="password" [(ngModel)]="password" formControlName="password">
         </label>
         <label>Confirmar contraseña:
-            <input type="password">
+            <input type="password" [(ngModel)]="confirmPassword" formControlName="confirmPassword">
         </label>
         <label>Avatar:
-            <input type="file" accept="image/png, image/jpeg, image/jpg" required (change)="onFileSelected($event)">
+            <input type="file" accept="image/png, image/jpeg, image/jpg" (change)="onFileSelected($event)" [(ngModel)]="avatar" formControlName="avatar">
         </label>
-        <button (click)="registerUser()">Registrarte</button>
+        <button type="submit" (click)="registerUser()">Registrarte</button>
     </form>
     <button (click)=changelogin()>inicio sesion</button>
 </div>

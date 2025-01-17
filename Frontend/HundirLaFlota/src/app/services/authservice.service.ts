@@ -20,11 +20,25 @@ export class AuthserviceService {
     return result
   }
 
-  async register(signup:SignUp): Promise<Result<Token>>{
-    const result=await this.api.post<Token>('signup', signup)
+  async register(signup:FormData): Promise<Result<Token>>{
+    const result=await this.api.post<Token>('Auth/signup', signup)
     if(result.success){
       this.api.jwt = result.data.accessToken;
     }
     return result
+  }
+
+  async createForm(signup:SignUp){
+    const formdata = new FormData()
+
+    formdata.append("nickname", signup.nickname)
+    formdata.append("email", signup.email)
+    formdata.append("password", signup.password)
+    if(signup.avatar){
+      formdata.append("avatar", signup.avatar)
+    }
+
+    console.log(formdata)
+    await this.register(formdata)
   }
 }
