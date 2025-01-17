@@ -85,9 +85,9 @@ export class LoginComponent {
     if(!this.passwordMatchValidator()){
       alert("Las contraseñas tienen que ser iguales");
     }else if(this.registerForm.valid){
-      const User:SignUp={nickname: this.nickname.trim(), email: this.email.trim(), password: this.password.trim(), avatar: this.avatar}
+      const User:SignUp={nickname: this.nickname.trim(), email: this.email.trim(), password: this.password.trim()}
       console.log("Estado de mi jwt: "+this.apiService.jwt);
-      await this.authservice.register(User)
+      await this.authservice.register(User,this.avatar)
       console.log("Estado de mi jwt despues de registro fallido: "+this.apiService.jwt);
       if(this.apiService.jwt){
         console.log("he entrado pro que si xD");
