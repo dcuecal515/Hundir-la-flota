@@ -47,6 +47,16 @@ export class ApiService {
     return this.sendRequest<T>(request$);
   }
 
+  async postWithImage<T = void>(path: string, body: Object = {}): Promise<Result<T>> {
+    const url = `${this.BASE_URL}${path}`;
+    const request$ = this.http.post(url, body, {
+      headers: this.getHeader(null, ""),
+      observe: 'response',
+      responseType: 'text'
+    });
+    return this.sendRequest<T>(request$);
+  }
+
   async put<T = void>(path: string, body: Object = {}, contentType = null): Promise<Result<T>> {
     const url = `${this.BASE_URL}${path}`;
     const request$ = this.http.put(url, body, {

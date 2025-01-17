@@ -15,8 +15,8 @@ namespace Server.Controllers
             _userService = userService;
         }
 
-        [HttpPost("singup")]
-        public async Task<string> RegisterUser([FromBody] SignUpDto signUpDto)
+        [HttpPost("signup")]
+        public async Task<string> RegisterUser([FromForm] SignUpDto signUpDto)
         {
             return await _userService.RegisterUser(signUpDto);
         }
