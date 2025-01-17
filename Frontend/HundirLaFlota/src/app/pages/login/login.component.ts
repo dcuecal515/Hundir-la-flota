@@ -26,8 +26,7 @@ export class LoginComponent {
       nickname: ['', [Validators.required, Validators.pattern("[^@]*")]],
       email: ['', [Validators.required, Validators.email]],
       password:['', [Validators.required]],
-      confirmPassword:['',[Validators.required]],
-      avatar:['',[Validators.required]]
+      confirmPassword:['',[Validators.required]]
     })
   }
 
@@ -87,7 +86,11 @@ export class LoginComponent {
     }else if(this.registerForm.valid){
       const User:SignUp={nickname: this.nickname.trim(), email: this.email.trim(), password: this.password.trim()}
       console.log("Estado de mi jwt: "+this.apiService.jwt);
-      await this.authservice.register(User,this.avatar)
+      if(this.avatar!=null){
+        await this.authservice.register(User,this.avatar)
+      }else{
+        alert("PON UNA IMAGEN");
+      }
       console.log("Estado de mi jwt despues de registro fallido: "+this.apiService.jwt);
       if(this.apiService.jwt){
         console.log("he entrado pro que si xD");
@@ -107,7 +110,7 @@ export class LoginComponent {
     {
       console.log("NUEVA IMAGEN")
       console.log(image)
-      this.registerForm.patchValue({avatar: image})
+      this.avatar=image;
     }
     else
     {
