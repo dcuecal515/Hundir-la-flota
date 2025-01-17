@@ -51,8 +51,7 @@ export class ApiService {
     const url = `${this.BASE_URL}${path}`;
     const request$ = this.http.post(url, body, {
       headers: this.getHeader(null, ""),
-      observe: 'response',
-      responseType: 'text'
+      observe: 'response'
     });
     return this.sendRequest<T>(request$);
   }

@@ -12,9 +12,7 @@ namespace Server.Mappers
             return new User
             {
                 NickName = userDto.NickName,
-                Email = userDto.Email,
-                Password = userDto.Password,
-                Avatar = userDto.Avatar
+                Email = userDto.Email
             };
         }
     }
