@@ -8,6 +8,6 @@
 
         public string Password { get; set; }
 
-        public string Avatar { get; set; }
+        public IFormFile Avatar { get; set; }
     }
 }

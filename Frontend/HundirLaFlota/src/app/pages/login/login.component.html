@@ -33,6 +33,10 @@
         <label>Avatar:
             <input type="file" accept="image/png, image/jpeg, image/jpg" (change)="onFileSelected($event)">
         </label>
+        <label>
+            <p>Recuérdame</p>
+            <input type="checkbox" id="rememberRegister" (click)="rememberUser = !rememberUser">
+        </label>
         <button type="submit" (click)="registerUser()">Registrarte</button>
     </form>
     <button (click)=changelogin()>inicio sesion</button>
