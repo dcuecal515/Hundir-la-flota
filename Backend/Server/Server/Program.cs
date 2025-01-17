@@ -1,3 +1,4 @@
+using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Server;
@@ -35,6 +36,7 @@ builder.Services.AddScoped<UnitOfWork>();
 builder.Services.AddScoped<UserMapper>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<PasswordService>();
+builder.Services.AddScoped<ImageService>();
 
 builder.Services.AddCors(
                 options =>
@@ -56,6 +58,11 @@ var app = builder.Build();
     app.UseSwagger();
     app.UseSwaggerUI();
 //}
+
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot"))
+});
 
 app.UseHttpsRedirection();
 
