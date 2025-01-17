@@ -3,6 +3,7 @@
 namespace Server.Models
 {
     [Index(nameof(Email), IsUnique = true)]
+    [Index(nameof(NickName), IsUnique = true)]
     public class User
     {
         public int Id { get; set; }

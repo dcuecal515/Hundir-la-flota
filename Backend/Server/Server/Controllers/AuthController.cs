@@ -18,11 +18,11 @@ namespace Server.Controllers
         }
 
         [HttpPost("signup")]
-        public async Task<string> RegisterUser([FromForm] SignUpDto signUpDto)
+        public async Task<LoginResultDto> RegisterUser([FromForm] SignUpDto signUpDto)
         {
-            User newUser = new User();
-            newUser.Avatar = "/" + await _imageService.InsertAsync(signUpDto.Avatar);
-            return await _userService.RegisterUser(newUser);
+            string token = await _userService.RegisterUser(signUpDto);
+            LoginResultDto loginResultDto = new LoginResultDto { accessToken = token};
+            return loginResultDto;
         }
 
         [HttpPost("login")]

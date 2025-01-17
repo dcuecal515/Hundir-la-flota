@@ -14,13 +14,15 @@ namespace Server.Services
         private readonly UnitOfWork _unitOfWork;
         private readonly TokenValidationParameters _tokenParameters;
         private readonly UserMapper _userMapper;
+        private readonly ImageService _imageService;
 
-        public UserService(UnitOfWork unitOfWork, IOptionsMonitor<JwtBearerOptions> jwtOptions, UserMapper userMapper)
+        public UserService(UnitOfWork unitOfWork, IOptionsMonitor<JwtBearerOptions> jwtOptions, UserMapper userMapper, ImageService imageService)
         {
             _unitOfWork = unitOfWork;
             _tokenParameters = jwtOptions.Get(JwtBearerDefaults.AuthenticationScheme)
                 .TokenValidationParameters;
             _userMapper = userMapper;
+            _imageService = imageService;
         }
 
         public async Task<User> GetUserByIdentifierAndPassword(string identifier, string password)
@@ -83,12 +85,12 @@ namespace Server.Services
             return newUser;
         }
 
-        public async Task<string> RegisterUser(User receivedUser)
+        public async Task<string> RegisterUser(SignUpDto receivedUser)
         {
-            User user = new User();
+            User user = _userMapper.toEntity(receivedUser);
             PasswordService passwordService = new PasswordService();
             user.Password = passwordService.Hash(receivedUser.Password);
-
+            user.Avatar = "/" + await _imageService.InsertAsync(receivedUser.Avatar);
             user.Role = "User";
 
             User newUser = await InsertUserAsync(user);

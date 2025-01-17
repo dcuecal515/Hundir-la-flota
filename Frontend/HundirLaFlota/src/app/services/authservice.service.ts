@@ -23,6 +23,7 @@ export class AuthserviceService {
   async register(signup:SignUp,avatar:File): Promise<Result<Token>>{
     const result=await this.api.postWithImage<Token>('Auth/signup', this.createForm(signup,avatar))
     if(result.success){
+      console.log("Entró con accessToken: ",result.data.accessToken)
       this.api.jwt = result.data.accessToken;
     }else{
       alert("Hubo un problema")
