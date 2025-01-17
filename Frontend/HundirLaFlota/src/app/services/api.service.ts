@@ -22,6 +22,7 @@ export class ApiService {
   deleteToken() {
     this.jwt = null;
     localStorage.removeItem("token");
+    sessionStorage.removeItem("token");
   }
 
   async get<T = void>(path: string, params: any = {}, responseType = null): Promise<Result<T>> {
@@ -43,6 +44,16 @@ export class ApiService {
       observe: 'response'
     });
 
+    return this.sendRequest<T>(request$);
+  }
+
+  async postWithImage<T = void>(path: string, body: Object = {}): Promise<Result<T>> {
+    const url = `${this.BASE_URL}${path}`;
+    const request$ = this.http.post(url, body, {
+      headers: this.getHeader(null, ""),
+      observe: 'response',
+      responseType: 'text'
+    });
     return this.sendRequest<T>(request$);
   }
 

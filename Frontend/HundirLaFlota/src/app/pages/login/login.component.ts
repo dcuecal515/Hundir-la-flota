@@ -86,9 +86,11 @@ export class LoginComponent {
       alert("Las contraseñas tienen que ser iguales");
     }else if(this.registerForm.valid){
       const User:SignUp={nickname: this.nickname.trim(), email: this.email.trim(), password: this.password.trim(), avatar: this.avatar}
-      console.log(User)
-      await this.authservice.createForm(User)
-      if(this.apiService.jwt!=""){
+      console.log("Estado de mi jwt: "+this.apiService.jwt);
+      await this.authservice.register(User)
+      console.log("Estado de mi jwt despues de registro fallido: "+this.apiService.jwt);
+      if(this.apiService.jwt){
+        console.log("he entrado pro que si xD");
         await this.rememberfunction()
       }
     }
@@ -106,7 +108,6 @@ export class LoginComponent {
       console.log("NUEVA IMAGEN")
       console.log(image)
       this.registerForm.patchValue({avatar: image})
-      this.avatar = image
     }
     else
     {

@@ -20,15 +20,17 @@ export class AuthserviceService {
     return result
   }
 
-  async register(signup:FormData): Promise<Result<Token>>{
-    const result=await this.api.post<Token>('Auth/signup', signup)
+  async register(signup:SignUp): Promise<Result<Token>>{
+    const result=await this.api.postWithImage<Token>('Auth/signup', this.createForm(signup))
     if(result.success){
       this.api.jwt = result.data.accessToken;
+    }else{
+      alert("Hubo un problema")
     }
     return result
   }
 
-  async createForm(signup:SignUp){
+  createForm(signup:SignUp) : FormData{
     const formdata = new FormData()
 
     formdata.append("nickname", signup.nickname)
@@ -37,8 +39,7 @@ export class AuthserviceService {
     if(signup.avatar){
       formdata.append("avatar", signup.avatar)
     }
-
     console.log(formdata)
-    await this.register(formdata)
+    return formdata;
   }
 }
