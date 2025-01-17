@@ -10,15 +10,19 @@ namespace Server.Controllers
     public class AuthController : ControllerBase
     {
         private readonly UserService _userService;
+        private readonly ImageService _imageService;
 
-        public AuthController(UserService userService) {
+        public AuthController(UserService userService, ImageService imageService) {
             _userService = userService;
+            _imageService = imageService;
         }
 
         [HttpPost("signup")]
         public async Task<string> RegisterUser([FromForm] SignUpDto signUpDto)
         {
-            return await _userService.RegisterUser(signUpDto);
+            User newUser = new User();
+            newUser.Avatar = "/" + await _imageService.InsertAsync(signUpDto.Avatar);
+            return await _userService.RegisterUser(newUser);
         }
 
         [HttpPost("login")]

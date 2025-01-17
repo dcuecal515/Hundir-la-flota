@@ -14,7 +14,7 @@ namespace Server.Mappers
                 NickName = userDto.NickName,
                 Email = userDto.Email,
                 Password = userDto.Password,
-                Avatar = userDto.Avatar
+                //Avatar = userDto.Avatar
             };
         }
     }

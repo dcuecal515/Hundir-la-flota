@@ -83,12 +83,11 @@ namespace Server.Services
             return newUser;
         }
 
-        public async Task<string> RegisterUser(SignUpDto userDto)
+        public async Task<string> RegisterUser(User receivedUser)
         {
-            User user = _userMapper.toEntity(userDto);
-
+            User user = new User();
             PasswordService passwordService = new PasswordService();
-            user.Password = passwordService.Hash(userDto.Password);
+            user.Password = passwordService.Hash(receivedUser.Password);
 
             user.Role = "User";
 
