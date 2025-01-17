@@ -32,7 +32,7 @@ export class AuthserviceService {
 
   createForm(signup:SignUp,avatar:File) : FormData{
     const formdata = new FormData()
-    console.log("Mi imagen es esta: "+avatar)
+    console.log("Mi imagen es esta: ",avatar)
     formdata.append("nickname", signup.nickname)
     formdata.append("email", signup.email)
     formdata.append("password", signup.password)
