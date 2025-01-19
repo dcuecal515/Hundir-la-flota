@@ -16,8 +16,8 @@
     <button (click)=changesignup()>registro</button>
 </div>
 <div class="sign-up" #signup>
-    <h1>adios</h1>
-    <form [formGroup]="registerForm"> 
+    <h1 class="sentence">¡Bienvenido a bordo, capitán! ¡Tu flota te espera!</h1>
+    <form [formGroup]="registerForm" class="sign-up-form">
         <label>Apodo:
             <input type="text" [(ngModel)]="nickname" formControlName="nickname">
         </label>
@@ -27,17 +27,23 @@
         <label>Contraseña:
             <input type="password" [(ngModel)]="password" formControlName="password">
         </label>
-        <label>Confirmar contraseña:
-            <input type="password" [(ngModel)]="confirmPassword" formControlName="confirmPassword">
+        <label class="confirmPassword-label">Confirmar contraseña:
+            <input type="password" [(ngModel)]="confirmPassword" formControlName="confirmPassword" class="confirmPassword-input">
         </label>
         <label>Avatar:
-            <input type="file" accept="image/png, image/jpeg, image/jpg" (change)="onFileSelected($event)">
+            <input type="file" accept="image/png, image/jpeg, image/jpg" (change)="onFileSelected($event)" class="special-input">
         </label>
-        <label>
+        <label class="rememberMe">
             <p>Recuérdame</p>
-            <input type="checkbox" id="rememberRegister" (click)="rememberUser = !rememberUser">
+            <input type="checkbox" id="rememberRegister" (click)="rememberUser = !rememberUser" class="checkbox-input">
         </label>
-        <button type="submit" (click)="registerUser()">Registrarte</button>
+        <div class="btn-sign-up-container">
+            <button type="submit" (click)="registerUser()" class="btn-sign-up">Registrarte</button>
+        </div>
     </form>
-    <button (click)=changelogin()>inicio sesion</button>
+    <div class="change-container">
+        <h2 class="change-text">¿Ya tienes una flota?</h2>
+        <button (click)=changelogin() class="btn-change">inicio sesion</button>
+    </div>
+    
 </div>
