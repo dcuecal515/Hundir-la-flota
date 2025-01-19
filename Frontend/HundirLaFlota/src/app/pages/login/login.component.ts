@@ -122,7 +122,6 @@ export class LoginComponent {
   /*Esto es typescript para la vison de la pagina*/
   @ViewChild('login', { static: true }) login!: ElementRef;
   @ViewChild('signup', { static: false }) signup!: ElementRef;
-  
   changesignup(){
     this.login.nativeElement.style.display='none'
     this.signup.nativeElement.style.display='flex'
