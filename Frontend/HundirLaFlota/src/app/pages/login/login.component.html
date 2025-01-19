@@ -1,23 +1,22 @@
-<div class="login" #login>
-    <h1>hola</h1>
-    <form [formGroup]="loginForm">
-        <label>correo o usuario
-            <input type="text" [(ngModel)]="identifier" formControlName="identifier">
-        </label>
-        <label>contraseña
-            <input type="password" [(ngModel)]="password" formControlName="password">
-        </label>
-        <label>
-            <p>Recuérdame</p>
-            <input type="checkbox" id="rememberLogin" (click)="rememberUser = !rememberUser">
-        </label>
-        <button (click)="loginUser()">login</button>
-    </form>
-    <button (click)=changesignup()>registro</button>
-</div>
+    <div class="login" #login>
+        <div class="login-text">
+            <h1 class="login-text-title">Bienvenido de vuelta capitan</h1>
+            <img class="login-text-image" src="assets/capitan-con-fondo.jpg" alt="Capitan saludando de vuelta a los jugadores">
+            <h3 class="login-text-description">El océano te ha echado de menos, y tus barcos están listos para zarpar una vez más. Prepárate para desplegar tus mejores estrategias, esquivar torpedos y demostrar quién domina estas aguas. ¡Que comience la batalla naval y que tus disparos sean certeros!</h3>
+        </div>
+            <form class="form-login" [formGroup]="loginForm">
+                <input class="text-camp" type="text" [(ngModel)]="identifier" formControlName="identifier" placeholder="Correo o usuario">
+                <input class="text-camp" type="password" [(ngModel)]="password" formControlName="password" placeholder="Contraseña">
+                <label class="checkbox">
+                    Recuérdame<input class="text-camp-checkbox" type="checkbox" id="rememberLogin" (click)="rememberUser = !rememberUser">
+                </label>
+                <button class="button" (click)="loginUser()">Iniciar sesion</button>
+                <button class="button" (click)=changesignup()>Registrarse</button>
+            </form>
+    </div>
 <div class="sign-up" #signup>
     <h1>adios</h1>
-    <form [formGroup]="registerForm"> 
+    <form [formGroup]="registerForm">
         <label>Apodo:
             <input type="text" [(ngModel)]="nickname" formControlName="nickname">
         </label>
