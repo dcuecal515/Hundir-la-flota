@@ -1,3 +1,8 @@
+@font-face{
+    font-family: titulo;
+    src: url('/assets/fonts/oldtimer.regular.ttf');
+}
+
 /*Estilos del login*/
 .login{
     display: flex;
@@ -61,10 +66,100 @@
     background-color: rgb(121, 121, 186);
 }
 .sign-up{
+    background-image: url(/assets/background.png);
+    background-repeat: no-repeat;
+    background-size: cover;
     display: none;
-    flex-direction: column;
+    flex-direction: row;
+    height: 100%;
+    align-items: center;
+    padding-top: 15%;
+    padding-bottom: 15.5%;
+    color: white;
 }
+
+.sign-up-form{
+    display: flex;
+    flex-direction: column;
+    width: 35%;
+}
+
+.sign-up-form label{
+    padding: 2%;
+    display: flex;
+    flex-direction: row;
+    justify-content: end;
+}
+
+.sentence{
+    width: 30%;
+    padding: 5%;
+    font-family: titulo;
+    line-height: 1.6;
+}
+
+.change-container{
+    width: 25%;
+    text-align: center;
+    margin-right: 10%;
+}
+
+.change-text{
+    font-size: 20px;
+}
+
+.btn-sign-up-container{
+    width: 100%;
+    text-align: center;
+}
+
+.btn-sign-up{
+    width: 35%;
+    background-color: rgb(126, 126, 126);
+    color: rgb(63, 16, 16);
+    text-align: center;
+    padding: 3%;
+    padding-left: 4%;
+    padding-right: 4%;
+    border-radius: 20px;
+    text-transform: uppercase;
+    cursor: pointer;
+    font-family: titulo;
+}
+
+.rememberMe{
+    display: flex;
+    flex-direction: row;
+    justify-content: end;
+    align-items: center;
+}
+
+.btn-change{
+    background-color: rgb(126, 126, 126);
+    text-align: center;
+    color: rgb(63, 16, 16);
+    padding: 3%;
+    padding-left: 4%;
+    padding-right: 4%;
+    border-radius: 20px;
+    text-transform: uppercase;
+    cursor: pointer;
+    font-family: titulo;
+}
+.special-input{
+    width: 80%;
+}
+
 /*estilos responsive*/
+@media(max-width: 1024px){
+    .sentence{
+        font-size: large;
+    }
+    .btn-sign-up{
+        width: 50%;
+    }
+}
+
 @media(max-width:800px){
     .login{
         flex-direction: column;
@@ -88,16 +183,56 @@
         height: 20%;
     }
 }
-@media(max-width:716px){
+
+@media(max-width: 768px){
+    .sentence{
+        font-size: medium;
+    }
     .login-text-description{
         width: 120%;
     }
 }
-@media(max-width:420px){
+
+@media(max-width: 426px){
+    .sign-up{
+        flex-direction: column;
+    }
+    .sentence{
+        width: 80%;
+    }
+    .sign-up-form{
+        width: 80%;
+    }
+    .change-container{
+        width: 100%;
+        margin-right: 0;
+    }
+
+    .btn-sign-up{
+        width: 60%;
+    }
+
+    .btn-change{
+        width: 50%;
+    }
     .login-text-description{
         width: 130%;
     }
 }
+
+@media(max-width: 376px){
+    .sign-up-form label{
+        width: 80%;
+    }
+    .confirmPassword-input{
+        height: 80%;
+    }
+    .confirmPassword-label{
+        align-items: end;
+    }
+}
+
+
 @media(max-width:321px){
     .login{
         gap: 22%;
@@ -113,5 +248,15 @@
         max-width: 100%;
         max-height: 450px;
         border-radius: 10px;
+
+    }
+    .sentence{
+        font-size: small;
+    }
+    .sign-up-form{
+        margin-left: 9%;
+    }
+    .change-container{
+        margin-left: 9%;
     }
 }
