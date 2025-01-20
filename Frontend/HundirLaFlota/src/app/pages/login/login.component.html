@@ -18,17 +18,17 @@
     <h1 class="sentence">¡Bienvenido a bordo, capitán! ¡Tu flota te espera!</h1>
     <form [formGroup]="registerForm" class="sign-up-form">
 
-        <label>Apodo:
-            <input type="text" [(ngModel)]="nickname" formControlName="nickname">
+        <label>
+            <input type="text" [(ngModel)]="nickname" formControlName="nickname" placeholder="Apodo">
         </label>
-        <label>Email:
-            <input type="email" [(ngModel)]="email" formControlName="email">
+        <label>
+            <input type="email" [(ngModel)]="email" formControlName="email" placeholder="Email">
         </label>
-        <label>Contraseña:
-            <input type="password" [(ngModel)]="password" formControlName="password">
+        <label>
+            <input type="password" [(ngModel)]="password" formControlName="password" placeholder="Contraseña">
         </label>
-        <label class="confirmPassword-label">Confirmar contraseña:
-            <input type="password" [(ngModel)]="confirmPassword" formControlName="confirmPassword" class="confirmPassword-input">
+        <label class="confirmPassword-label">
+            <input type="password" [(ngModel)]="confirmPassword" formControlName="confirmPassword" class="confirmPassword-input" placeholder="Confirmar contraseña">
         </label>
         <label>Avatar:
             <input type="file" accept="image/png, image/jpeg, image/jpg" (change)="onFileSelected($event)" class="special-input">
@@ -40,10 +40,10 @@
         <div class="btn-sign-up-container">
             <button type="submit" (click)="registerUser()" class="btn-sign-up">Registrarte</button>
         </div>
+        <div class="change-container">
+            <h2 class="change-text">¿Ya tienes una flota?</h2>
+            <button (click)=changelogin() class="btn-change">inicio sesion</button>
+        </div>
     </form>
-    <div class="change-container">
-        <h2 class="change-text">¿Ya tienes una flota?</h2>
-        <button (click)=changelogin() class="btn-change">inicio sesion</button>
-    </div>
     
 </div>

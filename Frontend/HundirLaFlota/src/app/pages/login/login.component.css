@@ -71,17 +71,16 @@
     background-size: cover;
     display: none;
     flex-direction: row;
-    height: 100%;
+    width: 100%;
+    height: 100vh;
     align-items: center;
-    padding-top: 15%;
-    padding-bottom: 15.5%;
     color: white;
 }
 
 .sign-up-form{
     display: flex;
     flex-direction: column;
-    width: 35%;
+    width: 60%;
 }
 
 .sign-up-form label{
@@ -92,16 +91,17 @@
 }
 
 .sentence{
-    width: 30%;
+    width: 40%;
     padding: 5%;
     font-family: titulo;
     line-height: 1.6;
 }
 
 .change-container{
-    width: 25%;
-    text-align: center;
-    margin-right: 10%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }
 
 .change-text{
@@ -145,6 +145,7 @@
     text-transform: uppercase;
     cursor: pointer;
     font-family: titulo;
+    width: 40%;
 }
 .special-input{
     width: 80%;
@@ -203,10 +204,6 @@
     .sign-up-form{
         width: 80%;
     }
-    .change-container{
-        width: 100%;
-        margin-right: 0;
-    }
 
     .btn-sign-up{
         width: 60%;
@@ -252,11 +249,5 @@
     }
     .sentence{
         font-size: small;
-    }
-    .sign-up-form{
-        margin-left: 9%;
-    }
-    .change-container{
-        margin-left: 9%;
     }
 }
