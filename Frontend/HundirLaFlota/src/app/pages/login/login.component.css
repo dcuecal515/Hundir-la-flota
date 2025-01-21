@@ -12,7 +12,9 @@
     gap: 10%;
     height: 100%;
     height: 100vh;
-    background-color: grey;
+    background-image: url(/assets/background.png);
+    background-repeat: no-repeat;
+    background-size: cover;
 }
 .login-text{
     display: flex;
@@ -22,6 +24,10 @@
     gap: 10%;
     width: 50%;
     height: 50%;
+    color: white;
+}
+.login-text-title{
+    font-family: titulo;
 }
 .login-text-image{
     width: 100%;
@@ -37,7 +43,6 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
-    background-color: white;
     border-radius: 8px;
     height: 40%;
     width: 30%;
@@ -58,105 +63,83 @@
     font-size: 1.5rem;
     display: flex;
     align-items: center;
+    color: white;
 }
 .button{
     height: 15%;
     border-radius: 5px;
     font-size: 1.5rem;
-    background-color: rgb(121, 121, 186);
+    background-color: rgb(126, 126, 126);
+    color: rgb(63, 16, 16);
+    border-radius: 20px;
+    text-transform: uppercase;
+    cursor: pointer;
+    font-family: titulo;
 }
 .sign-up{
+    display: none;
+    flex-direction: row-reverse;
+    justify-content: center;
+    align-items: center;
+    gap: 10%;
+    height: 100%;
+    height: 100vh;
     background-image: url(/assets/background.png);
     background-repeat: no-repeat;
     background-size: cover;
-    display: none;
-    flex-direction: row;
-    height: 100%;
-    align-items: center;
-    padding-top: 15%;
-    padding-bottom: 15.5%;
-    color: white;
 }
 
-.sign-up-form{
-    display: flex;
-    flex-direction: column;
-    width: 35%;
-}
-
-.sign-up-form label{
+.form-sign-up{
     padding: 2%;
     display: flex;
-    flex-direction: row;
-    justify-content: end;
-}
-
-.sentence{
+    flex-direction: column;
+    justify-content: center;
+    border-radius: 8px;
+    height: 55%;
     width: 30%;
-    padding: 5%;
-    font-family: titulo;
-    line-height: 1.6;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    gap: 5%;
 }
 
-.change-container{
-    width: 25%;
-    text-align: center;
-    margin-right: 10%;
+.sign-up-button{
+    padding-top: 2%;
+    padding-bottom: 2%;
+    border-radius: 5px;
+    font-size: 1.5rem;
+    background-color: rgb(126, 126, 126);
+    color: rgb(63, 16, 16);
+    border-radius: 20px;
+    text-transform: uppercase;
+    cursor: pointer;
+    font-family: titulo;
+}
+
+.avatar-label{
+    color: white;
+    font-size: x-large;
 }
 
 .change-text{
     font-size: 20px;
-}
-
-.btn-sign-up-container{
-    width: 100%;
-    text-align: center;
-}
-
-.btn-sign-up{
-    width: 35%;
-    background-color: rgb(126, 126, 126);
-    color: rgb(63, 16, 16);
-    text-align: center;
-    padding: 3%;
-    padding-left: 4%;
-    padding-right: 4%;
-    border-radius: 20px;
-    text-transform: uppercase;
-    cursor: pointer;
     font-family: titulo;
-}
-
-.rememberMe{
-    display: flex;
-    flex-direction: row;
-    justify-content: end;
-    align-items: center;
-}
-
-.btn-change{
-    background-color: rgb(126, 126, 126);
     text-align: center;
-    color: rgb(63, 16, 16);
-    padding: 3%;
-    padding-left: 4%;
-    padding-right: 4%;
-    border-radius: 20px;
-    text-transform: uppercase;
-    cursor: pointer;
-    font-family: titulo;
+    color: white;
 }
+
 .special-input{
-    width: 80%;
+    font-size: large;
 }
 
 /*estilos responsive*/
-@media(max-width: 1024px){
-    .sentence{
-        font-size: large;
+@media(max-width:1025px){
+    .login-text-title{
+        font-size: x-large;
     }
-    .btn-sign-up{
-        width: 50%;
+    .special-input{
+        font-size: small;
+    }
+    .form-sign-up{
+        height: 65%;
     }
 }
 
@@ -164,7 +147,10 @@
     .login{
         flex-direction: column;
         height: 110vh;
-        gap: 20%;
+    }
+    .sign-up{
+        flex-direction: column;
+        height: 150vh;
     }
     .login-text{
         gap: 0%;
@@ -179,84 +165,65 @@
     .form-login{
         width: 70%;
     }
+    .form-sign-up{
+        width: 70%;
+    }
     .button{
         height: 20%;
     }
-}
-
-@media(max-width: 768px){
-    .sentence{
-        font-size: medium;
+    .special-input{
+        font-size: large;
     }
-    .login-text-description{
-        width: 120%;
+    .sign-up{
+        gap: 0;
     }
 }
 
 @media(max-width: 426px){
-    .sign-up{
-        flex-direction: column;
+    .form-login{
+        height: 50%;
     }
-    .sentence{
-        width: 80%;
-    }
-    .sign-up-form{
-        width: 80%;
-    }
-    .change-container{
-        width: 100%;
-        margin-right: 0;
-    }
-
-    .btn-sign-up{
-        width: 60%;
-    }
-
-    .btn-change{
-        width: 50%;
-    }
-    .login-text-description{
-        width: 130%;
-    }
-}
-
-@media(max-width: 376px){
-    .sign-up-form label{
-        width: 80%;
-    }
-    .confirmPassword-input{
-        height: 80%;
-    }
-    .confirmPassword-label{
-        align-items: end;
-    }
-}
-
-
-@media(max-width:321px){
-    .login{
-        gap: 22%;
-    }
-    .login-text-description{
-        width: 200%;
-    }
-    .login-text-title{
-        width: 180%;
+    .form-sign-up{
+        height: 70%;
     }
     .login-text-image{
         width: 100%;
         max-width: 100%;
         max-height: 450px;
         border-radius: 10px;
-
     }
-    .sentence{
+    .login-text-description{
+        width: 130%;
+    }
+    .special-input{
         font-size: small;
     }
-    .sign-up-form{
-        margin-left: 9%;
+    .sign-up{
+        gap: 5%;
     }
-    .change-container{
-        margin-left: 9%;
+}
+
+@media(max-width: 376px){
+    .login{
+        gap: 15%;
+    }
+    .form-login{
+        width: 90%;
+    }
+    .form-sign-up{
+        width: 90%;
+    }
+}
+
+
+@media(max-width:321px){
+    .login{
+        gap: 10%;
+    }
+    .login-text-description{
+        width: 200%;
+    }
+    .login-text-title{
+        width: 180%;
     }
 }
