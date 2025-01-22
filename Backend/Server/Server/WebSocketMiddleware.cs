@@ -1,4 +1,5 @@
-﻿using System.Net.WebSockets;
+﻿using Microsoft.Net.Http.Headers;
+using System.Net.WebSockets;
 
 namespace Server
 {
@@ -15,6 +16,7 @@ namespace Server
         {
             if (context.WebSockets.IsWebSocketRequest)
             {
+                Console.WriteLine("HOLA ESTOY HACIENDO ALGO");
                 var jwt = context.Request.Query ["token"].ToString ();
 
                 if(string.IsNullOrEmpty(jwt))
@@ -22,27 +24,15 @@ namespace Server
                     context.Response.StatusCode = 401;
                     return;
                 }
+                /*context.Request.Headers["Authorization"]*/
 
-                var webSocket = await context.WebSockets.AcceptWebSocketAsync();
+                context.Request.Headers[HeaderNames.Authorization] = "Bearer " + jwt;
 
-                await HandleWebSocket(webSocket, jwt);
-            } else
-            {
-                await _next(context);
+                ///context.Request.Headers.Authorization.["Authorization"] = "Bearer " + jwt;
             }
+                await _next(context);
         }
 
-        private async Task HandleWebSocket(WebSocket webSocket, string jwt)
-        {
-            byte[] buffer = new byte [1024*4];
-            WebSocketReceiveResult result;
-
-            do
-            {
-                result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
-            }while (!result.CloseStatus.HasValue);
-
-            await webSocket.CloseAsync(result.CloseStatus.Value, result.CloseStatusDescription, CancellationToken.None);
-        }
+        
     }
 }
