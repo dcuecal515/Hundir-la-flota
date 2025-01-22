@@ -2,6 +2,7 @@ import { Component,ViewChild,ElementRef } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthserviceService } from '../../services/authservice.service';
 import { ApiService } from '../../services/api.service';
+import { WebsocketService } from '../../services/websocket.service';
 import { Login } from '../../models/Login';
 import { Router } from '@angular/router';
 import { SignUp } from '../../models/SignUp';
@@ -14,7 +15,7 @@ import { SignUp } from '../../models/SignUp';
   styleUrl: './login.component.css'
 })
 export class LoginComponent {
-  constructor(private formBuilder: FormBuilder,private authservice:AuthserviceService,private apiService:ApiService,private router:Router){
+  constructor(private formBuilder: FormBuilder,private authservice:AuthserviceService,private apiService:ApiService,private router:Router,private webSocketService:WebsocketService){
     if(localStorage.getItem("token") || sessionStorage.getItem("token")){
       router.navigateByUrl("menu");
     }
@@ -50,6 +51,7 @@ export class LoginComponent {
   confirmPassword=""
   avatar: File | null = null
   rememberUser=false
+  type:'rxjs'
 
   async loginUser():Promise<void>{
     if(this.loginForm.valid){
@@ -77,7 +79,13 @@ export class LoginComponent {
       sessionStorage.setItem("token", this.apiService.jwt)
       console.log(sessionStorage.getItem("token"))
     }
+    this.connectRxjs()
     this.router.navigateByUrl("menu");
+  }
+
+  connectRxjs() {
+    this.type = 'rxjs';
+    this.webSocketService.connectRxjs();
   }
 
   async registerUser():Promise<void>{
