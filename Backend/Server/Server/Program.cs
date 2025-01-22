@@ -70,6 +70,8 @@ app.UseCors();
 
 app.UseAuthorization();
 
+app.UseMiddleware<WebSocketMiddleware>();
+
 app.MapControllers();
 PasswordService passwordService = new PasswordService();
 
