@@ -67,6 +67,10 @@ export class WebsocketService {
       complete: () => this.onDisconnected()
     });
   }
+  sendRxjs(message: string) {
+    this.rxjsSocket.next(message);
+  }
+
   disconnectRxjs() {
     console.log("FUNCIONO");
     this.rxjsSocket.complete();
