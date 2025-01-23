@@ -5,7 +5,8 @@ import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { jwtDecode } from "jwt-decode";
 import { User } from '../../models/user';
-import { Friend } from '../../models/friend';
+import { Friend } from '../../models/Friend';
+import { environment } from '../../../environments/environment.development';
 
 
 @Component({
@@ -32,9 +33,8 @@ export class MenuComponent {
   connected$: Subscription;
   messageReceived$: Subscription;
   disconnected$: Subscription;
-  decoded=jwtDecode(localStorage.getItem("token"));
-  usuario:User
-  Avatar:number=this.decoded.exp;
+  /*decoded:User=jwtDecode(localStorage.getItem("token"));
+  urlimageuser:string=environment.images+this.decoded.Avatar*/
 
 
 
@@ -44,9 +44,7 @@ export class MenuComponent {
     this.disconnected$ = this.webSocketService.disconnected.subscribe(() => this.isConnected = false);
   }
 
-  prueba(){
-    console.log(this.decoded);
-  }
+
 
   searchQuery:string = ""
 
@@ -64,7 +62,7 @@ export class MenuComponent {
     this.connected$.unsubscribe();
     this.messageReceived$.unsubscribe();
     this.disconnected$.unsubscribe();
-
+  }
   search(){
     const input = document.getElementById("search") as HTMLInputElement
     this.searchQuery = input.value
