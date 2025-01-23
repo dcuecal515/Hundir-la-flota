@@ -19,7 +19,12 @@ export class WebsocketService {
   connectRxjs() {
     console.log("me conecto")
     console.log("ESTA ES MI URL: ",environment.socketUrllocal+localStorage.getItem("token"))
-    this.path=environment.socketUrllocal+localStorage.getItem("token")
+    if(localStorage.getItem("token")){
+      this.path=environment.socketUrllocal+localStorage.getItem("token")
+    }
+    if(sessionStorage.getItem("token")){
+      this.path=environment.socketUrllocal+sessionStorage.getItem("token")
+    }
     console.log("mi token: "+localStorage.getItem("token"))
     console.log("mi url: "+this.path)
     this.rxjsSocket = webSocket({
