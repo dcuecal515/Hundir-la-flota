@@ -64,13 +64,21 @@ app.UseStaticFiles(new StaticFileOptions
     FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot"))
 });
 
+app.UseWebSockets();
+
+app.UseMiddleware<WebSocketMiddleware>();
+
 app.UseHttpsRedirection();
 
 app.UseCors();
 
+app.UseAuthentication();
+
 app.UseAuthorization();
 
-app.UseMiddleware<WebSocketMiddleware>();
+
+
+
 
 app.MapControllers();
 PasswordService passwordService = new PasswordService();
