@@ -2,8 +2,8 @@
 {
     public enum UserState
     {
-        OFFLINE,
-        CONNECTED,
-        PLAYING
+        DESCONECTADO,
+        CONECTADO,
+        JUGANDO
     }
 }
