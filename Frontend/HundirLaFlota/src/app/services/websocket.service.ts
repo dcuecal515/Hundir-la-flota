@@ -10,11 +10,32 @@ export class WebsocketService {
 
   path="";
   connected = new Subject<void>();
+  messageReceived = new Subject<any>();
+  disconnected = new Subject<void>();
+
   private onConnected() {
     console.log('Socket connected');
     this.connected.next();
   }
+  private onMessageReceived(message: string) {
+    console.log("HOLA",message)
+    
+    this.messageReceived.next(message);
+  }
+
+  private onError(error: any) {
+    console.error('Error:', error);
+  }
+
+  private onDisconnected() {
+    console.log('WebSocket connection closed');
+    this.disconnected.next();
+  }
   rxjsSocket: WebSocketSubject<any>;
+
+  isConnectedRxjs() {
+    return this.rxjsSocket && !this.rxjsSocket.closed;
+  }
 
   connectRxjs() {
     console.log("me conecto")
@@ -37,13 +58,18 @@ export class WebsocketService {
 
     this.rxjsSocket.subscribe({
       // Evento de mensaje recibido
-      next: (message: any) => console.log(message),
+      next: (message: any) => this.onMessageReceived(message),
 
       // Evento de error generado
-      /*error: (error) => this.onError(error),
+      error: (error) => this.onError(error),
 
       // Evento de cierre de conexión
-      complete: () => this.onDisconnected()*/
+      complete: () => this.onDisconnected()
     });
+  }
+  disconnectRxjs() {
+    console.log("FUNCIONO");
+    this.rxjsSocket.complete();
+    this.rxjsSocket = null;
   }
 }

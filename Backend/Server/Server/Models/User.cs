@@ -20,7 +20,7 @@ namespace Server.Models
 
         public string Role { get; set; }
 
-        public UserState Status { get; set; }
+        public String Status { get; set; }
 
         public List<FriendDto> Friends { get; set; }
 
