@@ -30,6 +30,7 @@ export class LoginComponent {
       confirmPassword:['',[Validators.required]]
     })
   }
+  
 
   passwordMatchValidator(): boolean {
     if(this.password != "" && this.confirmPassword != ""){
@@ -51,7 +52,7 @@ export class LoginComponent {
   confirmPassword=""
   avatar: File | null = null
   rememberUser=false
-  type:'rxjs'
+  
 
   async loginUser():Promise<void>{
     if(this.loginForm.valid){
@@ -79,14 +80,11 @@ export class LoginComponent {
       sessionStorage.setItem("token", this.apiService.jwt)
       console.log(sessionStorage.getItem("token"))
     }
-    this.connectRxjs()
+    
     this.router.navigateByUrl("menu");
   }
 
-  connectRxjs() {
-    this.type = 'rxjs';
-    this.webSocketService.connectRxjs();
-  }
+  
 
   async registerUser():Promise<void>{
     if(!this.passwordMatchValidator()){

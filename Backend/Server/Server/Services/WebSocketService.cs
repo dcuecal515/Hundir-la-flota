@@ -1,15 +1,9 @@
 ﻿using System.Net.WebSockets;
 using Server.Models;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Server.DTOs;
 using Server.Mappers;
-using Server.Repositories;
-using Server.Repositories.Base;
-using Server.Services;
 using System.Text;
+using System.Text.Json;
 
 namespace Server.Services
 {
@@ -29,14 +23,23 @@ namespace Server.Services
             while (webSocket.State == WebSocketState.Open)
             {
 
-                UserDateDto userDateDto=_userMapper.toDto(user);
-                byte[] bytes = Encoding.UTF8.GetBytes(userDateDto.ToString());
+                /*UserDateDto userDateDto=_userMapper.toDto(user);
+                string apoyo = JsonSerializer.Serialize(userDateDto);
+                byte[] bytes = Encoding.UTF8.GetBytes(apoyo);
 
                 CancellationToken cancellation = default;
-                await webSocket.SendAsync(bytes, WebSocketMessageType.Text, true, cancellation);
+                await webSocket.SendAsync(bytes, WebSocketMessageType.Text, true, cancellation);*/
 
             }
         }
-       
+        private Task SendAsync(WebSocket webSocket, string message, CancellationToken cancellation = default)
+        {
+            // Codificamos a bytes el contenido del mensaje
+            byte[] bytes = Encoding.UTF8.GetBytes(message);
+
+            // Enviamos los bytes al cliente marcando que el mensaje es un texto
+            return webSocket.SendAsync(bytes, WebSocketMessageType.Text, true, cancellation);
+        }
+
     }
 }

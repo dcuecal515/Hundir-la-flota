@@ -52,7 +52,8 @@ namespace Server.Services
                     {
                         { "id", user.Id },
                         { "nickName", user.NickName },
-                        { ClaimTypes.Role, user.Role }
+                        { ClaimTypes.Role, user.Role },
+                        {"Avatar",user.Avatar }
                     },
                 Expires = DateTime.UtcNow.AddYears(3),
                 SigningCredentials = new SigningCredentials(
