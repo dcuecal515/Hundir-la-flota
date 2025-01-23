@@ -14,18 +14,16 @@ export class WebsocketService {
     console.log('Socket connected');
     this.connected.next();
   }
-  rxjsSocket: WebSocketSubject<string>;
+  rxjsSocket: WebSocketSubject<any>;
 
   connectRxjs() {
     console.log("me conecto")
-    console.log("ESTA ES MI URL: ",environment.socketUrllocal+localStorage.getItem("token"))
     if(localStorage.getItem("token")){
       this.path=environment.socketUrllocal+localStorage.getItem("token")
     }
     if(sessionStorage.getItem("token")){
       this.path=environment.socketUrllocal+sessionStorage.getItem("token")
     }
-    console.log("mi token: "+localStorage.getItem("token"))
     console.log("mi url: "+this.path)
     this.rxjsSocket = webSocket({
       
@@ -39,7 +37,7 @@ export class WebsocketService {
 
     this.rxjsSocket.subscribe({
       // Evento de mensaje recibido
-      next: (message: string) => console.log(message),
+      next: (message: any) => console.log(message),
 
       // Evento de error generado
       /*error: (error) => this.onError(error),

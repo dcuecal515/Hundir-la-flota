@@ -15,5 +15,14 @@ namespace Server.Mappers
                 Email = userDto.Email
             };
         }
+
+        public UserDateDto toDto(User user)
+        {
+            return new UserDateDto
+            {
+                NickName = user.NickName,
+                Avatar = user.Avatar
+            };
+        }
     }
 }
