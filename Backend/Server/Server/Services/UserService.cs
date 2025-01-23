@@ -65,6 +65,11 @@ namespace Server.Services
             return tokenHandler.WriteToken(token);
         }
 
+        public async Task<User> GetUserFromDbByStringId(string stringId)
+        {
+            return await _unitOfWork.UserRepository.GetByIdAsync(Int32.Parse(stringId));
+        }
+
         public async Task DeleteUser(User user)
         {
             _unitOfWork.UserRepository.Delete(user);
