@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { ApiService } from '../../services/api.service';
 import { Router } from '@angular/router';
+import { Friend } from '../../models/friend';
 
 @Component({
   selector: 'app-menu',
@@ -12,8 +13,46 @@ import { Router } from '@angular/router';
 export class MenuComponent {
   constructor(private apiService:ApiService,private router:Router){}
 
+  searchQuery:string = ""
+
+
+  hola:Friend={nickname: "hOla"}
+  adios:Friend={nickname:"adiós"}
+
+  friendList = [this.hola, this.adios]
   deleteToken(){
     this.apiService.deleteToken();
     this.router.navigateByUrl("login");
+  }
+
+  search(){
+    const input = document.getElementById("search") as HTMLInputElement
+    this.searchQuery = input.value
+  }
+
+  compare(nickname:string){
+    if(this.searchQuery != ""){
+      var newNick = nickname.toUpperCase()
+      var upperQuery = this.searchQuery.toUpperCase()
+      newNick = this.deleteAccents(newNick)
+      upperQuery = this.deleteAccents(upperQuery)
+      if(newNick.includes(upperQuery)){
+        return true
+      }
+      else{
+        return false
+      }
+    }
+    else{
+      return true
+    }
+  }
+
+  deleteAccents(text:string){
+    return text.replace("Á","A")
+                .replace("É","E")
+                .replace("Í","I")
+                .replace("Ó","O")
+                .replace("Ú","U")
   }
 }
