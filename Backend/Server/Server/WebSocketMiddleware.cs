@@ -16,7 +16,6 @@ namespace Server
         {
             if (context.WebSockets.IsWebSocketRequest)
             {
-                Console.WriteLine("HOLA ESTOY HACIENDO ALGO");
                 var jwt = context.Request.Query ["token"].ToString ();
 
                 if(string.IsNullOrEmpty(jwt))

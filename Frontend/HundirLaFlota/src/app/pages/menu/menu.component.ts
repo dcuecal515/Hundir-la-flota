@@ -1,7 +1,10 @@
 import { Component } from '@angular/core';
 import { ApiService } from '../../services/api.service';
+import { WebsocketService } from '../../services/websocket.service';
 import { Router } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { Friend } from '../../models/friend';
+
 
 @Component({
   selector: 'app-menu',
@@ -11,7 +14,18 @@ import { Friend } from '../../models/friend';
   styleUrl: './menu.component.css'
 })
 export class MenuComponent {
-  constructor(private apiService:ApiService,private router:Router){}
+  constructor(private apiService:ApiService,private router:Router,private webSocketService:WebsocketService){}
+
+  isConnected: boolean = false;
+  connected$: Subscription;
+  messageReceived$: Subscription;
+  disconnected$: Subscription;
+
+  /*ngOnInit(): void {
+    this.connected$ = this.webSocketService.connected.subscribe(() => this.isConnected = true);
+    this.messageReceived$ = this.webSocketService.messageReceived.subscribe(message => this.serverResponse = message);
+    this.disconnected$ = this.webSocketService.disconnected.subscribe(() => this.isConnected = false);
+  }*/
 
   searchQuery:string = ""
 
