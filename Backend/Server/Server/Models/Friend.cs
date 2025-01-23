@@ -1,8 +1,8 @@
 ﻿using Server.Enums;
 
-namespace Server.DTOs
+namespace Server.Models
 {
-    public class FriendDto
+    public class Friend
     {
         public int Id { get; set; }
         public string NickName { get; set; }
