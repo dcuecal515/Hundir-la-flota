@@ -4,6 +4,7 @@ using Server.DTOs;
 using Server.Mappers;
 using System.Text;
 using System.Text.Json;
+using Newtonsoft.Json;
 
 namespace Server.Services
 {
@@ -24,6 +25,8 @@ namespace Server.Services
             {
 
                 string message = await ReadAsync(webSocket);
+
+                // JsonConvert.DeserializeObject<UserDateDto>(message);
 
                 if (!string.IsNullOrEmpty(message))
                 {
