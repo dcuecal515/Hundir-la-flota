@@ -104,5 +104,10 @@ namespace Server.Services
             return ObtainToken(newUser);
         }
 
+        public async Task<IEnumerable<User>> getAllUserByName(string name,int id)
+        {
+            return await _unitOfWork.UserRepository.getAllUserByName(name,id);
+        }
+
     }
 }

@@ -1,7 +1,7 @@
 <p>menu works!</p>
 <input type="text" id="search">
 <button (click)="search()">Buscar</button>
-@if(friendList != null){
+<!--@if(friendList != null){
     <div>
         @for(friend of friendList; track friend.nickname){
             @if(compare(friend.nickname)){
@@ -9,9 +9,12 @@
             }
         }
     </div>
-}
-
+}-->
+<form (ngSubmit)="searchUser()">
+    <input type="text" [(ngModel)]="name" [ngModelOptions]="{standalone: true}">
+    <button>Buscar</button>
+</form>
 
 <button (click)="deleteToken()"><i class="fa-solid fa-right-from-bracket"></i></button>
 <div>{{decoded.nickName}}</div>
-<img [src]={{decoded.avatar}} alt="mi fotito wuapa">
+<img [src]="url" alt="mi fotito wuapa">

@@ -1,3 +1,5 @@
 export interface Friend{
-    nickname:string
+    id:number,
+    nickname:string,
+    avatar:string
 }

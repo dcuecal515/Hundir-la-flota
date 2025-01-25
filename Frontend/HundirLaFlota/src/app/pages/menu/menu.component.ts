@@ -7,18 +7,21 @@ import { jwtDecode } from "jwt-decode";
 import { User } from '../../models/user';
 import { Friend } from '../../models/Friend';
 import { environment } from '../../../environments/environment.development';
+import { FormsModule } from '@angular/forms';
+import { SearchserviceService } from '../../services/searchservice.service';
 
 
 @Component({
   selector: 'app-menu',
   standalone: true,
-  imports: [],
+  imports: [FormsModule],
   templateUrl: './menu.component.html',
   styleUrl: './menu.component.css'
 })
 export class MenuComponent {
-  constructor(private apiService:ApiService,private router:Router,private webSocketService:WebsocketService){
+  constructor(private apiService:ApiService,private router:Router,private webSocketService:WebsocketService,private searchServiceService:SearchserviceService){
     this.connectRxjs()
+    this.url=environment.images+this.decoded.Avatar;
   }
 
    
@@ -33,8 +36,9 @@ export class MenuComponent {
   connected$: Subscription;
   messageReceived$: Subscription;
   disconnected$: Subscription;
-  /*decoded:User=jwtDecode(localStorage.getItem("token"));
-  urlimageuser:string=environment.images+this.decoded.Avatar*/
+  decoded:User=jwtDecode(localStorage.getItem("token"));
+  url:string
+  name:String
 
 
 
@@ -49,10 +53,10 @@ export class MenuComponent {
   searchQuery:string = ""
 
 
-  hola:Friend={nickname: "hOla"}
+  /*hola:Friend={nickname: "hOla"}
   adios:Friend={nickname:"adiós"}
 
-  friendList = [this.hola, this.adios]
+  friendList = [this.hola, this.adios]*/
   deleteToken(){
     this.apiService.deleteToken();
     this.webSocketService.disconnectRxjs();
@@ -92,5 +96,13 @@ export class MenuComponent {
                 .replace("Í","I")
                 .replace("Ó","O")
                 .replace("Ú","U")
+  }
+
+  async searchUser(){
+    const recievename=this.name.trim()
+    console.log(recievename)
+    console.log(this.apiService.jwt);
+    const result=await this.searchServiceService.search(recievename)
+    console.log(result.data);
   }
 }
