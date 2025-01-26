@@ -5,7 +5,8 @@ import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { jwtDecode } from "jwt-decode";
 import { User } from '../../models/user';
-import { Friend } from '../../models/friend';
+import { Friend } from '../../models/Friend';
+import { FriendRequest } from '../../models/FriendRequest';
 
 
 @Component({
@@ -65,7 +66,7 @@ export class MenuComponent {
     this.connected$.unsubscribe();
     this.messageReceived$.unsubscribe();
     this.disconnected$.unsubscribe();
-
+  }
   search(){
     const input = document.getElementById("search") as HTMLInputElement
     this.searchQuery = input.value
@@ -95,5 +96,16 @@ export class MenuComponent {
                 .replace("Í","I")
                 .replace("Ó","O")
                 .replace("Ú","U")
+  }
+
+  addUser(){
+    const user = document.getElementById("addUser") as HTMLInputElement
+    if (user.value != "") {
+      const User:FriendRequest={TypeMessage:"amistad" ,Identifier: user.value,Identifier2:null}
+      // Convertir el objeto a JSON
+      const jsonData = JSON.stringify(User);
+      console.log(JSON.stringify(User));
+      this.webSocketService.sendRxjs(jsonData);
+    }
   }
 }

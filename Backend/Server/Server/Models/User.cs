@@ -1,6 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Server.DTOs;
-using Server.Enums;
 
 namespace Server.Models
 {
@@ -22,7 +20,7 @@ namespace Server.Models
 
         public string Status { get; set; }
 
-        public List<FriendDto> Friends { get; set; }
+        public List<Friend> Friends { get; set; }
 
         // Necesita un historial de partidas
     }
