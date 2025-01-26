@@ -9,6 +9,8 @@ import { Friend } from '../../models/Friend';
 import { environment } from '../../../environments/environment.development';
 import { FormsModule } from '@angular/forms';
 import { SearchserviceService } from '../../services/searchservice.service';
+import { FriendRequest } from '../../models/FriendRequest';
+
 
 
 @Component({
@@ -98,11 +100,24 @@ export class MenuComponent {
                 .replace("Ú","U")
   }
 
+
   async searchUser(){
     const recievename=this.name.trim()
     console.log(recievename)
     console.log(this.apiService.jwt);
     const result=await this.searchServiceService.search(recievename)
     console.log(result.data);
+  }
+}
+
+  addUser(){
+    const user = document.getElementById("addUser") as HTMLInputElement
+    if (user.value != "") {
+      const User:FriendRequest={TypeMessage:"amistad" ,Identifier: user.value,Identifier2:null}
+      // Convertir el objeto a JSON
+      const jsonData = JSON.stringify(User);
+      console.log(JSON.stringify(User));
+      this.webSocketService.sendRxjs(jsonData);
+    }
   }
 }
