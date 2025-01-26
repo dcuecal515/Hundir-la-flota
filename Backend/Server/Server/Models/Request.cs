@@ -4,8 +4,8 @@ namespace Server.Models
 {
     public class Request
     {
-        public string RequestId { get; set; }
-        public string SenderUserId { get; set; }
-        public string ReceivingUserId { get; set; }
+        public int Id { get; set; }
+        public int SenderUserId { get; set; }
+        public int ReceivingUserId { get; set; }
     }
 }

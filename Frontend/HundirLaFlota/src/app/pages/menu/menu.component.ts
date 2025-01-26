@@ -5,7 +5,8 @@ import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { jwtDecode } from "jwt-decode";
 import { User } from '../../models/user';
-import { Friend } from '../../models/friend';
+import { Friend } from '../../models/Friend';
+import { FriendRequest } from '../../models/FriendRequest';
 
 
 @Component({
@@ -100,7 +101,11 @@ export class MenuComponent {
   addUser(){
     const user = document.getElementById("addUser") as HTMLInputElement
     if (user.value != "") {
-      this.webSocketService.sendRxjs(user.value);
+      const User:FriendRequest={TypeMessage:"amistad" ,Identifier: user.value,Identifier2:null}
+      // Convertir el objeto a JSON
+      const jsonData = JSON.stringify(User);
+      console.log(JSON.stringify(User));
+      this.webSocketService.sendRxjs(jsonData);
     }
   }
 }

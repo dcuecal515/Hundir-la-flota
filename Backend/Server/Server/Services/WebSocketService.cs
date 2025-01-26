@@ -4,7 +4,6 @@ using Server.DTOs;
 using Server.Mappers;
 using System.Text;
 using System.Text.Json;
-using Newtonsoft.Json;
 
 namespace Server.Services
 {
@@ -26,13 +25,67 @@ namespace Server.Services
 
                 string message = await ReadAsync(webSocket);
 
-                // JsonConvert.DeserializeObject<UserDateDto>(message);
+                // JsonConvert.DeserializeObject<ReceivedUserDto>(message);
 
                 if (!string.IsNullOrEmpty(message))
                 {
-                    string outMessage = $"[{string.Join(", ", message as IEnumerable<char>)}]";
+                    message = message.Substring(1, message.Length - 2); //Arreglos por recibir mal
+                    message = message.Replace("\\", "");
+                    Console.WriteLine("mensaje: " + message);
 
-                    await SendAsync(webSocket, outMessage);
+                    /*var options = new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true,
+                        DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                    };
+                    ReceivedUserDto prueba = new ReceivedUserDto
+                    {
+                        TypeMessage = "amistad",
+                        Identifier ="Manuel"
+                    };
+                    string pruebaApoyo = JsonSerializer.Serialize(prueba);
+                    Console.WriteLine("Prueba: "+pruebaApoyo+" Mensaje recibido: "+message);*/
+                    ReceivedUserDto receivedUser = JsonSerializer.Deserialize<ReceivedUserDto>(message);
+
+                    if (receivedUser.TypeMessage.Equals("amistad"))
+                    {
+                        string userName = receivedUser.Identifier;
+
+                        User user2 = await _unitOfWork.UserRepository.GetByIdentifierAsync(userName);
+
+                        if (user2 != null)
+                        {
+                            Request request = await _unitOfWork.RequestRepository.GetRequestByUsersId(user.Id,user2.Id);
+                            if (request == null) {
+                                request = new Request
+                                {
+                                    SenderUserId=user.Id,
+                                    ReceivingUserId=user2.Id
+                                };
+                                await _unitOfWork.RequestRepository.InsertAsync(request);
+                                await _unitOfWork.SaveAsync();
+
+                                WebsocketMessageDto outMessage = new WebsocketMessageDto
+                                {
+                                    Message = "Se envió correctamente la solicitud"
+                                };
+
+                                string apoyo = JsonSerializer.Serialize(outMessage);
+
+                                await SendAsync(webSocket, apoyo);
+                            } else
+                            {
+                                WebsocketMessageDto outMessage = new WebsocketMessageDto
+                                {
+                                    Message = "No se envió la solicitud"
+                                };
+
+                                string apoyo = JsonSerializer.Serialize(outMessage);
+
+                                await SendAsync(webSocket, apoyo);
+                            }
+                        } 
+                    }
                 }
 
                 /*UserDateDto userDateDto=_userMapper.toDto(user);

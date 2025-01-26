@@ -18,7 +18,7 @@ export class WebsocketService {
     this.connected.next();
   }
   private onMessageReceived(message: string) {
-    console.log("HOLA",message)
+    console.log("Mensaje recivido: ",message)
     
     this.messageReceived.next(message);
   }
