@@ -6,19 +6,24 @@ import { Subscription } from 'rxjs';
 import { jwtDecode } from "jwt-decode";
 import { User } from '../../models/user';
 import { Friend } from '../../models/Friend';
+import { environment } from '../../../environments/environment.development';
+import { FormsModule } from '@angular/forms';
+import { SearchserviceService } from '../../services/searchservice.service';
 import { FriendRequest } from '../../models/FriendRequest';
+
 
 
 @Component({
   selector: 'app-menu',
   standalone: true,
-  imports: [],
+  imports: [FormsModule],
   templateUrl: './menu.component.html',
   styleUrl: './menu.component.css'
 })
 export class MenuComponent {
-  constructor(private apiService:ApiService,private router:Router,private webSocketService:WebsocketService){
+  constructor(private apiService:ApiService,private router:Router,private webSocketService:WebsocketService,private searchServiceService:SearchserviceService){
     this.connectRxjs()
+    this.url=environment.images+this.decoded.Avatar;
   }
 
    
@@ -33,9 +38,9 @@ export class MenuComponent {
   connected$: Subscription;
   messageReceived$: Subscription;
   disconnected$: Subscription;
-  decoded=jwtDecode(localStorage.getItem("token"));
-  usuario:User
-  Avatar:number=this.decoded.exp;
+  decoded:User=jwtDecode(localStorage.getItem("token"));
+  url:string
+  name:String
 
 
 
@@ -43,20 +48,17 @@ export class MenuComponent {
     this.connected$ = this.webSocketService.connected.subscribe(() => this.isConnected = true);
     this.messageReceived$ = this.webSocketService.messageReceived.subscribe(message => this.serverResponse = message);
     this.disconnected$ = this.webSocketService.disconnected.subscribe(() => this.isConnected = false);
-    
   }
 
-  prueba(){
-    console.log(this.decoded);
-  }
+
 
   searchQuery:string = ""
 
 
-  hola:Friend={nickname: "hOla"}
+  /*hola:Friend={nickname: "hOla"}
   adios:Friend={nickname:"adiós"}
 
-  friendList = [this.hola, this.adios]
+  friendList = [this.hola, this.adios]*/
   deleteToken(){
     this.apiService.deleteToken();
     this.webSocketService.disconnectRxjs();
@@ -97,6 +99,16 @@ export class MenuComponent {
                 .replace("Ó","O")
                 .replace("Ú","U")
   }
+
+
+  async searchUser(){
+    const recievename=this.name.trim()
+    console.log(recievename)
+    console.log(this.apiService.jwt);
+    const result=await this.searchServiceService.search(recievename)
+    console.log(result.data);
+  }
+}
 
   addUser(){
     const user = document.getElementById("addUser") as HTMLInputElement

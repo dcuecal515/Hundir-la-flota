@@ -3,6 +3,7 @@ using Server.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Text.RegularExpressions;
 
+
 namespace Server.Repositories
 {
     public class UserRepository : Repository<User, int>
@@ -22,6 +23,11 @@ namespace Server.Repositories
                 return await GetQueryable()
                     .FirstOrDefaultAsync(user => user.NickName.Equals(identifier));
             }
+        }
+        public async Task<IEnumerable<User>> getAllUserByName(string name,int id)
+        {
+            IEnumerable<User> users= await GetQueryable().Where(user=>user.NickName.ToLower().Contains(name)).Where(user => user.Id != id).ToListAsync();
+            return users;
         }
     }
 }
