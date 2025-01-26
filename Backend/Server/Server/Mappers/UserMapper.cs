@@ -20,9 +20,11 @@ namespace Server.Mappers
         {
             return new UserDateDto
             {
+                Id = user.Id,
                 NickName = user.NickName,
                 Avatar = user.Avatar
             };
         }
+
     }
 }
