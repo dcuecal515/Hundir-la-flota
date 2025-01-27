@@ -26,6 +26,7 @@ namespace Server
                 /*context.Request.Headers["Authorization"]*/
 
                 context.Request.Headers[HeaderNames.Authorization] = "Bearer " + jwt;
+                context.Request.Method = "GET";
 
                 ///context.Request.Headers.Authorization.["Authorization"] = "Bearer " + jwt;
             }
