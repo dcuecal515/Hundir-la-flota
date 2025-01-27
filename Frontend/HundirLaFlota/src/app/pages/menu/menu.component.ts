@@ -41,6 +41,7 @@ export class MenuComponent {
   decoded:User=jwtDecode(localStorage.getItem("token"));
   url:string
   name:String
+  userList:Friend[]
 
 
 
@@ -55,10 +56,10 @@ export class MenuComponent {
   searchQuery:string = ""
 
 
-  /*hola:Friend={nickname: "hOla"}
-  adios:Friend={nickname:"adiós"}
+  hola:Friend={nickName: "hOla"}
+  adios:Friend={nickName:"adiós"}
 
-  friendList = [this.hola, this.adios]*/
+  friendList = [this.hola, this.adios]
   deleteToken(){
     this.apiService.deleteToken();
     this.webSocketService.disconnectRxjs();
@@ -107,13 +108,13 @@ export class MenuComponent {
     console.log(this.apiService.jwt);
     const result=await this.searchServiceService.search(recievename)
     console.log(result.data);
+    this.userList = result.data
   }
-}
 
-  addUser(){
-    const user = document.getElementById("addUser") as HTMLInputElement
-    if (user.value != "") {
-      const User:FriendRequest={TypeMessage:"amistad" ,Identifier: user.value,Identifier2:null}
+
+  addUser(nickName){
+    if (nickName != "") {
+      const User:FriendRequest={TypeMessage:"amistad" ,Identifier: nickName,Identifier2:null}
       // Convertir el objeto a JSON
       const jsonData = JSON.stringify(User);
       console.log(JSON.stringify(User));

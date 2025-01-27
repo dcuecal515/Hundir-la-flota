@@ -3,9 +3,9 @@
 <button (click)="search()">Buscar</button>
 @if(friendList != null){
     <div>
-        @for(friend of friendList; track friend.nickname){
-            @if(compare(friend.nickname)){
-                <p>{{friend.nickname}}</p>
+        @for(friend of friendList; track friend.nickName){
+            @if(compare(friend.nickName)){
+                <p>{{friend.nickName}}</p>
             }
         }
     </div>
@@ -15,9 +15,13 @@
     <input type="text" [(ngModel)]="name" [ngModelOptions]="{standalone: true}">
     <button>Buscar</button>
 </form>
-
-<input type="text" id="addUser">
-<button (click)="addUser()">Enviar solicitud</button>
+@if(userList != null){
+    <div>
+        @for(user of userList; track user.id){
+            <p>{{user.nickName}} <button (click)="addUser(user.nickName)">Enviar solicitud</button></p>
+        }
+    </div>
+}
 
 
 <button (click)="deleteToken()"><i class="fa-solid fa-right-from-bracket"></i></button>
