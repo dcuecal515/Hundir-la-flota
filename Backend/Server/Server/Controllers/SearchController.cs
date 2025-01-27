@@ -23,6 +23,19 @@ namespace Server.Controllers
         [HttpGet]
         public async Task<IEnumerable<UserDateDto>> Search([FromQuery] string name)
         {
+            /*
+        string textoseparado = texto.Normalize(NormalizationForm.FormD);
+
+        StringBuilder textonuevo = new StringBuilder();
+        foreach (char c in textoseparado)
+        {
+            if (CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark)
+            {
+                textonuevo.Append(c);
+            }
+        }
+
+        return textonuevo.ToString().Normalize(NormalizationForm.FormC);*/
             User usersesion = await GetCurrentUser();
             IEnumerable<User> users=await _userService.getAllUserByName(name.ToLower(),usersesion.Id);
             List<UserDateDto> result=new List<UserDateDto>();
