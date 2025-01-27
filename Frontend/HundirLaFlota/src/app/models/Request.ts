@@ -1,5 +1,5 @@
 export interface Request{
-    Id:number,
-    SenderUserId:number,
-    ReceivingUserId:number
+    id:number,
+    nickName:string,
+    avatar:string
 }
