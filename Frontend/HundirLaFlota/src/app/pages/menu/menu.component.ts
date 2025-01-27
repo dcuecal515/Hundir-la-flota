@@ -53,7 +53,6 @@ export class MenuComponent {
     this.connected$ = this.webSocketService.connected.subscribe(() => this.isConnected = true);
     this.messageReceived$ = this.webSocketService.messageReceived.subscribe(message => this.serverResponse = message);
     this.disconnected$ = this.webSocketService.disconnected.subscribe(() => this.isConnected = false);
-    console.log(this.requestList)
     // Pide los amigos que tiene el usuario
     // this.friendList = JSON.parse(this.serverResponse);*/
   }

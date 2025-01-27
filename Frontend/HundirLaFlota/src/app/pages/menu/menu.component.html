@@ -23,6 +23,14 @@
     </div>
 }
 
+@if(requestList != null && requestList != []){
+    <div>
+        @for(request of requestList; track request.nickName){
+            <p><b>{{request.nickName}}</b> te a solicitado ser tu amigo<button>Aceptar solicitud</button></p>
+        }
+    </div>
+}
+
 
 <button (click)="deleteToken()"><i class="fa-solid fa-right-from-bracket"></i></button>
 <div>{{decoded.nickName}}</div>
