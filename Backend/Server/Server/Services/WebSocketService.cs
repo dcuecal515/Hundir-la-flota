@@ -4,6 +4,7 @@ using Server.DTOs;
 using Server.Mappers;
 using System.Text;
 using System.Text.Json;
+using Microsoft.AspNetCore.SignalR.Protocol;
 
 namespace Server.Services
 {
@@ -85,6 +86,14 @@ namespace Server.Services
                                 await SendAsync(webSocket, apoyo);
                             }
                         } 
+                    }
+                    if (receivedUser.TypeMessage.Equals("solicitudes"))
+                    {
+                        IEnumerable<Request> requests = await _unitOfWork.RequestRepository.GetAllRequestByUserId(user.Id);
+
+                        string apoyo = JsonSerializer.Serialize(requests);
+
+                        await SendAsync(webSocket, apoyo);
                     }
                 }
 

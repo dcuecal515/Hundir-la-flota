@@ -10,6 +10,7 @@ import { environment } from '../../../environments/environment.development';
 import { FormsModule } from '@angular/forms';
 import { SearchserviceService } from '../../services/searchservice.service';
 import { FriendRequest } from '../../models/FriendRequest';
+import { Request } from '../../models/Request';
 
 
 
@@ -41,6 +42,7 @@ export class MenuComponent {
   decoded:User=jwtDecode(localStorage.getItem("token"));
   url:string
   name:String
+  requestList:Request[]
   userList:Friend[]
 
 
@@ -49,6 +51,19 @@ export class MenuComponent {
     this.connected$ = this.webSocketService.connected.subscribe(() => this.isConnected = true);
     this.messageReceived$ = this.webSocketService.messageReceived.subscribe(message => this.serverResponse = message);
     this.disconnected$ = this.webSocketService.disconnected.subscribe(() => this.isConnected = false);
+
+    // Pide las solicitudes de amistad que tiene el usuario
+    var MessageSend:FriendRequest={TypeMessage:"solicitudes"};
+    var jsonData = JSON.stringify(MessageSend);
+    this.webSocketService.sendRxjs(jsonData);
+    console.log("AAAAAAAAAAAAAA",this.messageReceived$);
+    this.requestList = JSON.parse(this.serverResponse);
+
+    // Pide los amigos que tiene el usuario
+    MessageSend={TypeMessage:"amigos"};
+    jsonData = JSON.stringify(MessageSend);
+    this.webSocketService.sendRxjs(jsonData);
+    // this.friendList = JSON.parse(this.serverResponse);
   }
 
 
