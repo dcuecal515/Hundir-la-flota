@@ -29,18 +29,17 @@ namespace Server.Services
             await handler.HandleAsync();
 
             // Mientras que el websocket del cliente esté conectado
-            while (webSocket.State == WebSocketState.Open)
-            {
+            
 
-                string message = await ReadAsync(webSocket);
+                // string message = await ReadAsync(webSocket);
 
                 // JsonConvert.DeserializeObject<ReceivedUserDto>(message);
 
-                if (!string.IsNullOrEmpty(message))
+                /*if (!string.IsNullOrEmpty(message))
                 {
                     message = message.Substring(1, message.Length - 2); //Arreglos por recibir mal
                     message = message.Replace("\\", "");
-                    Console.WriteLine("mensaje: " + message);
+                    Console.WriteLine("mensaje: " + message);*/
 
                     /*var options = new JsonSerializerOptions
                     {
@@ -54,7 +53,8 @@ namespace Server.Services
                     };
                     string pruebaApoyo = JsonSerializer.Serialize(prueba);
                     Console.WriteLine("Prueba: "+pruebaApoyo+" Mensaje recibido: "+message);*/
-                    ReceivedUserDto receivedUser = JsonSerializer.Deserialize<ReceivedUserDto>(message);
+
+                    //ReceivedUserDto receivedUser = JsonSerializer.Deserialize<ReceivedUserDto>(message);
 
                     //Esto no se borraria por ahora
                     /*if (receivedUser.TypeMessage.Equals("amistad"))
@@ -96,9 +96,8 @@ namespace Server.Services
                             }
                         } 
                     }*/
-                    }
                    
-                }
+                //}
 
                 /*UserDateDto userDateDto=_userMapper.toDto(user);
                 string apoyo = JsonSerializer.Serialize(userDateDto);
@@ -106,8 +105,7 @@ namespace Server.Services
 
                 CancellationToken cancellation = default;
                 await webSocket.SendAsync(bytes, WebSocketMessageType.Text, true, cancellation);*/
-
-            }
+            
         }
         private async Task<WebSocketHandler> AddWebsocketAsync(WebSocket webSocket,int id)
         {
