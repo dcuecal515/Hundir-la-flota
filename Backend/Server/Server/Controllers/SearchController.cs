@@ -4,6 +4,8 @@ using Server.DTOs;
 using Server.Mappers;
 using Server.Models;
 using Server.Services;
+using System.Text;
+using System.Globalization;
 
 namespace Server.Controllers
 {
@@ -23,6 +25,19 @@ namespace Server.Controllers
         [HttpGet]
         public async Task<IEnumerable<UserDateDto>> Search([FromQuery] string name)
         {
+            
+        string separatename = name.Normalize(NormalizationForm.FormD);
+
+            StringBuilder newname = new StringBuilder();
+            foreach (char c in separatename)
+            {
+                if (CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark)
+                {
+                    newname.Append(c);
+                }
+            }
+
+            string searchname= newname.ToString().Normalize(NormalizationForm.FormC);
             User usersesion = await GetCurrentUser();
             IEnumerable<User> users=await _userService.getAllUserByName(name.ToLower(),usersesion.Id);
             List<UserDateDto> result=new List<UserDateDto>();
