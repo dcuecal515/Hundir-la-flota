@@ -18,8 +18,16 @@ namespace Server.Services
             _unitOfWork = unitOfWork;
             _userMapper = userMapper;
         }
+        // Lista de WebSocketHandler (clase que gestiona cada WebSocket)
+        private readonly List<WebSocketHandler> _handlers = new List<WebSocketHandler>();
+        // Semáforo para controlar el acceso a la lista de WebSocketHandler
+        private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1, 1);
         public async Task HandleAsync(WebSocket webSocket,User user)
         {
+            WebSocketHandler handler = await AddWebsocketAsync(webSocket,user.Id);
+            await NotifyUserConnectedAsync(handler);
+            await handler.HandleAsync();
+
             // Mientras que el websocket del cliente esté conectado
             while (webSocket.State == WebSocketState.Open)
             {
@@ -48,7 +56,8 @@ namespace Server.Services
                     Console.WriteLine("Prueba: "+pruebaApoyo+" Mensaje recibido: "+message);*/
                     ReceivedUserDto receivedUser = JsonSerializer.Deserialize<ReceivedUserDto>(message);
 
-                    if (receivedUser.TypeMessage.Equals("amistad"))
+                    //Esto no se borraria por ahora
+                    /*if (receivedUser.TypeMessage.Equals("amistad"))
                     {
                         string userName = receivedUser.Identifier;
 
@@ -86,15 +95,9 @@ namespace Server.Services
                                 await SendAsync(webSocket, apoyo);
                             }
                         } 
+                    }*/
                     }
-                    if (receivedUser.TypeMessage.Equals("solicitudes"))
-                    {
-                        IEnumerable<Request> requests = await _unitOfWork.RequestRepository.GetAllRequestByUserId(user.Id);
-
-                        string apoyo = JsonSerializer.Serialize(requests);
-
-                        await SendAsync(webSocket, apoyo);
-                    }
+                   
                 }
 
                 /*UserDateDto userDateDto=_userMapper.toDto(user);
@@ -106,41 +109,99 @@ namespace Server.Services
 
             }
         }
-        private Task SendAsync(WebSocket webSocket, string message, CancellationToken cancellation = default)
+        private async Task<WebSocketHandler> AddWebsocketAsync(WebSocket webSocket,int id)
         {
-            // Codificamos a bytes el contenido del mensaje
-            byte[] bytes = Encoding.UTF8.GetBytes(message);
+            // Esperamos a que haya un hueco disponible
+            await _semaphore.WaitAsync();
 
-            // Enviamos los bytes al cliente marcando que el mensaje es un texto
-            return webSocket.SendAsync(bytes, WebSocketMessageType.Text, true, cancellation);
+            // Sección crítica
+            // Creamos un nuevo WebSocketHandler, nos suscribimos a sus eventos y lo añadimos a la lista
+            WebSocketHandler handler = new WebSocketHandler(id, webSocket);
+            handler.Disconnected += OnDisconnectedAsync;
+            handler.MessageReceived += OnMessageReceivedAsync;
+            _handlers.Add(handler);
+
+            // Liberamos el semáforo
+            _semaphore.Release();
+
+            return handler;
         }
-
-        private async Task<string> ReadAsync(WebSocket webSocket, CancellationToken cancellation = default)
+        private Task NotifyUserConnectedAsync(WebSocketHandler newHandler)
         {
-            byte [] buffer = new byte [4096];
-            StringBuilder stringBuilder = new StringBuilder();
-            bool endOfMessage = false;
+            // Lista donde guardar las tareas de envío de mensajes
+            List<Task> tasks = new List<Task>();
+            // Guardamos una copia de los WebSocketHandler para evitar problemas de concurrencia
+            WebSocketHandler[] handlers = _handlers.ToArray();
+            int totalHandlers = handlers.Length;
 
-            do
+            string messageToNew = $"Hay {totalHandlers} usuarios conectados, tu id es {newHandler.Id}";
+            string messageToOthers = $"Se ha conectado usuario con id {newHandler.Id}. En total hay {totalHandlers} usuarios conectados";
+
+            // Enviamos un mensaje personalizado al nuevo usuario y otro al resto
+            foreach (WebSocketHandler handler in handlers)
             {
-                WebSocketReceiveResult result = await webSocket.ReceiveAsync(buffer, cancellation);
+                string message = handler.Id == newHandler.Id ? messageToNew : messageToOthers;
 
-                if (result.MessageType == WebSocketMessageType.Text)
-                {
-                    string message = Encoding.UTF8.GetString(buffer, 0, result.Count);
-                    stringBuilder.Append(message);
-                }
-                else if (result.CloseStatus.HasValue)
-                {
-                    await webSocket.CloseAsync(result.CloseStatus.Value, result.CloseStatusDescription, cancellation);
-                }
-
-                endOfMessage = result.EndOfMessage;
+                tasks.Add(handler.SendAsync(message));
             }
-            while (webSocket.State == WebSocketState.Open && !endOfMessage);
 
-            return stringBuilder.ToString();
+            // Devolvemos una tarea que se completará cuando todas las tareas de envío de mensajes se completen
+            return Task.WhenAll(tasks);
         }
+
+        private async Task OnDisconnectedAsync(WebSocketHandler disconnectedHandler)
+        {
+            // Esperamos a que haya un hueco disponible
+            await _semaphore.WaitAsync();
+
+            // Sección crítica
+            // Nos desuscribimos de los eventos y eliminamos el WebSocketHandler de la lista
+            disconnectedHandler.Disconnected -= OnDisconnectedAsync;
+            disconnectedHandler.MessageReceived -= OnMessageReceivedAsync;
+            _handlers.Remove(disconnectedHandler);
+
+            // Liberamos el semáforo
+            _semaphore.Release();
+
+            // Lista donde guardar las tareas de envío de mensajes
+            List<Task> tasks = new List<Task>();
+            // Guardamos una copia de los WebSocketHandler para evitar problemas de concurrencia
+            WebSocketHandler[] handlers = _handlers.ToArray();
+
+            string message = $"Se ha desconectado el usuario con id {disconnectedHandler.Id}. Ahora hay {handlers.Length} usuarios conectados";
+
+            // Enviamos el mensaje al resto de usuarios
+            foreach (WebSocketHandler handler in handlers)
+            {
+                tasks.Add(handler.SendAsync(message));
+            }
+
+            // Esperamos a que todas las tareas de envío de mensajes se completen
+            await Task.WhenAll(tasks);
+        }
+
+        private Task OnMessageReceivedAsync(WebSocketHandler userHandler, string message)
+        {
+            // Lista donde guardar las tareas de envío de mensajes
+            List<Task> tasks = new List<Task>();
+            // Guardamos una copia de los WebSocketHandler para evitar problemas de concurrencia
+            WebSocketHandler[] handlers = _handlers.ToArray();
+
+            string messageToMe = $"Tú: {message}";
+            string messageToOthers = $"Usuario {userHandler.Id}: {message}";
+
+            // Enviamos un mensaje personalizado al nuevo usuario y otro al resto
+            foreach (WebSocketHandler handler in handlers)
+            {
+                string messageToSend = handler.Id == userHandler.Id ? messageToMe : messageToOthers;
+                tasks.Add(handler.SendAsync(messageToSend));
+            }
+
+            // Devolvemos una tarea que se completará cuando todas las tareas de envío de mensajes se completen
+            return Task.WhenAll(tasks);
+        }
+
+
 
     }
 }
