@@ -10,14 +10,14 @@ namespace Server.Services
 {
     public class WebSocketService
     {
-        private readonly UnitOfWork _unitOfWork;
+        /*private readonly UnitOfWork _unitOfWork;
         private readonly UserMapper _userMapper;
 
         public WebSocketService(UnitOfWork unitOfWork, UserMapper userMapper)
         {
             _unitOfWork = unitOfWork;
             _userMapper = userMapper;
-        }
+        }*/
         // Lista de WebSocketHandler (clase que gestiona cada WebSocket)
         private readonly List<WebSocketHandler> _handlers = new List<WebSocketHandler>();
         // Semáforo para controlar el acceso a la lista de WebSocketHandler
@@ -54,12 +54,16 @@ namespace Server.Services
             int totalHandlers = handlers.Length;
 
             string messageToNew = $"Hay {totalHandlers} usuarios conectados, tu id es {newHandler.Id}";
+            WebsocketMessageDto websocketMessageDto = new WebsocketMessageDto { Message = messageToNew };
+            string mensajeconectado=JsonSerializer.Serialize(websocketMessageDto);
             string messageToOthers = $"Se ha conectado usuario con id {newHandler.Id}. En total hay {totalHandlers} usuarios conectados";
+            WebsocketMessageDto websocketMessageDto1 = new WebsocketMessageDto{ Message = messageToOthers };
+            string mensajemundo=JsonSerializer.Serialize(websocketMessageDto1);
 
             // Enviamos un mensaje personalizado al nuevo usuario y otro al resto
             foreach (WebSocketHandler handler in handlers)
             {
-                string message = handler.Id == newHandler.Id ? messageToNew : messageToOthers;
+                string message = handler.Id == newHandler.Id ? mensajeconectado : mensajemundo;
 
                 tasks.Add(handler.SendAsync(message));
             }
@@ -88,11 +92,13 @@ namespace Server.Services
             WebSocketHandler[] handlers = _handlers.ToArray();
 
             string message = $"Se ha desconectado el usuario con id {disconnectedHandler.Id}. Ahora hay {handlers.Length} usuarios conectados";
+            WebsocketMessageDto websocketMessageDto = new WebsocketMessageDto { Message = message };
+            string mensajedesconexion = JsonSerializer.Serialize(websocketMessageDto);
 
             // Enviamos el mensaje al resto de usuarios
             foreach (WebSocketHandler handler in handlers)
             {
-                tasks.Add(handler.SendAsync(message));
+                tasks.Add(handler.SendAsync(mensajedesconexion));
             }
 
             // Esperamos a que todas las tareas de envío de mensajes se completen
@@ -105,6 +111,7 @@ namespace Server.Services
             List<Task> tasks = new List<Task>();
             // Guardamos una copia de los WebSocketHandler para evitar problemas de concurrencia
             WebSocketHandler[] handlers = _handlers.ToArray();
+
 
             string messageToMe = $"Tú: {message}";
             string messageToOthers = $"Usuario {userHandler.Id}: {message}";
