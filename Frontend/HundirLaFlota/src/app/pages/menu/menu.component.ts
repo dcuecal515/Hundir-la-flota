@@ -10,6 +10,8 @@ import { environment } from '../../../environments/environment.development';
 import { FormsModule } from '@angular/forms';
 import { SearchserviceService } from '../../services/searchservice.service';
 import { FriendRequest } from '../../models/FriendRequest';
+import { Request } from '../../models/Request';
+import { RequestService } from '../../services/request.service';
 
 
 
@@ -21,7 +23,7 @@ import { FriendRequest } from '../../models/FriendRequest';
   styleUrl: './menu.component.css'
 })
 export class MenuComponent {
-  constructor(private apiService:ApiService,private router:Router,private webSocketService:WebsocketService,private searchServiceService:SearchserviceService){
+  constructor(private apiService:ApiService,private router:Router,private webSocketService:WebsocketService,private searchServiceService:SearchserviceService, private requestService:RequestService){
     this.connectRxjs()
     this.url=environment.images+this.decoded.Avatar;
     if(localStorage.getItem(localStorage.getItem("token"))){
@@ -31,7 +33,7 @@ export class MenuComponent {
     }else{
       this.decoded=null
     }
-
+    this.reciveData()
   }
 
    
@@ -49,6 +51,7 @@ export class MenuComponent {
   decoded:User
   url:string
   name:String
+  requestList:Request[]
   userList:Friend[]
 
 
@@ -57,6 +60,8 @@ export class MenuComponent {
     this.connected$ = this.webSocketService.connected.subscribe(() => this.isConnected = true);
     this.messageReceived$ = this.webSocketService.messageReceived.subscribe(message => this.serverResponse = message);
     this.disconnected$ = this.webSocketService.disconnected.subscribe(() => this.isConnected = false);
+    // Pide los amigos que tiene el usuario
+    // this.friendList = JSON.parse(this.serverResponse);*/
   }
 
 
@@ -128,5 +133,11 @@ export class MenuComponent {
       console.log(JSON.stringify(User));
       this.webSocketService.sendRxjs(jsonData);
     }
+  }
+
+  async reciveData(){
+    var result = await this.requestService.receiveRequests()
+    console.log(result.data)
+    this.requestList = result.data;
   }
 }

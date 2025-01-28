@@ -7,6 +7,6 @@ namespace Server.Models
         public int Id { get; set; }
         public string NickName { get; set; }
         public string Avatar { get; set; }
-        public UserState UserState { get; set; }
+        public string UserState { get; set; }
     }
 }
