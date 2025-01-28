@@ -22,92 +22,11 @@ namespace Server.Services
         private readonly List<WebSocketHandler> _handlers = new List<WebSocketHandler>();
         // Semáforo para controlar el acceso a la lista de WebSocketHandler
         private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1, 1);
-        public async Task HandleAsync(WebSocket webSocket,User user)
+        public async Task HandleAsync(WebSocket webSocket, User user)
         {
-            WebSocketHandler handler = await AddWebsocketAsync(webSocket,user.Id);
+            WebSocketHandler handler = await AddWebsocketAsync(webSocket, user.Id);
             await NotifyUserConnectedAsync(handler);
             await handler.HandleAsync();
-
-            // Mientras que el websocket del cliente esté conectado
-            while (webSocket.State == WebSocketState.Open)
-            {
-
-                string message = await ReadAsync(webSocket);
-
-                // JsonConvert.DeserializeObject<ReceivedUserDto>(message);
-
-                if (!string.IsNullOrEmpty(message))
-                {
-                    message = message.Substring(1, message.Length - 2); //Arreglos por recibir mal
-                    message = message.Replace("\\", "");
-                    Console.WriteLine("mensaje: " + message);
-
-                    /*var options = new JsonSerializerOptions
-                    {
-                        PropertyNameCaseInsensitive = true,
-                        DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
-                    };
-                    ReceivedUserDto prueba = new ReceivedUserDto
-                    {
-                        TypeMessage = "amistad",
-                        Identifier ="Manuel"
-                    };
-                    string pruebaApoyo = JsonSerializer.Serialize(prueba);
-                    Console.WriteLine("Prueba: "+pruebaApoyo+" Mensaje recibido: "+message);*/
-                    ReceivedUserDto receivedUser = JsonSerializer.Deserialize<ReceivedUserDto>(message);
-
-                    //Esto no se borraria por ahora
-                    /*if (receivedUser.TypeMessage.Equals("amistad"))
-                    {
-                        string userName = receivedUser.Identifier;
-
-                        User user2 = await _unitOfWork.UserRepository.GetByIdentifierAsync(userName);
-
-                        if (user2 != null)
-                        {
-                            Request request = await _unitOfWork.RequestRepository.GetRequestByUsersId(user.Id,user2.Id);
-                            if (request == null) {
-                                request = new Request
-                                {
-                                    SenderUserId=user.Id,
-                                    ReceivingUserId=user2.Id
-                                };
-                                await _unitOfWork.RequestRepository.InsertAsync(request);
-                                await _unitOfWork.SaveAsync();
-
-                                WebsocketMessageDto outMessage = new WebsocketMessageDto
-                                {
-                                    Message = "Se envió correctamente la solicitud"
-                                };
-
-                                string apoyo = JsonSerializer.Serialize(outMessage);
-
-                                await SendAsync(webSocket, apoyo);
-                            } else
-                            {
-                                WebsocketMessageDto outMessage = new WebsocketMessageDto
-                                {
-                                    Message = "No se envió la solicitud"
-                                };
-
-                                string apoyo = JsonSerializer.Serialize(outMessage);
-
-                                await SendAsync(webSocket, apoyo);
-                            }
-                        } 
-                    }*/
-                    }
-                   
-                }
-
-                /*UserDateDto userDateDto=_userMapper.toDto(user);
-                string apoyo = JsonSerializer.Serialize(userDateDto);
-                byte[] bytes = Encoding.UTF8.GetBytes(apoyo);
-
-                CancellationToken cancellation = default;
-                await webSocket.SendAsync(bytes, WebSocketMessageType.Text, true, cancellation);*/
-
-            }
         }
         private async Task<WebSocketHandler> AddWebsocketAsync(WebSocket webSocket,int id)
         {
