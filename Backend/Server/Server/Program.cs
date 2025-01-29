@@ -41,6 +41,7 @@ builder.Services.AddScoped<RequestService>();
 builder.Services.AddSingleton<WebSocketService>();
 builder.Services.AddScoped<WSHelper>();
 
+
 builder.Services.AddCors(
                 options =>
                 options.AddDefaultPolicy(

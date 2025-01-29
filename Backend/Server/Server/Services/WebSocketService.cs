@@ -16,94 +16,16 @@ namespace Server.Services
         {
             _serviceProvider = serviceProvider;
         }
+
         // Lista de WebSocketHandler (clase que gestiona cada WebSocket)
         private readonly List<WebSocketHandler> _handlers = new List<WebSocketHandler>();
         // Semáforo para controlar el acceso a la lista de WebSocketHandler
         private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1, 1);
-        public async Task HandleAsync(WebSocket webSocket,User user)
+        public async Task HandleAsync(WebSocket webSocket, User user)
         {
-            WebSocketHandler handler = await AddWebsocketAsync(webSocket,user.Id);
+            WebSocketHandler handler = await AddWebsocketAsync(webSocket, user.Id);
             await NotifyUserConnectedAsync(handler);
             await handler.HandleAsync();
-
-            // Mientras que el websocket del cliente esté conectado
-            
-
-                // string message = await ReadAsync(webSocket);
-
-                // JsonConvert.DeserializeObject<ReceivedUserDto>(message);
-
-                /*if (!string.IsNullOrEmpty(message))
-                {
-                    message = message.Substring(1, message.Length - 2); //Arreglos por recibir mal
-                    message = message.Replace("\\", "");
-                    Console.WriteLine("mensaje: " + message);*/
-
-                    /*var options = new JsonSerializerOptions
-                    {
-                        PropertyNameCaseInsensitive = true,
-                        DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
-                    };
-                    ReceivedUserDto prueba = new ReceivedUserDto
-                    {
-                        TypeMessage = "amistad",
-                        Identifier ="Manuel"
-                    };
-                    string pruebaApoyo = JsonSerializer.Serialize(prueba);
-                    Console.WriteLine("Prueba: "+pruebaApoyo+" Mensaje recibido: "+message);*/
-
-                    //ReceivedUserDto receivedUser = JsonSerializer.Deserialize<ReceivedUserDto>(message);
-
-                    //Esto no se borraria por ahora
-                    /*if (receivedUser.TypeMessage.Equals("amistad"))
-                    {
-                        string userName = receivedUser.Identifier;
-
-                        User user2 = await _unitOfWork.UserRepository.GetByIdentifierAsync(userName);
-
-                        if (user2 != null)
-                        {
-                            Request request = await _unitOfWork.RequestRepository.GetRequestByUsersId(user.Id,user2.Id);
-                            if (request == null) {
-                                request = new Request
-                                {
-                                    SenderUserId=user.Id,
-                                    ReceivingUserId=user2.Id
-                                };
-                                await _unitOfWork.RequestRepository.InsertAsync(request);
-                                await _unitOfWork.SaveAsync();
-
-                                WebsocketMessageDto outMessage = new WebsocketMessageDto
-                                {
-                                    Message = "Se envió correctamente la solicitud"
-                                };
-
-                                string apoyo = JsonSerializer.Serialize(outMessage);
-
-                                await SendAsync(webSocket, apoyo);
-                            } else
-                            {
-                                WebsocketMessageDto outMessage = new WebsocketMessageDto
-                                {
-                                    Message = "No se envió la solicitud"
-                                };
-
-                                string apoyo = JsonSerializer.Serialize(outMessage);
-
-                                await SendAsync(webSocket, apoyo);
-                            }
-                        } 
-                    }*/
-                   
-                //}
-
-                /*UserDateDto userDateDto=_userMapper.toDto(user);
-                string apoyo = JsonSerializer.Serialize(userDateDto);
-                byte[] bytes = Encoding.UTF8.GetBytes(apoyo);
-
-                CancellationToken cancellation = default;
-                await webSocket.SendAsync(bytes, WebSocketMessageType.Text, true, cancellation);*/
-            
         }
         private async Task<WebSocketHandler> AddWebsocketAsync(WebSocket webSocket,int id)
         {
@@ -132,6 +54,7 @@ namespace Server.Services
 
             string messageToNew = $"Hay {totalHandlers} usuarios conectados, tu id es {newHandler.Id}";
             WebsocketMessageDto websocketMessageDto = new WebsocketMessageDto { Message = messageToNew };
+
             string messageConnected = JsonSerializer.Serialize(websocketMessageDto);
             string messageToOthers = $"Se ha conectado usuario con id {newHandler.Id}. En total hay {totalHandlers} usuarios conectados";
             WebsocketMessageDto websocketMessageDto2 = new WebsocketMessageDto { Message = messageToOthers };
@@ -141,7 +64,6 @@ namespace Server.Services
             foreach (WebSocketHandler handler in handlers)
             {
                 string message = handler.Id == newHandler.Id ? messageConnected : messageWorld;
-
                 tasks.Add(handler.SendAsync(message));
             }
 
@@ -169,11 +91,13 @@ namespace Server.Services
             WebSocketHandler[] handlers = _handlers.ToArray();
 
             string message = $"Se ha desconectado el usuario con id {disconnectedHandler.Id}. Ahora hay {handlers.Length} usuarios conectados";
+            WebsocketMessageDto websocketMessageDto = new WebsocketMessageDto { Message = message };
+            string mensajedesconexion = JsonSerializer.Serialize(websocketMessageDto);
 
             // Enviamos el mensaje al resto de usuarios
             foreach (WebSocketHandler handler in handlers)
             {
-                tasks.Add(handler.SendAsync(message));
+                tasks.Add(handler.SendAsync(mensajedesconexion));
             }
 
             // Esperamos a que todas las tareas de envío de mensajes se completen

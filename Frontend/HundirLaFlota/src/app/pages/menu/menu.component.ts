@@ -32,6 +32,7 @@ export class MenuComponent {
     }else{
       this.decoded=null
     }
+    console.log("HOLAAAAAAAAA:"+this.decoded);
     this.reciveData()
     this.url=environment.images+this.decoded.Avatar;
   }
