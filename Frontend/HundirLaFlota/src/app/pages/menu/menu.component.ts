@@ -52,7 +52,7 @@ export class MenuComponent {
   decoded:User
   url:string
   name:String
-  requestList:Request[]
+  requestList:Request[] = []
   userList:Friend[]
 
 
@@ -60,11 +60,10 @@ export class MenuComponent {
   ngOnInit(): void {
     this.connected$ = this.webSocketService.connected.subscribe(() => this.isConnected = true);
     this.messageReceived$ = this.webSocketService.messageReceived.subscribe(message => {
-      message = JSON.stringify(message)
-      if(message.includes("Message: 'Has recibido una solicitud de")){
-        var newRequest = JSON.parse(message);
-        newRequest.message = null;
-        this.requestList.push(newRequest);
+      console.log(message.message)
+      if(message.message=="Has recibido una solicitud de amistad"){
+        console.log("amistad")
+        this.requestList.push(message)
       }
       this.serverResponse = message
     });

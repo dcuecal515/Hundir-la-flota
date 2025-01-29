@@ -39,6 +39,7 @@ export class WebsocketService {
 
   connectRxjs() {
     console.log("me conecto")
+    console.log(localStorage.getItem("token"))
     if(localStorage.getItem("token")){
       this.path=environment.socketUrllocal+localStorage.getItem("token")
     }

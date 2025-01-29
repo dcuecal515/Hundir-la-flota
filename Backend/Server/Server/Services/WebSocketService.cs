@@ -157,9 +157,9 @@ namespace Server.Services
                                         Id = user.Id,
                                         NickName = user.NickName,
                                         Avatar = user.Avatar,
-                                        Message = "Has recibido una solicitud de " + user.NickName
+                                        Message = "Has recibido una solicitud de amistad"
                                     };
-                                    string messageToSend = JsonSerializer.Serialize(outMessage);
+                                    string messageToSend = JsonSerializer.Serialize(outMessage,JsonSerializerOptions.Web);
                                     tasks.Add(handler.SendAsync(messageToSend));
                                 }
 

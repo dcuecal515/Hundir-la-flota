@@ -29,8 +29,12 @@ namespace Server.Services
                     requestsDtos.Add(dto);
                 }
             }
-
-            return requestsDtos;
+            if (requestsDtos != null)
+            {
+                return requestsDtos;
+            }
+            return null;
+            
         }
     }
 }
