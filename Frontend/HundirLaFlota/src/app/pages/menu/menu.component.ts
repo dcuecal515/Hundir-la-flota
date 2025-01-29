@@ -25,15 +25,16 @@ import { RequestService } from '../../services/request.service';
 export class MenuComponent {
   constructor(private apiService:ApiService,private router:Router,private webSocketService:WebsocketService,private searchServiceService:SearchserviceService, private requestService:RequestService){
     this.connectRxjs()
-    this.url=environment.images+this.decoded.Avatar;
-    if(localStorage.getItem(localStorage.getItem("token"))){
+    if(localStorage.getItem("token")){
       this.decoded=jwtDecode(localStorage.getItem("token"));
     }else if(sessionStorage.getItem("token")){
       this.decoded=jwtDecode(sessionStorage.getItem("token"));
     }else{
       this.decoded=null
     }
+    console.log("HOLAAAAAAAAA:"+this.decoded);
     this.reciveData()
+    this.url=environment.images+this.decoded.Avatar;
   }
 
    

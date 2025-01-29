@@ -38,7 +38,7 @@ builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<PasswordService>();
 builder.Services.AddScoped<ImageService>();
 builder.Services.AddScoped<RequestService>();
-builder.Services.AddScoped<WebSocketService>();
+builder.Services.AddSingleton<WebSocketService>();
 
 builder.Services.AddCors(
                 options =>
