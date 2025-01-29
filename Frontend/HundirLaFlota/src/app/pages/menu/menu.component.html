@@ -26,7 +26,7 @@
 @if(requestList != null && requestList != []){
     <div>
         @for(request of requestList; track request.nickName){
-            <p><b>{{request.nickName}}</b> te a solicitado ser tu amigo<button>Aceptar solicitud</button></p>
+            <p><b>{{request.nickName}}</b> te a solicitado ser tu amigo<button>Aceptar solicitud</button><button (click)="rejectUser(request.nickName)">Rechazar Solicitud</button></p>
         }
     </div>
 }

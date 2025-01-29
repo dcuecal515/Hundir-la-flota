@@ -60,10 +60,13 @@ export class MenuComponent {
   ngOnInit(): void {
     this.connected$ = this.webSocketService.connected.subscribe(() => this.isConnected = true);
     this.messageReceived$ = this.webSocketService.messageReceived.subscribe(message => {
-      console.log(message.message)
       if(message.message=="Has recibido una solicitud de amistad"){
         console.log("amistad")
         this.requestList.push(message)
+      }
+      if(message.message=="Te rechazaron"){
+        console.log("rechazo")
+        alert("Te rechazaron la solicitud de amistad")
       }
       this.serverResponse = message
     });
@@ -141,6 +144,15 @@ export class MenuComponent {
       console.log(JSON.stringify(User));
       this.webSocketService.sendRxjs(jsonData);
     }
+  }
+
+  rejectUser(nickName){
+    const newRequestList = this.requestList.filter(request => request.nickName !== nickName);
+    this.requestList = newRequestList
+    const message:FriendRequest={TypeMessage:"rechazar",Identifier:nickName}
+    const jsonData = JSON.stringify(message)
+    console.log(jsonData)
+    this.webSocketService.sendRxjs(jsonData)
   }
 
   async reciveData(){

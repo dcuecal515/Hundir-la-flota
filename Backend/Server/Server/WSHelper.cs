@@ -31,5 +31,11 @@ namespace Server
             await _unitOfWork.RequestRepository.InsertAsync(request);
             await _unitOfWork.SaveAsync();
         }
+
+        public async Task DeleteRequestAsync(Request request)
+        {
+            _unitOfWork.RequestRepository.Delete(request);
+            await _unitOfWork.SaveAsync();
+        }
     }
 }

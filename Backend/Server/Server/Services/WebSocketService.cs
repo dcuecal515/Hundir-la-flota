@@ -148,7 +148,7 @@ namespace Server.Services
                                     {
                                         Message = "Se envió correctamente la solicitud"
                                     };
-                                    string messageToSend = JsonSerializer.Serialize(outMessage);
+                                    string messageToSend = JsonSerializer.Serialize(outMessage,JsonSerializerOptions.Web);
                                     tasks.Add(handler.SendAsync(messageToSend));
                                 } else if (handler.Id == user2.Id)
                                 {
@@ -171,7 +171,7 @@ namespace Server.Services
                                 Message = "No se envió la solicitud"
                             };
 
-                            string apoyo = JsonSerializer.Serialize(outMessage);
+                            string apoyo = JsonSerializer.Serialize(outMessage,JsonSerializerOptions.Web);
 
                             tasks.Add(userHandler.SendAsync(apoyo));
                         }
@@ -179,6 +179,37 @@ namespace Server.Services
                 }
 
                 
+            }
+            if (receivedUser.TypeMessage.Equals("rechazar"))
+            {
+                string userName = receivedUser.Identifier;
+                using (var scope = _serviceProvider.CreateScope())
+                {
+                    var _wsHelper = scope.ServiceProvider.GetRequiredService<WSHelper>();
+                    User user = await _wsHelper.GetUserById(userHandler.Id);
+                    User user2 = await _wsHelper.GetUserByNickname(userName);
+                    if (user2 != null)
+                    {
+                        Request request = await _wsHelper.GetRequestByUsersId(user.Id, user2.Id);
+                        if (request != null)
+                        {
+                            await _wsHelper.DeleteRequestAsync(request);
+                            foreach (WebSocketHandler handler in handlers)
+                            {
+                                if (handler.Id == user2.Id)
+                                {
+                                    WebsocketMessageDto outMessage = new WebsocketMessageDto
+                                    {
+                                        Message = "Te rechazaron"
+                                    };
+                                    string messageToSend = JsonSerializer.Serialize(outMessage,JsonSerializerOptions.Web);
+                                    tasks.Add(handler.SendAsync(messageToSend));
+                                }
+                            }
+                        }
+                    }
+
+                }
             }
 
             await Task.WhenAll(tasks);
