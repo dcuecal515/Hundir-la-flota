@@ -10,13 +10,11 @@ namespace Server.Services
 {
     public class WebSocketService
     {
-        private readonly WSHelper _wsHelper;
-        private readonly UserMapper _userMapper;
+        private readonly IServiceProvider _serviceProvider;
 
-        public WebSocketService(WSHelper wsHelper, UserMapper userMapper)
+        public WebSocketService(IServiceProvider serviceProvider)
         {
-            _wsHelper = wsHelper;
-            _userMapper = userMapper;
+            _serviceProvider = serviceProvider;
         }
         // Lista de WebSocketHandler (clase que gestiona cada WebSocket)
         private readonly List<WebSocketHandler> _handlers = new List<WebSocketHandler>();
@@ -200,58 +198,63 @@ namespace Server.Services
             {
                 string userName = receivedUser.Identifier;
 
-                User user = await _wsHelper.GetUserById(userHandler.Id);
-                User user2 = await _wsHelper.GetUserByNickname(userName);
-
-                if (user2 != null)
+                using (var scope = _serviceProvider.CreateScope())
                 {
-                    Request request = await _wsHelper.GetRequestByUsersId(user.Id, user2.Id);
-                    if (request == null)
-                    {
-                        request = new Request
-                        {
-                            SenderUserId = user.Id,
-                            ReceivingUserId = user2.Id
-                        };
-                        await _wsHelper.InsertRequestAsync(request);
+                    var _wsHelper = scope.ServiceProvider.GetRequiredService<WSHelper>();
+                    User user = await _wsHelper.GetUserById(userHandler.Id);
+                    User user2 = await _wsHelper.GetUserByNickname(userName);
 
-                        foreach (WebSocketHandler handler in handlers)
+                    if (user2 != null)
+                    {
+                        Request request = await _wsHelper.GetRequestByUsersId(user.Id, user2.Id);
+                        if (request == null)
                         {
-                            if(handler.Id == userHandler.Id)
+                            request = new Request
                             {
-                                WebsocketMessageDto outMessage = new WebsocketMessageDto
-                                {
-                                    Message = "Se envió correctamente la solicitud"
-                                };
-                                string messageToSend = JsonSerializer.Serialize(outMessage);
-                                tasks.Add(handler.SendAsync(messageToSend));
-                            }
-                            else if(handler.Id == user2.Id)
+                                SenderUserId = user.Id,
+                                ReceivingUserId = user2.Id
+                            };
+                            await _wsHelper.InsertRequestAsync(request);
+
+                            foreach (WebSocketHandler handler in handlers)
                             {
-                                UserDateDto outMessage = new UserDateDto
+                                if (handler.Id == userHandler.Id)
                                 {
-                                    Id = user2.Id,
-                                    NickName = user2.NickName,
-                                    Avatar = user2.Avatar,
-                                    Message = "Has recibido una solicitud de "+user2.NickName
-                                };
-                                string messageToSend = JsonSerializer.Serialize(outMessage);
-                                tasks.Add(handler.SendAsync(messageToSend));
+                                    WebsocketMessageDto outMessage = new WebsocketMessageDto
+                                    {
+                                        Message = "Se envió correctamente la solicitud"
+                                    };
+                                    string messageToSend = JsonSerializer.Serialize(outMessage);
+                                    tasks.Add(handler.SendAsync(messageToSend));
+                                } else if (handler.Id == user2.Id)
+                                {
+                                    UserDateDto outMessage = new UserDateDto
+                                    {
+                                        Id = user.Id,
+                                        NickName = user.NickName,
+                                        Avatar = user.Avatar,
+                                        Message = "Has recibido una solicitud de " + user.NickName
+                                    };
+                                    string messageToSend = JsonSerializer.Serialize(outMessage);
+                                    tasks.Add(handler.SendAsync(messageToSend));
+                                }
+
                             }
-                            
+                        } else
+                        {
+                            WebsocketMessageDto outMessage = new WebsocketMessageDto
+                            {
+                                Message = "No se envió la solicitud"
+                            };
+
+                            string apoyo = JsonSerializer.Serialize(outMessage);
+
+                            tasks.Add(userHandler.SendAsync(apoyo));
                         }
-                    } else
-                    {
-                        WebsocketMessageDto outMessage = new WebsocketMessageDto
-                        {
-                            Message = "No se envió la solicitud"
-                        };
-
-                        string apoyo = JsonSerializer.Serialize(outMessage);
-
-                        tasks.Add(userHandler.SendAsync(apoyo));
                     }
                 }
+
+                
             }
 
             await Task.WhenAll(tasks);
