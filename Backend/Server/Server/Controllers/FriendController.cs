@@ -19,13 +19,13 @@ namespace Server.Controllers
             _userService = userService;
 
         }
-        [Authorize]
+        /*[Authorize]
         [HttpGet]
         public async Task<IEnumerable<FriendDto>> GetAllFriendsAsyncs()
         {
             User user = await GetCurrentUser();
 
-        }
+        }*/
         private async Task<User> GetCurrentUser()
         {
             // Pilla el usuario autenticado según ASP
