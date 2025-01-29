@@ -67,7 +67,6 @@ namespace Server.Services
 
                 tasks.Add(handler.SendAsync(message));
             }
-
             // Devolvemos una tarea que se completará cuando todas las tareas de envío de mensajes se completen
             return Task.WhenAll(tasks);
         }

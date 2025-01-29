@@ -26,7 +26,7 @@ namespace Server.Controllers
         public async Task<IEnumerable<UserDateDto>> Search([FromQuery] string name)
         {
             
-        string separatename = name.Normalize(NormalizationForm.FormD);
+        /*string separatename = name.Normalize(NormalizationForm.FormD);
 
             StringBuilder newname = new StringBuilder();
             foreach (char c in separatename)
@@ -37,7 +37,7 @@ namespace Server.Controllers
                 }
             }
 
-            string searchname= newname.ToString().Normalize(NormalizationForm.FormC);
+            string searchname= newname.ToString().Normalize(NormalizationForm.FormC);*/
             User usersesion = await GetCurrentUser();
             IEnumerable<User> users=await _userService.getAllUserByName(name.ToLower(),usersesion.Id);
             List<UserDateDto> result=new List<UserDateDto>();
@@ -46,6 +46,19 @@ namespace Server.Controllers
                 UserDateDto userDateDto = _userMapper.toDto(user);
                 result.Add(userDateDto);
             }
+            if (result == null)
+            {
+                return null;
+            }
+            /*En desarrollo*/
+            /*foreach(UserDateDto userDateDto in result)
+            {
+                Request request = await _WsHelper.GetRequestByUsersId(usersesion.Id,userDateDto.Id);
+                if (request == null)
+                {
+
+                }
+            }*/
             return result;
         }
 

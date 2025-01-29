@@ -19,6 +19,10 @@ namespace Server
 
         public RequestRepository RequestRepository => _requestRepository ??= new RequestRepository(_context);
 
+        private FriendRepository _friendRepository;
+
+        public FriendRepository FriendRepository => _friendRepository ??= new FriendRepository(_context);
+
         public HundirLaFlotaContext Context => _context;
 
         public async Task<bool> SaveAsync()
