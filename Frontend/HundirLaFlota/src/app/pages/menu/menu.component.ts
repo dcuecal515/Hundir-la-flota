@@ -59,7 +59,15 @@ export class MenuComponent {
 
   ngOnInit(): void {
     this.connected$ = this.webSocketService.connected.subscribe(() => this.isConnected = true);
-    this.messageReceived$ = this.webSocketService.messageReceived.subscribe(message => this.serverResponse = message);
+    this.messageReceived$ = this.webSocketService.messageReceived.subscribe(message => {
+      message = JSON.stringify(message)
+      if(message.includes("Message: 'Has recibido una solicitud de")){
+        var newRequest = JSON.parse(message);
+        newRequest.message = null;
+        this.requestList.push(newRequest);
+      }
+      this.serverResponse = message
+    });
     this.disconnected$ = this.webSocketService.disconnected.subscribe(() => this.isConnected = false);
     // Pide los amigos que tiene el usuario
     // this.friendList = JSON.parse(this.serverResponse);*/
