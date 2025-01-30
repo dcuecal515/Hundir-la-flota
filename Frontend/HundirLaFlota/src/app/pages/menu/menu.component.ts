@@ -178,5 +178,6 @@ export class MenuComponent {
   async recievFriend(){
     var result = await this.requestService.receiveFriend()
     console.log(result.data)
+    this.friendList = result.data
   }
 }
