@@ -62,18 +62,24 @@ namespace Server.Controllers
                 Request request = await _wshelper.GetRequestByUsersId(usersesion.Id,userDateDto.Id);
                 if (request == null)
                 {
-                    foreach(FriendDto friend in friends)
+                    if (friends.Count()>0)
                     {
-                        if(friend.Id == userDateDto.Id)
+                        foreach (FriendDto friend in friends)
                         {
-                            userDateDto.Message = "si";
-                            resultfinal.Add(userDateDto);
+                            if (friend.Id == userDateDto.Id)
+                            {
+                                userDateDto.Message = "si";
+                                resultfinal.Add(userDateDto);
+                            } else
+                            {
+                                userDateDto.Message = "no";
+                                resultfinal.Add(userDateDto);
+                            }
                         }
-                        else
-                        {
-                            userDateDto.Message = "no";
-                            resultfinal.Add(userDateDto);
-                        }
+                    } else
+                    {
+                        userDateDto.Message = "no";
+                        resultfinal.Add(userDateDto);
                     }
                 }
                 else

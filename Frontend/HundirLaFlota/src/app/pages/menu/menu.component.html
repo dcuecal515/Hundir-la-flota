@@ -18,7 +18,7 @@
 @if(userList != null){
     <div>
         @for(user of userList; track user.id){
-            <p>{{user.nickName}} <button (click)="requestUser(user.nickName)">Enviar solicitud</button></p>
+            <p>{{user.nickName}} @if(user.message == "no"){<button (click)="requestUser(user.nickName)">Enviar solicitud</button>}</p>
         }
     </div>
 }
