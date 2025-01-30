@@ -132,36 +132,40 @@ namespace Server.Services
                         Request request = await _wsHelper.GetRequestByUsersId(user.Id, user2.Id);
                         if (request == null)
                         {
-                            request = new Request
+                            bool isFriend = _wsHelper.GetIfUsersAreFriends(user, user2);
+                            if (!isFriend)
                             {
-                                SenderUserId = user.Id,
-                                ReceivingUserId = user2.Id
-                            };
-                            await _wsHelper.InsertRequestAsync(request);
+                                request = new Request
+                                {
+                                    SenderUserId = user.Id,
+                                    ReceivingUserId = user2.Id
+                                };
+                                await _wsHelper.InsertRequestAsync(request);
 
-                            foreach (WebSocketHandler handler in handlers)
-                            {
-                                if (handler.Id == userHandler.Id)
+                                foreach (WebSocketHandler handler in handlers)
                                 {
-                                    WebsocketMessageDto outMessage = new WebsocketMessageDto
+                                    if (handler.Id == userHandler.Id)
                                     {
-                                        Message = "Se envió correctamente la solicitud"
-                                    };
-                                    string messageToSend = JsonSerializer.Serialize(outMessage);
-                                    tasks.Add(handler.SendAsync(messageToSend));
-                                } else if (handler.Id == user2.Id)
-                                {
-                                    UserDateDto outMessage = new UserDateDto
+                                        WebsocketMessageDto outMessage = new WebsocketMessageDto
+                                        {
+                                            Message = "Se envió correctamente la solicitud"
+                                        };
+                                        string messageToSend = JsonSerializer.Serialize(outMessage, JsonSerializerOptions.Web);
+                                        tasks.Add(handler.SendAsync(messageToSend));
+                                    } else if (handler.Id == user2.Id)
                                     {
-                                        Id = user.Id,
-                                        NickName = user.NickName,
-                                        Avatar = user.Avatar,
-                                        Message = "Has recibido una solicitud de amistad"
-                                    };
-                                    string messageToSend = JsonSerializer.Serialize(outMessage,JsonSerializerOptions.Web);
-                                    tasks.Add(handler.SendAsync(messageToSend));
+                                        UserDateDto outMessage = new UserDateDto
+                                        {
+                                            Id = user.Id,
+                                            NickName = user.NickName,
+                                            Avatar = user.Avatar,
+                                            Message = "Has recibido una solicitud de amistad"
+                                        };
+                                        string messageToSend = JsonSerializer.Serialize(outMessage, JsonSerializerOptions.Web);
+                                        tasks.Add(handler.SendAsync(messageToSend));
+                                    }
+
                                 }
-
                             }
                         } else
                         {
@@ -170,7 +174,7 @@ namespace Server.Services
                                 Message = "No se envió la solicitud"
                             };
 
-                            string apoyo = JsonSerializer.Serialize(outMessage);
+                            string apoyo = JsonSerializer.Serialize(outMessage,JsonSerializerOptions.Web);
 
                             tasks.Add(userHandler.SendAsync(apoyo));
                         }
@@ -179,6 +183,86 @@ namespace Server.Services
 
                 
             }
+            if (receivedUser.TypeMessage.Equals("rechazar"))
+            {
+                string userName = receivedUser.Identifier;
+                using (var scope = _serviceProvider.CreateScope())
+                {
+                    var _wsHelper = scope.ServiceProvider.GetRequiredService<WSHelper>();
+                    User user = await _wsHelper.GetUserById(userHandler.Id);
+                    User user2 = await _wsHelper.GetUserByNickname(userName);
+                    if (user2 != null)
+                    {
+                        Request request = await _wsHelper.GetRequestByUsersId(user.Id, user2.Id);
+                        if (request != null)
+                        {
+                            await _wsHelper.DeleteRequestAsync(request);
+                            foreach (WebSocketHandler handler in handlers)
+                            {
+                                if (handler.Id == user2.Id)
+                                {
+                                    WebsocketMessageDto outMessage = new WebsocketMessageDto
+                                    {
+                                        Message = "Te rechazaron"
+                                    };
+                                    string messageToSend = JsonSerializer.Serialize(outMessage,JsonSerializerOptions.Web);
+                                    tasks.Add(handler.SendAsync(messageToSend));
+                                }
+                            }
+                        }
+                    }
+
+                }
+            }
+            if (receivedUser.TypeMessage.Equals("aceptar"))
+            {
+                string userName = receivedUser.Identifier;
+
+
+                using (var scope = _serviceProvider.CreateScope())
+                {
+                    var _wsHelper = scope.ServiceProvider.GetRequiredService<WSHelper>();
+                    var _userMapper = scope.ServiceProvider.GetRequiredService<UserMapper>();
+                    User user = await _wsHelper.GetUserById(userHandler.Id);
+                    User user2 = await _wsHelper.GetUserByNickname(userName);
+
+                    if (user2 != null)
+                    {
+                        Request request = await _wsHelper.GetRequestByUsersId(user.Id, user2.Id);
+                        if (request != null)
+                        {
+                            bool isFriend = _wsHelper.GetIfUsersAreFriends(user,user2);
+                            if (!isFriend)
+                            {
+                                var user1NewFriend = new Friend { FriendId = user2.Id };
+                                var user2NewFriend = new Friend { FriendId = user.Id };
+                                user.friends.Add(user1NewFriend);
+                                user2.friends.Add(user2NewFriend);
+                                await _wsHelper.UpdateUserAsync(user);
+                                await _wsHelper.UpdateUserAsync(user2);
+
+                                foreach (WebSocketHandler handler in handlers)
+                                {
+                                    if (handler.Id == userHandler.Id)
+                                    {
+                                        SendFriendDto outMessage = _userMapper.toSendFriendDto(user2);
+                                        string messageToSend = JsonSerializer.Serialize(outMessage, JsonSerializerOptions.Web);
+                                        tasks.Add(handler.SendAsync(messageToSend));
+                                    } else if (handler.Id == user2.Id)
+                                    {
+                                        SendFriendDto outMessage = _userMapper.toSendFriendDto(user);
+                                        string messageToSend = JsonSerializer.Serialize(outMessage, JsonSerializerOptions.Web);
+                                        tasks.Add(handler.SendAsync(messageToSend));
+                                    }
+
+                                }
+
+                            }
+                        }
+                    }
+                }
+            }
+
 
             await Task.WhenAll(tasks);
         }

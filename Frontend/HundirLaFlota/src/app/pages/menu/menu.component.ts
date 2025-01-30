@@ -54,16 +54,25 @@ export class MenuComponent {
   name:String
   requestList:Request[] = []
   userList:Friend[]
+  friendList:Friend[] = []
 
 
 
   ngOnInit(): void {
     this.connected$ = this.webSocketService.connected.subscribe(() => this.isConnected = true);
     this.messageReceived$ = this.webSocketService.messageReceived.subscribe(message => {
-      console.log(message.message)
       if(message.message=="Has recibido una solicitud de amistad"){
         console.log("amistad")
         this.requestList.push(message)
+      }
+      if(message.message=="Te rechazaron"){
+        console.log("rechazo")
+        alert("Te rechazaron la solicitud de amistad")
+      }
+      if(message.message=="Añadido a lista de amigos"){
+        console.log("nuevo amigo")
+        alert("Ahora eres amigo de "+message.nickName)
+        this.friendList.push(message)
       }
       this.serverResponse = message
     });
@@ -79,8 +88,6 @@ export class MenuComponent {
 
   hola:Friend={nickName: "hOla"}
   adios:Friend={nickName:"adiós"}
-
-  friendList = [this.hola, this.adios]
   deleteToken(){
     this.apiService.deleteToken();
     this.webSocketService.disconnectRxjs();
@@ -133,7 +140,7 @@ export class MenuComponent {
   }
 
 
-  addUser(nickName){
+  requestUser(nickName){
     if (nickName != "") {
       const User:FriendRequest={TypeMessage:"amistad" ,Identifier: nickName,Identifier2:null}
       // Convertir el objeto a JSON
@@ -141,6 +148,24 @@ export class MenuComponent {
       console.log(JSON.stringify(User));
       this.webSocketService.sendRxjs(jsonData);
     }
+  }
+
+  rejectUser(nickName){
+    const newRequestList = this.requestList.filter(request => request.nickName !== nickName);
+    this.requestList = newRequestList
+    const message:FriendRequest={TypeMessage:"rechazar",Identifier:nickName}
+    const jsonData = JSON.stringify(message)
+    console.log(jsonData)
+    this.webSocketService.sendRxjs(jsonData)
+  }
+
+  addUser(nickName){
+    const newRequestList = this.requestList.filter(request => request.nickName !== nickName);
+    this.requestList = newRequestList
+    const message:FriendRequest={TypeMessage:"aceptar",Identifier:nickName}
+    const jsonData = JSON.stringify(message)
+    console.log(jsonData)
+    this.webSocketService.sendRxjs(jsonData)
   }
 
   async reciveData(){

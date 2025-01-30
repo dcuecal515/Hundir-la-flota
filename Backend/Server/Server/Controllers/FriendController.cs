@@ -26,6 +26,7 @@ namespace Server.Controllers
             User user = await GetCurrentUser();
             return await _friendService.GetAllFriend(user.Id);
         }
+
         private async Task<User> GetCurrentUser()
         {
             // Pilla el usuario autenticado según ASP
