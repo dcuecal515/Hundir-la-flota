@@ -30,7 +30,7 @@ namespace Server.Controllers
         public async Task<IEnumerable<UserDateDto>> Search([FromQuery] string name)
         {
             
-        /*string separatename = name.Normalize(NormalizationForm.FormD);
+            string separatename = name.Normalize(NormalizationForm.FormD);
 
             StringBuilder newname = new StringBuilder();
             foreach (char c in separatename)
@@ -41,9 +41,9 @@ namespace Server.Controllers
                 }
             }
 
-            string searchname= newname.ToString().Normalize(NormalizationForm.FormC);*/
+            string searchname= newname.ToString().Normalize(NormalizationForm.FormC);
             User usersesion = await GetCurrentUser();
-            IEnumerable<User> users=await _userService.getAllUserByName(name.ToLower(),usersesion.Id);
+            IEnumerable<User> users=await _userService.getAllUserByName(searchname.ToLower(),usersesion.Id);
             List<UserDateDto> result=new List<UserDateDto>();
             List<UserDateDto> resultfinal=new List<UserDateDto>();
             IEnumerable<FriendDto> friends = await _friendService.GetAllFriend(usersesion.Id);

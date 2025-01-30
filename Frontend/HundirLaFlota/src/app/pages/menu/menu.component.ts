@@ -75,6 +75,20 @@ export class MenuComponent {
         alert("Ahora eres amigo de "+message.nickName)
         this.friendList.push(message)
       }
+      if(message.message=="amigo conectado"){
+        console.log("HOLAAAA")
+        console.log("Ahora tu amigo se ha conectado:"+message.FriendId)
+      }
+      if(message.message=="usuarios conectados"){
+        console.log("La cantidad de usuarios que ahi ahpra conectados son: "+message.quantity)
+      }
+      if(message.message=="usuarios desconectados"){
+        console.log("HOLAAAA")
+        console.log("Se ha desconectado un usuario ahora quedan:"+message.quantity)
+      }
+      if(message.message=="amigo desconectado"){
+        console.log("Ahora tu amigo se ha desconectado:"+message.FriendId)
+      }
       this.serverResponse = message
     });
     this.disconnected$ = this.webSocketService.disconnected.subscribe(() => this.isConnected = false);
