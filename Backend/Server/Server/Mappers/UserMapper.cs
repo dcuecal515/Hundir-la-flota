@@ -26,5 +26,16 @@ namespace Server.Mappers
             };
         }
 
+        public SendFriendDto toSendFriendDto(User user) {
+            return new SendFriendDto
+            {
+                Id = user.Id,
+                NickName = user.NickName,
+                Avatar= user.Avatar,
+                Status = user.Status,
+                Message = "Añadido a lista de amigos"
+            };
+        }
+
     }
 }

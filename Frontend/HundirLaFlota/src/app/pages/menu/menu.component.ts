@@ -54,6 +54,7 @@ export class MenuComponent {
   name:String
   requestList:Request[] = []
   userList:Friend[]
+  friendList:Friend[] = []
 
 
 
@@ -67,6 +68,11 @@ export class MenuComponent {
       if(message.message=="Te rechazaron"){
         console.log("rechazo")
         alert("Te rechazaron la solicitud de amistad")
+      }
+      if(message.message=="Añadido a lista de amigos"){
+        console.log("nuevo amigo")
+        alert("Ahora eres amigo de "+message.nickName)
+        this.friendList.push(message)
       }
       this.serverResponse = message
     });
@@ -82,8 +88,6 @@ export class MenuComponent {
 
   hola:Friend={nickName: "hOla"}
   adios:Friend={nickName:"adiós"}
-
-  friendList = [this.hola, this.adios]
   deleteToken(){
     this.apiService.deleteToken();
     this.webSocketService.disconnectRxjs();

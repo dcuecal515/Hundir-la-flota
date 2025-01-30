@@ -14,7 +14,7 @@ namespace Server.Services
             _unitOfWork = unitOfWork;
             _userMapper = userMapper;
         }
-        public async Task<User> GetAllFriend(int userid)
+        /*public async Task<User> GetAllFriend(int userid)
         {
             User user = await _unitOfWork.UserRepository.GetAllFriend(userid);
             List<User> users=new List<User>();
@@ -23,6 +23,6 @@ namespace Server.Services
                 users.Add(await _unitOfWork.UserRepository.GetByIdAsync(friends.FriendId));
             }
 
-        }
+        }*/
     }
 }
