@@ -5,7 +5,7 @@
     <div>
         @for(friend of friendList; track friend.nickName){
             @if(compare(friend.nickName)){
-                <p>{{friend.nickName}}</p>
+                <p>{{friend.nickName}} <button>Perfil</button><button (click)="deleteUser(friend.nickName)">Eliminar amigo</button></p>
             }
         }
     </div>
