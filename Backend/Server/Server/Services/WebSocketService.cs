@@ -77,7 +77,7 @@ namespace Server.Services
                                 MessageFriendDto message = new MessageFriendDto
                                 {
                                     Message = messageToOthers,
-                                    FriendId = friend.FriendId,
+                                    FriendId = newHandler.Id,
                                     quantity = totalHandlers
                                 };
                                 string messageToSend = JsonSerializer.Serialize(message, JsonSerializerOptions.Web);
@@ -153,7 +153,7 @@ namespace Server.Services
                                 MessageFriendDto message = new MessageFriendDto
                                 {
                                     Message = "amigo desconectado",
-                                    FriendId = friend.FriendId,
+                                    FriendId = disconnectedHandler.Id,
                                     quantity = handlers.Length
                                 };
                                 string messageToSend = JsonSerializer.Serialize(message, JsonSerializerOptions.Web);
