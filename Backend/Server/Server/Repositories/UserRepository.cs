@@ -29,5 +29,9 @@ namespace Server.Repositories
             IEnumerable<User> users= await GetQueryable().Where(user=>user.NickName.ToLower().Contains(name)).Where(user => user.Id != id).ToListAsync();
             return users;
         }
+        public async Task<User> GetAllFriend(int id)
+        {
+            return await GetQueryable().Include(user =>user.friends).FirstOrDefaultAsync(user=>user.Id==id);
+        }
     }
 }
