@@ -52,14 +52,21 @@ export class MenuComponent {
   decoded:User
   url:string
   name:String
-  requestList:Request[]
+  requestList:Request[] = []
   userList:Friend[]
 
 
 
   ngOnInit(): void {
     this.connected$ = this.webSocketService.connected.subscribe(() => this.isConnected = true);
-    this.messageReceived$ = this.webSocketService.messageReceived.subscribe(message => this.serverResponse = message);
+    this.messageReceived$ = this.webSocketService.messageReceived.subscribe(message => {
+      console.log(message.message)
+      if(message.message=="Has recibido una solicitud de amistad"){
+        console.log("amistad")
+        this.requestList.push(message)
+      }
+      this.serverResponse = message
+    });
     this.disconnected$ = this.webSocketService.disconnected.subscribe(() => this.isConnected = false);
     // Pide los amigos que tiene el usuario
     // this.friendList = JSON.parse(this.serverResponse);*/
