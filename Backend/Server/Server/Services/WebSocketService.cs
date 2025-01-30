@@ -44,7 +44,7 @@ namespace Server.Services
 
             return handler;
         }
-        private Task NotifyUserConnectedAsync(WebSocketHandler newHandler)
+        private async Task NotifyUserConnectedAsync(WebSocketHandler newHandler)
         {
             // Lista donde guardar las tareas de envío de mensajes
             List<Task> tasks = new List<Task>();
@@ -52,22 +52,63 @@ namespace Server.Services
             WebSocketHandler[] handlers = _handlers.ToArray();
             int totalHandlers = handlers.Length;
 
-            string messageToNew = $"Hay {totalHandlers} usuarios conectados, tu id es {newHandler.Id}";
-            WebsocketMessageDto websocketMessageDto = new WebsocketMessageDto { Message = messageToNew };
+            string messageToNew = $"usuarios conectados";//newHandler.Id es donde esta mi id
+            string messageToOthers = $"amigo conectado";
 
-            string messageConnected = JsonSerializer.Serialize(websocketMessageDto);
-            string messageToOthers = $"Se ha conectado usuario con id {newHandler.Id}. En total hay {totalHandlers} usuarios conectados";
-            WebsocketMessageDto websocketMessageDto2 = new WebsocketMessageDto { Message = messageToOthers };
-            string messageWorld = JsonSerializer.Serialize(websocketMessageDto2);
-
-            // Enviamos un mensaje personalizado al nuevo usuario y otro al resto
-            foreach (WebSocketHandler handler in handlers)
+            using (var scope = _serviceProvider.CreateScope())
             {
-                string message = handler.Id == newHandler.Id ? messageConnected : messageWorld;
-                tasks.Add(handler.SendAsync(message));
+                var _wsHelper = scope.ServiceProvider.GetRequiredService<WSHelper>();
+                User myuser = await _wsHelper.GetUserById(newHandler.Id);
+                if (myuser != null)
+                {
+                    myuser.Status = "Conectado";
+                    await _wsHelper.UpdateUserAsync(myuser);
+                }
+                // Enviamos un mensaje personalizado al nuevo usuario y otro al resto
+                foreach (WebSocketHandler handler in handlers)
+                {
+                    if (myuser.friends.Count>0)
+                    {
+                        foreach (var friend in myuser.friends)
+                        {
+                            if (handler.Id == friend.FriendId)
+                            {
+
+                                MessageFriendDto message = new MessageFriendDto
+                                {
+                                    Message = messageToOthers,
+                                    FriendId = friend.FriendId,
+                                    quantity = totalHandlers
+                                };
+                                string messageToSend = JsonSerializer.Serialize(message, JsonSerializerOptions.Web);
+                                tasks.Add(handler.SendAsync(messageToSend));
+                            }
+                            else
+                            {
+                                MessageWorldDto message = new MessageWorldDto
+                                {
+                                    Message = messageToNew,
+                                    quantity = totalHandlers
+                                };
+                                string messageToSend = JsonSerializer.Serialize(message, JsonSerializerOptions.Web);
+                                tasks.Add(handler.SendAsync(messageToSend));
+                            }
+                        }
+                    }
+                    else
+                    {
+                        MessageWorldDto message = new MessageWorldDto
+                        {
+                            Message = messageToNew,
+                            quantity = totalHandlers
+                        };
+                        string messageToSend = JsonSerializer.Serialize(message, JsonSerializerOptions.Web);
+                        tasks.Add(handler.SendAsync(messageToSend));
+                    }
+                }
             }
             // Devolvemos una tarea que se completará cuando todas las tareas de envío de mensajes se completen
-            return Task.WhenAll(tasks);
+            await Task.WhenAll(tasks);
         }
 
         private async Task OnDisconnectedAsync(WebSocketHandler disconnectedHandler)
@@ -89,14 +130,58 @@ namespace Server.Services
             // Guardamos una copia de los WebSocketHandler para evitar problemas de concurrencia
             WebSocketHandler[] handlers = _handlers.ToArray();
 
-            string message = $"Se ha desconectado el usuario con id {disconnectedHandler.Id}. Ahora hay {handlers.Length} usuarios conectados";
-            WebsocketMessageDto websocketMessageDto = new WebsocketMessageDto { Message = message };
-            string mensajedesconexion = JsonSerializer.Serialize(websocketMessageDto);
-
-            // Enviamos el mensaje al resto de usuarios
-            foreach (WebSocketHandler handler in handlers)
+            /*string message = $"Se ha desconectado el usuario con id {disconnectedHandler.Id}. Ahora hay {handlers.Length} usuarios conectados";*/
+            using (var scope = _serviceProvider.CreateScope())
             {
-                tasks.Add(handler.SendAsync(mensajedesconexion));
+                var _wsHelper = scope.ServiceProvider.GetRequiredService<WSHelper>();
+                User myuser = await _wsHelper.GetUserById(disconnectedHandler.Id);
+                if (myuser != null)
+                {
+                    myuser.Status = "Desconectado";
+                    await _wsHelper.UpdateUserAsync(myuser);
+                }
+                // Enviamos un mensaje personalizado al nuevo usuario y otro al resto
+                foreach (WebSocketHandler handler in handlers)
+                {
+                    if (myuser.friends.Count > 0)
+                    {
+                        foreach (var friend in myuser.friends)
+                        {
+                            if (handler.Id == friend.FriendId)
+                            {
+
+                                MessageFriendDto message = new MessageFriendDto
+                                {
+                                    Message = "amigo desconectado",
+                                    FriendId = friend.FriendId,
+                                    quantity = handlers.Length
+                                };
+                                string messageToSend = JsonSerializer.Serialize(message, JsonSerializerOptions.Web);
+                                tasks.Add(handler.SendAsync(messageToSend));
+                            }
+                            else
+                            {
+                                MessageWorldDto message = new MessageWorldDto
+                                {
+                                    Message = "usuarios desconectados",
+                                    quantity = handlers.Length
+                                };
+                                string messageToSend = JsonSerializer.Serialize(message, JsonSerializerOptions.Web);
+                                tasks.Add(handler.SendAsync(messageToSend));
+                            }
+                        }
+                    }
+                    else
+                    {
+                        MessageWorldDto message = new MessageWorldDto
+                        {
+                            Message = "usuarios desconectados",
+                            quantity = handlers.Length
+                        };
+                        string messageToSend = JsonSerializer.Serialize(message, JsonSerializerOptions.Web);
+                        tasks.Add(handler.SendAsync(messageToSend));
+                    }
+                }
             }
 
             // Esperamos a que todas las tareas de envío de mensajes se completen
