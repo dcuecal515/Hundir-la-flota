@@ -56,6 +56,7 @@ export class MenuComponent {
   requestList:Request[] = []
   userList:Friend[]
   friendList:Friend[] = []
+  conectedUsers:number = 0
 
 
 
@@ -73,21 +74,36 @@ export class MenuComponent {
       if(message.message=="Añadido a lista de amigos"){
         console.log("nuevo amigo")
         alert("Ahora eres amigo de "+message.nickName)
+        message.avatar = environment.images+message.avatar
         this.friendList.push(message)
       }
       if(message.message=="amigo conectado"){
         console.log("HOLAAAA")
-        console.log("Ahora tu amigo se ha conectado:"+message.FriendId)
+        console.log("Ahora tu amigo se ha conectado:"+message.friendId)
+        this.friendList.forEach(friend => {
+          if(friend.id == message.friendId){
+            friend.status="Conectado"
+          }
+        });
+        this.conectedUsers=message.quantity
       }
       if(message.message=="usuarios conectados"){
-        console.log("La cantidad de usuarios que ahi ahpra conectados son: "+message.quantity)
+        console.log("La cantidad de usuarios que ahi ahora conectados son: "+message.quantity)
+        this.conectedUsers=message.quantity
       }
       if(message.message=="usuarios desconectados"){
         console.log("HOLAAAA")
         console.log("Se ha desconectado un usuario ahora quedan:"+message.quantity)
+        this.conectedUsers=message.quantity
       }
       if(message.message=="amigo desconectado"){
-        console.log("Ahora tu amigo se ha desconectado:"+message.FriendId)
+        console.log("Ahora tu amigo se ha desconectado:"+message.friendId)
+        this.friendList.forEach(friend => {
+          if(friend.id == message.friendId){
+            friend.status="Desconectado"
+          }
+        });
+        this.conectedUsers=message.quantity
       }
       this.serverResponse = message
     });
@@ -192,5 +208,11 @@ export class MenuComponent {
   async recievFriend(){
     var result = await this.requestService.receiveFriend()
     console.log(result.data)
+    if(result.data != null){
+      result.data.forEach(friend => {
+        friend.avatar = environment.images+friend.avatar
+      });
+    }
+    this.friendList = result.data
   }
 }
