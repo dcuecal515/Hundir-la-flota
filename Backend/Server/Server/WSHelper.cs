@@ -13,7 +13,7 @@ namespace Server
 
         public async Task<User> GetUserById(int id)
         {
-            return await _unitOfWork.UserRepository.GetByIdAsync(id);
+            return await _unitOfWork.UserRepository.GetAllFriend(id);
         }
 
         public async Task<User> GetUserByNickname(string nickname)
@@ -46,6 +46,25 @@ namespace Server
         public async Task UpdateUserAsync(User user)
         {
             _unitOfWork.UserRepository.Update(user);
+            await _unitOfWork.SaveAsync();
+        }
+
+        public async Task DeleteFrienshipByUsers(User user1, User user2)
+        {
+            foreach (var friend in user1.friends)
+            {
+                if (friend.FriendId == user2.Id)
+                {
+                    _unitOfWork.FriendRepository.Delete(friend);
+                }
+            }
+            foreach (var friend in user2.friends)
+            {
+                if (friend.FriendId == user1.Id)
+                {
+                    _unitOfWork.FriendRepository.Delete(friend);
+                }
+            }
             await _unitOfWork.SaveAsync();
         }
     }

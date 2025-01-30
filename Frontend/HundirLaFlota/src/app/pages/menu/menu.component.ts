@@ -12,7 +12,7 @@ import { SearchserviceService } from '../../services/searchservice.service';
 import { FriendRequest } from '../../models/FriendRequest';
 import { Request } from '../../models/Request';
 import { RequestService } from '../../services/request.service';
-
+import Swal from 'sweetalert2';
 
 
 @Component({
@@ -88,6 +88,11 @@ export class MenuComponent {
       }
       if(message.message=="amigo desconectado"){
         console.log("Ahora tu amigo se ha desconectado:"+message.FriendId)
+      }
+      if(message.message=="Has sido eliminado de amigos"){
+        console.log("Te eliminaron")
+        const newFriendList = this.friendList.filter(friend => friend.nickName !== message.nickName);
+        this.friendList = newFriendList;
       }
       this.serverResponse = message
     });
@@ -183,6 +188,29 @@ export class MenuComponent {
     this.webSocketService.sendRxjs(jsonData)
   }
 
+  async deleteUser(nickName){
+    const wantToDelete = await Swal.fire({
+      title: "¿Estás seguro?",
+      text: "Esta acción no se puede deshacer.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Eliminar",
+      cancelButtonText: "Cancelar"
+    });
+
+    if (wantToDelete.isConfirmed) {
+      Swal.fire("Confirmado", nickName+" ya no es tu amigo", "success");
+      const newFriendList = this.friendList.filter(friend => friend.nickName !== nickName);
+      this.friendList = newFriendList;
+      const message:FriendRequest={TypeMessage:"eliminar",Identifier:nickName}
+      const jsonData = JSON.stringify(message)
+      console.log(jsonData)
+      this.webSocketService.sendRxjs(jsonData)
+    } else {
+      Swal.fire("Cancelado", "La acción fue cancelada", "error");
+    }
+  }
+
   async reciveData(){
     var result = await this.requestService.receiveRequests()
     console.log(result.data)
@@ -192,5 +220,6 @@ export class MenuComponent {
   async recievFriend(){
     var result = await this.requestService.receiveFriend()
     console.log(result.data)
+    this.friendList = result.data
   }
 }

@@ -303,7 +303,6 @@ namespace Server.Services
             {
                 string userName = receivedUser.Identifier;
 
-
                 using (var scope = _serviceProvider.CreateScope())
                 {
                     var _wsHelper = scope.ServiceProvider.GetRequiredService<WSHelper>();
@@ -347,6 +346,51 @@ namespace Server.Services
                         }
                     }
                 }
+            }
+            if (receivedUser.TypeMessage.Equals("eliminar"))
+            {
+                string userName = receivedUser.Identifier;
+
+                using (var scope = _serviceProvider.CreateScope())
+                {
+                    var _wsHelper = scope.ServiceProvider.GetRequiredService<WSHelper>();
+                    User user = await _wsHelper.GetUserById(userHandler.Id);
+                    User user2 = await _wsHelper.GetUserByNickname(userName);
+
+                    if (user2 != null)
+                    {
+                        bool isFriend = _wsHelper.GetIfUsersAreFriends(user, user2);
+                        if (isFriend)
+                        {
+                            var user1Friend = user.friends.FirstOrDefault(friend => friend.FriendId == user2.Id);
+                            var user2Friend = user2.friends.FirstOrDefault(friend => friend.FriendId == user.Id);
+                            if (user1Friend != null && user2Friend != null)
+                            {
+                                await _wsHelper.DeleteFrienshipByUsers(user,user2);
+                                user.friends.Remove(user1Friend);
+                                user2.friends.Remove(user2Friend);
+                                await _wsHelper.UpdateUserAsync(user);
+                                await _wsHelper.UpdateUserAsync(user2);
+
+                                foreach (WebSocketHandler handler in handlers)
+                                {
+                                    if (handler.Id == user2.Id)
+                                    {
+                                        DeleteDto outMessage = new DeleteDto
+                                        {
+                                            Message = "Has sido eliminado de amigos",
+                                            NickName = user.NickName
+                                        };
+                                        string messageToSend = JsonSerializer.Serialize(outMessage, JsonSerializerOptions.Web);
+                                        tasks.Add(handler.SendAsync(messageToSend));
+                                    }
+
+                                }
+                            }
+                        }
+                    }
+                }
+
             }
 
 
