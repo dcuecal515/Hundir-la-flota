@@ -240,6 +240,7 @@ namespace Server.Services
                                 user2.friends.Add(user2NewFriend);
                                 await _wsHelper.UpdateUserAsync(user);
                                 await _wsHelper.UpdateUserAsync(user2);
+                                await _wsHelper.DeleteRequestAsync(request);
 
                                 foreach (WebSocketHandler handler in handlers)
                                 {
