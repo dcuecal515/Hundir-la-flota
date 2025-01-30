@@ -34,6 +34,7 @@ export class MenuComponent {
     }
     console.log("HOLAAAAAAAAA:"+this.decoded);
     this.reciveData()
+    this.recievFriend()
     this.url=environment.images+this.decoded.Avatar;
   }
 
@@ -147,5 +148,10 @@ export class MenuComponent {
     var result = await this.requestService.receiveRequests()
     console.log(result.data)
     this.requestList = result.data;
+  }
+
+  async recievFriend(){
+    var result = await this.requestService.receiveFriend()
+    console.log(result.data)
   }
 }
