@@ -136,7 +136,7 @@ export class MenuComponent {
   }
 
 
-  addUser(nickName){
+  requestUser(nickName){
     if (nickName != "") {
       const User:FriendRequest={TypeMessage:"amistad" ,Identifier: nickName,Identifier2:null}
       // Convertir el objeto a JSON
@@ -150,6 +150,15 @@ export class MenuComponent {
     const newRequestList = this.requestList.filter(request => request.nickName !== nickName);
     this.requestList = newRequestList
     const message:FriendRequest={TypeMessage:"rechazar",Identifier:nickName}
+    const jsonData = JSON.stringify(message)
+    console.log(jsonData)
+    this.webSocketService.sendRxjs(jsonData)
+  }
+
+  addUser(nickName){
+    const newRequestList = this.requestList.filter(request => request.nickName !== nickName);
+    this.requestList = newRequestList
+    const message:FriendRequest={TypeMessage:"aceptar",Identifier:nickName}
     const jsonData = JSON.stringify(message)
     console.log(jsonData)
     this.webSocketService.sendRxjs(jsonData)

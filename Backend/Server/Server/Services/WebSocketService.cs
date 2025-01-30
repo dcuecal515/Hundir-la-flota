@@ -211,6 +211,28 @@ namespace Server.Services
 
                 }
             }
+            if (receivedUser.TypeMessage.Equals("aceptar"))
+            {
+                string userName = receivedUser.Identifier;
+
+
+                using (var scope = _serviceProvider.CreateScope())
+                {
+                    var _wsHelper = scope.ServiceProvider.GetRequiredService<WSHelper>();
+                    User user = await _wsHelper.GetUserById(userHandler.Id);
+                    User user2 = await _wsHelper.GetUserByNickname(userName);
+
+                    if (user2 != null)
+                    {
+                        Request request = await _wsHelper.GetRequestByUsersId(user.Id, user2.Id);
+                        if (request != null)
+                        {
+                            bool isFriend = false;
+                        }
+                    }
+                }
+            }
+
 
             await Task.WhenAll(tasks);
         }
