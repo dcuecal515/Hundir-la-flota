@@ -12,7 +12,7 @@ import { SearchserviceService } from '../../services/searchservice.service';
 import { FriendRequest } from '../../models/FriendRequest';
 import { Request } from '../../models/Request';
 import { RequestService } from '../../services/request.service';
-
+import Swal from 'sweetalert2';
 
 
 @Component({
@@ -74,6 +74,11 @@ export class MenuComponent {
         console.log("nuevo amigo")
         alert("Ahora eres amigo de "+message.nickName)
         this.friendList.push(message)
+      }
+      if(message.message=="Has sido eliminado de amigos"){
+        console.log("Te eliminaron")
+        const newFriendList = this.friendList.filter(friend => friend.nickName !== message.nickName);
+        this.friendList = newFriendList;
       }
       this.serverResponse = message
     });
@@ -167,6 +172,29 @@ export class MenuComponent {
     const jsonData = JSON.stringify(message)
     console.log(jsonData)
     this.webSocketService.sendRxjs(jsonData)
+  }
+
+  async deleteUser(nickName){
+    const wantToDelete = await Swal.fire({
+      title: "¿Estás seguro?",
+      text: "Esta acción no se puede deshacer.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Eliminar",
+      cancelButtonText: "Cancelar"
+    });
+
+    if (wantToDelete.isConfirmed) {
+      Swal.fire("Confirmado", nickName+" ya no es tu amigo", "success");
+      const newFriendList = this.friendList.filter(friend => friend.nickName !== nickName);
+      this.friendList = newFriendList;
+      const message:FriendRequest={TypeMessage:"eliminar",Identifier:nickName}
+      const jsonData = JSON.stringify(message)
+      console.log(jsonData)
+      this.webSocketService.sendRxjs(jsonData)
+    } else {
+      Swal.fire("Cancelado", "La acción fue cancelada", "error");
+    }
   }
 
   async reciveData(){

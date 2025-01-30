@@ -17,10 +17,12 @@ namespace Server.Repositories
             if (isEmail)
             {
                 return await GetQueryable()
+                    .Include(user => user.friends)
                     .FirstOrDefaultAsync(user => user.Email.Equals(identifier));
             } else
             {
                 return await GetQueryable()
+                    .Include(user => user.friends)
                     .FirstOrDefaultAsync(user => user.NickName.Equals(identifier));
             }
         }
