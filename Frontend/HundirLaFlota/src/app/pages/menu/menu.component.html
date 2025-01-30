@@ -1,11 +1,11 @@
-<p>menu works!</p>
 <input type="text" id="search">
 <button (click)="search()">Buscar</button>
 @if(friendList != null){
     <div>
         @for(friend of friendList; track friend.nickName){
             @if(compare(friend.nickName)){
-                <p>{{friend.nickName}} <button>Perfil</button><button (click)="deleteUser(friend.nickName)">Eliminar amigo</button></p>
+                <img [src]="friend.avatar" alt="">
+                <p>{{friend.nickName}} Estado: {{friend.status}} <button>Perfil</button><button (click)="deleteUser(friend.nickName)">Eliminar amigo</button></p>
             }
         }
     </div>
@@ -30,6 +30,8 @@
         }
     </div>
 }
+
+<h2>Usuarios conectados: {{conectedUsers}}</h2>
 
 
 <button (click)="deleteToken()"><i class="fa-solid fa-right-from-bracket"></i></button>

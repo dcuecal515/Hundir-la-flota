@@ -12,9 +12,14 @@ export class ApiService {
   private BASE_URL = environment.apiUrl;
 
   jwt: string="";
-
   constructor(private http: HttpClient) {
-    let token: string | null = localStorage.getItem("token")
+    let token: string | null="";
+    if(sessionStorage.getItem("token")){
+       token = sessionStorage.getItem("token")
+    }else{
+      token = localStorage.getItem("token")
+    }
+    
     if (token) {
       this.jwt = token
     }
