@@ -38,6 +38,8 @@ builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<PasswordService>();
 builder.Services.AddScoped<ImageService>();
 builder.Services.AddScoped<RequestService>();
+builder.Services.AddScoped<FriendService>();
+builder.Services.AddScoped<FriendMapper>();
 builder.Services.AddSingleton<WebSocketService>();
 builder.Services.AddScoped<WSHelper>();
 

@@ -24,9 +24,7 @@ namespace Server.Controllers
         public async Task<IEnumerable<FriendDto>> GetAllFriends()
         {
             User user = await GetCurrentUser();
-            await _friendService.GetAllFriend(user.Id);
-            return null;
-
+            return await _friendService.GetAllFriend(user.Id);
         }
         private async Task<User> GetCurrentUser()
         {
