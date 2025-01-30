@@ -15,11 +15,15 @@ namespace Server.Controllers
     {
         private readonly UserService _userService;
         private readonly UserMapper _userMapper;
+        private readonly WSHelper _wshelper;
+        private readonly FriendService _friendService;
 
-        public SearchController(UserService userService,UserMapper userMapper)
+        public SearchController(UserService userService,UserMapper userMapper, WSHelper wshelper, FriendService friendService)
         {
             _userService = userService;
             _userMapper = userMapper;
+            _wshelper = wshelper;
+            _friendService = friendService;
         }
         [Authorize]
         [HttpGet]
@@ -41,6 +45,8 @@ namespace Server.Controllers
             User usersesion = await GetCurrentUser();
             IEnumerable<User> users=await _userService.getAllUserByName(name.ToLower(),usersesion.Id);
             List<UserDateDto> result=new List<UserDateDto>();
+            List<UserDateDto> resultfinal=new List<UserDateDto>();
+            IEnumerable<FriendDto> friends = await _friendService.GetAllFriend(usersesion.Id);
             foreach (User user in users)
             {
                 UserDateDto userDateDto = _userMapper.toDto(user);
@@ -51,15 +57,32 @@ namespace Server.Controllers
                 return null;
             }
             /*En desarrollo*/
-            /*foreach(UserDateDto userDateDto in result)
+            foreach(UserDateDto userDateDto in result)
             {
-                Request request = await _WsHelper.GetRequestByUsersId(usersesion.Id,userDateDto.Id);
+                Request request = await _wshelper.GetRequestByUsersId(usersesion.Id,userDateDto.Id);
                 if (request == null)
                 {
-
+                    foreach(FriendDto friend in friends)
+                    {
+                        if(friend.Id == userDateDto.Id)
+                        {
+                            userDateDto.Message = "si";
+                            resultfinal.Add(userDateDto);
+                        }
+                        else
+                        {
+                            userDateDto.Message = "no";
+                            resultfinal.Add(userDateDto);
+                        }
+                    }
                 }
-            }*/
-            return result;
+                else
+                {
+                    userDateDto.Message = "si";
+                    resultfinal.Add(userDateDto);
+                }
+            }
+            return resultfinal;
         }
 
         private async Task<User> GetCurrentUser()
