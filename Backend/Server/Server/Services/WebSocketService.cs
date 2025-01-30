@@ -66,7 +66,6 @@ namespace Server.Services
                 string message = handler.Id == newHandler.Id ? messageConnected : messageWorld;
                 tasks.Add(handler.SendAsync(message));
             }
-
             // Devolvemos una tarea que se completará cuando todas las tareas de envío de mensajes se completen
             return Task.WhenAll(tasks);
         }

@@ -20,8 +20,6 @@ namespace Server.Models
 
         public string Status { get; set; }
 
-        public List<Friend> Friends { get; set; }
-
-        // Necesita un historial de partidas
+        public ICollection<Friend> friends { get; set; }=new List<Friend>();
     }
 }
