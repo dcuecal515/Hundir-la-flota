@@ -24,6 +24,10 @@ namespace Server.Controllers
         {
             User user = await GetCurrentUser();
 
+            if(user == null)
+            {
+                return null;
+            }
             return await _requestService.GetAllRequestsAsync(user.Id);
         }
 
