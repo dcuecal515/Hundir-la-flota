@@ -40,18 +40,41 @@ namespace Server.Controllers
                     newname.Append(c);
                 }
             }
-
             string searchname= newname.ToString().Normalize(NormalizationForm.FormC);
             User usersesion = await GetCurrentUser();
-            IEnumerable<User> users=await _userService.getAllUserByName(searchname.ToLower(),usersesion.Id);
+            IEnumerable<User> users = await _userService.getAllUser();
             List<UserDateDto> result=new List<UserDateDto>();
             List<UserDateDto> resultfinal=new List<UserDateDto>();
             IEnumerable<FriendDto> friends = await _friendService.GetAllFriend(usersesion.Id);
             foreach (User user in users)
             {
-                UserDateDto userDateDto = _userMapper.toDto(user);
-                result.Add(userDateDto);
+                string separatenamedatabase = user.NickName.Normalize(NormalizationForm.FormD);
+
+                StringBuilder newnamedatabase = new StringBuilder();
+                foreach (char c in separatenamedatabase)
+                {
+                    if (CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark)
+                    {
+                        newnamedatabase.Append(c);
+                    }
+                }
+                string searchnamedatabase = newnamedatabase.ToString().Normalize(NormalizationForm.FormC);
+
+                if (searchnamedatabase.ToLower().Contains(searchname.ToLower()) && !user.NickName.ToLower().Equals(usersesion.NickName.ToLower()))
+                {
+                    
+                    UserDateDto userDateDto = _userMapper.toDto(user);
+                    result.Add(userDateDto);
+                }
             }
+            /*foreach(User user in users)
+            {
+                if (user.NickName.ToLower().Contains(searchname.ToLower()))
+                {
+                    UserDateDto userDateDto = _userMapper.toDto(user);
+                    result.Add(userDateDto);
+                }
+            }*/
             if (result == null)
             {
                 return null;

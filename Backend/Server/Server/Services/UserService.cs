@@ -108,6 +108,10 @@ namespace Server.Services
         {
             return await _unitOfWork.UserRepository.getAllUserByName(name,id);
         }
+        public async Task<IEnumerable<User>> getAllUser()
+        {
+            return await _unitOfWork.UserRepository.GetAllAsync();
+        }
 
 
     }
