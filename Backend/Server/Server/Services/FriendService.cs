@@ -14,9 +14,15 @@ namespace Server.Services
             _unitOfWork = unitOfWork;
             _userMapper = userMapper;
         }
-        public async Task<IEnumerable<UserDateDto>> GetAllFriend(int userid)
+        public async Task<User> GetAllFriend(int userid)
         {
-            return await _unitOfWork.FriendRepository.GetAllFriend(userid);
+            User user = await _unitOfWork.UserRepository.GetAllFriend(userid);
+            List<User> users=new List<User>();
+            foreach (var friends in user.friends) 
+            {
+                users.Add(await _unitOfWork.UserRepository.GetByIdAsync(friends.FriendId));
+            }
+
         }
     }
 }

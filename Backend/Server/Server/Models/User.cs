@@ -20,6 +20,6 @@ namespace Server.Models
 
         public string Status { get; set; }
 
-        public ICollection<Friend> Friends { get; set; }=new List<Friend>();
+        public ICollection<Friend> friends { get; set; }=new List<Friend>();
     }
 }
