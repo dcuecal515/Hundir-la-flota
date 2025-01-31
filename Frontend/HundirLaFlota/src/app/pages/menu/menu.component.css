@@ -1,0 +1,19 @@
+.avatar{
+    width: 100px;
+    height: 100px;
+}
+
+.header{
+    display: flex;
+    flex-direction: row;
+}
+
+.body{
+    display: flex;
+    flex-direction: row;
+}
+
+.main-buttons{
+    display: flex;
+    flex-direction: column;
+}
