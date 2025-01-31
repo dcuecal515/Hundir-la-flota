@@ -177,10 +177,11 @@
 
 @media(max-width: 1440px){
     .centerShip{
-        top: 88%;
+        top: 85%;
         left: 56.3%;
     }
     .centerShipStop{
+        top: 78%;
         left: 56.3%;
     }
 }

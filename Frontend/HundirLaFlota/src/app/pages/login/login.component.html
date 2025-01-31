@@ -1,1 +1,42 @@
-<p>login works!</p>
+    <div class="login" #login>
+        <div class="login-text">
+            <h1 class="login-text-title">¡Bienvenido de vuelta capitan!</h1>
+            <img class="login-text-image" src="assets/capitan-con-fondo.jpg" alt="Capitan saludando de vuelta a los jugadores">
+            <h3 class="login-text-description">El océano te ha echado de menos, y tus barcos están listos para zarpar una vez más. Prepárate para desplegar tus mejores estrategias, esquivar torpedos y demostrar quién domina estas aguas. ¡Que comience la batalla naval y que tus disparos sean certeros!</h3>
+        </div>
+            <form class="form-login" [formGroup]="loginForm">
+                <input class="text-camp" type="text" [(ngModel)]="identifier" formControlName="identifier" placeholder="Correo o usuario">
+                <input class="text-camp" type="password" [(ngModel)]="password" formControlName="password" placeholder="Contraseña">
+                <label class="checkbox">
+                    Recuérdame<input class="text-camp-checkbox" type="checkbox" id="rememberLogin" (click)="rememberUser = !rememberUser">
+                </label>
+                <button class="button" (click)="loginUser()">Iniciar sesion</button>
+                <h2 class="change-text">¿No tienes una flota todavia?</h2>
+                <button class="button" (click)=changesignup()>Registrarse</button>
+            </form>
+    </div>
+<div class="sign-up" #signup>
+    <div class="login-text">
+        <h1 class="login-text-title">¡Bienvenido a bordo, capitán! ¡Tu flota te espera!</h1>
+        <img class="login-text-image" src="assets/capitan-sin-fondo.png" alt="Capitan saludando de vuelta a los jugadores">
+        <h3 class="login-text-description">Es hora de unirte a la flota y demostrar tu valentía en alta mar. Regístrate para comenzar tu travesía, construir tu flota y enfrentarte a rivales de todo el mundo. Cada cuenta es un paso hacia la gloria naval. ¡Embárcate ahora y deja tu huella en las aguas!</h3>
+    </div>
+    <form [formGroup]="registerForm" class="form-sign-up">
+        <input class="text-camp" type="text" [(ngModel)]="nickname" formControlName="nickname" placeholder="Apodo">
+        <input class="text-camp" type="email" [(ngModel)]="email" formControlName="email" placeholder="Email">
+        <input class="text-camp" type="password" [(ngModel)]="password" formControlName="password" placeholder="Contraseña">
+        <input class="text-camp" type="password" [(ngModel)]="confirmPassword" formControlName="confirmPassword" placeholder="Confirmar contraseña">
+        <label class="avatar-label">Avatar:
+            <input class="special-input" type="file" accept="image/png, image/jpeg, image/jpg" (change)="onFileSelected($event)">
+        </label>
+        <label class="checkbox">
+            <p>Recuérdame</p>
+            <input class="text-camp-checkbox" type="checkbox" id="rememberRegister" (click)="rememberUser = !rememberUser" class="checkbox-input">
+        </label>
+        <button type="submit" (click)="registerUser()" class="sign-up-button">Registrarte</button>
+        <h2 class="change-text">¿Ya tienes una flota?</h2>
+        <button (click)=changelogin() class="sign-up-button">inicio sesion</button>
+        
+    </form>
+    
+</div>
