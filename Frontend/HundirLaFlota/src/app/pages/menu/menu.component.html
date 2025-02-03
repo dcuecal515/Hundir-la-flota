@@ -3,13 +3,17 @@
         <button (click)="deleteToken()" class="header-logOut"><i class="fa-solid fa-right-from-bracket"></i></button>
         <h1 class="header-title">Hundir la flota</h1>
         <!--Deplegable con solicitudes de amistad-->
-        @if(requestList != null && requestList != []){
-            <div>
-                @for(request of requestList; track request.nickName){
-                    <p><b>{{request.nickName}}</b> te a solicitado ser tu amigo<button (click)="addUser(request.nickName)">Aceptar solicitud</button><button (click)="rejectUser(request.nickName)">Rechazar Solicitud</button></p>
-                }
-            </div>
-        }
+        <div class="header-dropdown">
+            <i class="fa-regular fa-envelope" id="request-box" (click)="open_close_dropdown()"></i>
+            @if(requestList != null && requestList != []){
+                <div class="header-requests-closed" id="header-requests">
+                    @for(request of requestList; track request.nickName){
+                        <p><b>{{request.nickName}}</b> te a solicitado ser tu amigo<button (click)="addUser(request.nickName)">Aceptar solicitud</button><button (click)="rejectUser(request.nickName)">Rechazar Solicitud</button></p>
+                    }
+                </div>
+            }
+        </div>
+        
         <div class="user-information">
             <img [src]="url" alt="mi fotito wuapa" class="avatar">
             <p class="header-name">{{decoded.nickName}}</p>
@@ -21,32 +25,43 @@
         <div class="friend-list">
             <div class="friend-list-searchBar">
                 <input type="text" id="search">
-                <button (click)="search()">Buscar</button>
+                <button (click)="search()"><i class="fa-solid fa-magnifying-glass"></i></button>
             </div>
-            @if(friendList != null){
+            @if(friendList != null && friendList.length != 0){
                 <div>
                     @for(friend of friendList; track friend.nickName){
                         @if(compare(friend.nickName)){
-                            <img [src]="friend.avatar" alt="" class="avatar">
-                            <p>{{friend.nickName}} Estado: {{friend.status}} <button>Perfil</button><button (click)="deleteUser(friend.nickName)">Eliminar amigo</button></p>
+                            <h3>Conectados</h3>
+                            @if(friend.status == "Conectado"){
+                                <img [src]="friend.avatar" alt="" class="avatar">
+                                <p><b>{{friend.nickName}}</b> <button>Perfil</button> <button (click)="deleteUser(friend.nickName)">Eliminar amigo</button></p>
+                            }
+                            <h3>Desconectados</h3>
+                            @if(friend.status == "Desconectado"){
+                                <img [src]="friend.avatar" alt="" class="avatar">
+                                <p><b>{{friend.nickName}}</b> <button>Perfil</button> <button (click)="deleteUser(friend.nickName)">Eliminar amigo</button></p>
+                            }
                         }
                     }
                 </div>
+            }@else {
+                <h3>No tienes amigos :(</h3>
             }
         </div>
         <div class="main-buttons">
             <button>Jugar</button>
+            <button (click)="openAlert()">Buscar usuario</button>
             <!--<form (ngSubmit)="searchUser()">-->
-                <!--<input type="text" [(ngModel)]="name" [ngModelOptions]="{standalone: true}">-->
-                <button>Buscar</button>
+                <!--<input type="text" [(ngModel)]="name" [ngModelOptions]="{standalone: true}">
+                <button (click)="openAlert()">Buscar usuario</button>-->
             <!--</form>-->
-            @if(userList != null){
+            <!--@if(userList != null){
                 <div>
                     @for(user of userList; track user.id){
                         <p>{{user.nickName}} @if(user.message == "no"){<button (click)="requestUser(user.nickName)">Enviar solicitud</button>}</p>
                     }
                 </div>
-            }
+            }-->
         </div>
         <div class="party-requests">
             <h3>Usuarios conectados: {{conectedUsers}}</h3>
