@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
 import { webSocket,WebSocketSubject } from 'rxjs/webSocket';
 import { environment } from '../../environments/environment.development';
+import { Subscription } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
