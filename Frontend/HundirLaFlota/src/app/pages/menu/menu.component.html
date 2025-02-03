@@ -1,39 +1,55 @@
-<input type="text" id="search">
-<button (click)="search()">Buscar</button>
-@if(friendList != null){
-    <div>
-        @for(friend of friendList; track friend.nickName){
-            @if(compare(friend.nickName)){
-                <img [src]="friend.avatar" alt="">
-                <p>{{friend.nickName}} Estado: {{friend.status}} <button>Perfil</button><button (click)="deleteUser(friend.nickName)">Eliminar amigo</button></p>
+<div class="allContent">
+    <div class="header">
+        <button (click)="deleteToken()" class="header-logOut"><i class="fa-solid fa-right-from-bracket"></i></button>
+        <h1 class="header-title">Hundir la flota</h1>
+        <!--Deplegable con solicitudes de amistad-->
+        @if(requestList != null && requestList != []){
+            <div>
+                @for(request of requestList; track request.nickName){
+                    <p><b>{{request.nickName}}</b> te a solicitado ser tu amigo<button (click)="addUser(request.nickName)">Aceptar solicitud</button><button (click)="rejectUser(request.nickName)">Rechazar Solicitud</button></p>
+                }
+            </div>
+        }
+        <div class="user-information">
+            <img [src]="url" alt="mi fotito wuapa" class="avatar">
+            <p class="header-name">{{decoded.nickName}}</p>
+        </div>
+        
+    </div>
+    
+    <div class="body">
+        <div class="friend-list">
+            <div class="friend-list-searchBar">
+                <input type="text" id="search">
+                <button (click)="search()">Buscar</button>
+            </div>
+            @if(friendList != null){
+                <div>
+                    @for(friend of friendList; track friend.nickName){
+                        @if(compare(friend.nickName)){
+                            <img [src]="friend.avatar" alt="" class="avatar">
+                            <p>{{friend.nickName}} Estado: {{friend.status}} <button>Perfil</button><button (click)="deleteUser(friend.nickName)">Eliminar amigo</button></p>
+                        }
+                    }
+                </div>
             }
-        }
+        </div>
+        <div class="main-buttons">
+            <button>Jugar</button>
+            <!--<form (ngSubmit)="searchUser()">-->
+                <!--<input type="text" [(ngModel)]="name" [ngModelOptions]="{standalone: true}">-->
+                <button>Buscar</button>
+            <!--</form>-->
+            @if(userList != null){
+                <div>
+                    @for(user of userList; track user.id){
+                        <p>{{user.nickName}} @if(user.message == "no"){<button (click)="requestUser(user.nickName)">Enviar solicitud</button>}</p>
+                    }
+                </div>
+            }
+        </div>
+        <div class="party-requests">
+            <h3>Usuarios conectados: {{conectedUsers}}</h3>
+        </div>
     </div>
-}
-
-<form (ngSubmit)="searchUser()">
-    <input type="text" [(ngModel)]="name" [ngModelOptions]="{standalone: true}">
-    <button>Buscar</button>
-</form>
-@if(userList != null){
-    <div>
-        @for(user of userList; track user.id){
-            <p>{{user.nickName}} @if(user.message == "no"){<button (click)="requestUser(user.nickName)">Enviar solicitud</button>}</p>
-        }
-    </div>
-}
-
-@if(requestList != null && requestList != []){
-    <div>
-        @for(request of requestList; track request.nickName){
-            <p><b>{{request.nickName}}</b> te a solicitado ser tu amigo<button (click)="addUser(request.nickName)">Aceptar solicitud</button><button (click)="rejectUser(request.nickName)">Rechazar Solicitud</button></p>
-        }
-    </div>
-}
-
-<h2>Usuarios conectados: {{conectedUsers}}</h2>
-
-
-<button (click)="deleteToken()"><i class="fa-solid fa-right-from-bracket"></i></button>
-<div>{{decoded.nickName}}</div>
-<img [src]="url" alt="mi fotito wuapa">
+</div>

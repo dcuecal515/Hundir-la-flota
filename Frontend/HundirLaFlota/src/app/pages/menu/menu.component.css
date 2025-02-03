@@ -1,0 +1,143 @@
+@font-face{
+    font-family: titulo;
+    src: url('/assets/fonts/oldtimer.regular.ttf');
+}
+.allContent {
+    width: 80%;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    height: 100vh;
+}
+
+/* Estilos para la cabecera */
+.header {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px;
+    background-color: #f8f8f8;
+    border-radius: 10px;
+}
+
+.header div {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.header-logOut {
+    background-color: rgb(126, 126, 126);
+    color: rgb(63, 16, 16);
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 24px;
+}
+
+.header-title{
+    font-family: titulo;
+}
+
+.avatar {
+    width: 60px;
+    height: 60px;
+}
+
+.header-name {
+    font-family: titulo;
+}
+
+.user-information{
+    display: flex;
+    flex-direction: row;
+}
+
+/* Cuerpo principal */
+.body {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    align-items: center;
+    justify-content: center;
+    flex-grow: 1;
+    margin-bottom: 10%;
+}
+
+.friend-list, .main-buttons {
+    flex: 1;
+    padding: 15px;
+    border-radius: 10px;
+}
+
+.friend-list {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #f1f1f1;
+    gap: 10px;
+    height: 60%;
+}
+
+.friend-list-searchBar{
+    display: flex;
+    flex-direction: row;
+}
+
+.friend-list div {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    width: 100%;
+}
+
+.friend-list input {
+    flex: 1;
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    width: 80%;
+}
+
+.friend-list button {
+    padding: 5px 10px;
+    border-radius: 5px;
+}
+
+.main-buttons {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    height: 60%;
+    width: 100%;
+}
+
+.main-buttons button, .central-search-button {
+    width: 80%;
+}
+
+button {
+    padding: 8px 12px;
+    border: none;
+    border-radius: 20px;
+    background-color: rgb(126, 126, 126);
+    color: rgb(63, 16, 16);
+    cursor: pointer;
+    font-family: titulo;
+}
+
+button:hover {
+    background-color: rgb(100, 100, 100);
+}
+
+.party-requests{
+    flex: 1;
+    background-color: #f1f1f1;
+    padding: 15px;
+    border-radius: 10px;
+    height: 60%;
+}
