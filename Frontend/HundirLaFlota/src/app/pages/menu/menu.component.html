@@ -4,7 +4,9 @@
         <h1 class="header-title">Hundir la flota</h1>
         <!--Deplegable con solicitudes de amistad-->
         <div class="header-dropdown">
-            <i class="fa-regular fa-envelope" id="request-box" (click)="open_close_dropdown()"></i>
+            <div (click)="open_close_dropdown()">
+                <i class="fa-regular fa-envelope" id="request-box"></i>
+            </div>
             @if(requestList != null && requestList != []){
                 <div class="header-requests-closed" id="header-requests">
                     @for(request of requestList; track request.nickName){
@@ -27,18 +29,31 @@
                 <button (click)="search()"><i class="fa-solid fa-magnifying-glass"></i></button>
             </div>
             @if(friendList != null && friendList.length != 0){
-                <div>
+                <div class="friend-list-friends">
+                    <h3>Conectados</h3>
                     @for(friend of friendList; track friend.nickName){
                         @if(compare(friend.nickName)){
-                            <h3>Conectados</h3>
                             @if(friend.status == "Conectado"){
-                                <img [src]="friend.avatar" alt="" class="avatar">
-                                <p><b>{{friend.nickName}}</b> <button>Perfil</button> <button (click)="deleteUser(friend.nickName)">Eliminar amigo</button></p>
+                                <div class="friend-data">
+                                    <img [src]="friend.avatar" alt="" class="avatar">
+                                    <p class="friend-data-nickname">{{friend.nickName}}</p>
+                                    <button>Perfil</button>
+                                    <button (click)="deleteUser(friend.nickName)"><i class="fa-solid fa-trash"></i></button>
+                                </div>
+                                
                             }
-                            <h3>Desconectados</h3>
+                        }
+                    }
+                    <h3>Desconectados</h3>
+                    @for(friend of friendList; track friend.nickName){
+                        @if(compare(friend.nickName)){
                             @if(friend.status == "Desconectado"){
-                                <img [src]="friend.avatar" alt="" class="avatar">
-                                <p><b>{{friend.nickName}}</b> <button>Perfil</button> <button (click)="deleteUser(friend.nickName)">Eliminar amigo</button></p>
+                                <div class="friend-data">
+                                    <img [src]="friend.avatar" alt="" class="avatar">
+                                    <p class="friend-data-nickname">{{friend.nickName}}</p>
+                                    <button>Perfil</button>
+                                    <button (click)="deleteUser(friend.nickName)"><i class="fa-solid fa-trash"></i></button>
+                                </div>
                             }
                         }
                     }

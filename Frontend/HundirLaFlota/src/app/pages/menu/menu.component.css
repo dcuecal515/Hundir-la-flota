@@ -130,6 +130,20 @@
     border-radius: 5px;
 }
 
+.friend-list-friends{
+    display: flex;
+    flex-direction: column;
+}
+
+.friend-data{
+    display: flex;
+    flex-direction: row;
+}
+
+.friend-data-nickname{
+    font-family: titulo;
+}
+
 .main-buttons {
     display: flex;
     flex-direction: column;
