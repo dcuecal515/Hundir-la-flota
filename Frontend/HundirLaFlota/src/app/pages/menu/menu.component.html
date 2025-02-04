@@ -13,7 +13,6 @@
                 </div>
             }
         </div>
-        
         <div class="user-information">
             <img [src]="url" alt="mi fotito wuapa" class="avatar">
             <p class="header-name">{{decoded.nickName}}</p>
@@ -49,7 +48,7 @@
             }
         </div>
         <div class="main-buttons">
-            <button>Jugar</button>
+            <button [routerLink]="'/matchmaking'">Jugar</button>
             <button (click)="openAlert()">Buscar usuario</button>
             <!--<form (ngSubmit)="searchUser()">-->
                 <!--<input type="text" [(ngModel)]="name" [ngModelOptions]="{standalone: true}">

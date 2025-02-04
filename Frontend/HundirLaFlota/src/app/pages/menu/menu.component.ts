@@ -12,20 +12,21 @@ import { SearchserviceService } from '../../services/searchservice.service';
 import { FriendRequest } from '../../models/FriendRequest';
 import { Request } from '../../models/Request';
 import { RequestService } from '../../services/request.service';
+import { RouterLink } from '@angular/router';
 import Swal from 'sweetalert2';
+import { DataService } from '../../services/data.service';
 
 
 
 @Component({
   selector: 'app-menu',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule,RouterLink],
   templateUrl: './menu.component.html',
   styleUrl: './menu.component.css'
 })
 export class MenuComponent {
-  constructor(private apiService:ApiService,private router:Router,private webSocketService:WebsocketService,private searchServiceService:SearchserviceService, private requestService:RequestService){
-    this.connectRxjs()
+  constructor(private apiService:ApiService,private router:Router,private webSocketService:WebsocketService,private searchServiceService:SearchserviceService, private requestService:RequestService,private dataService:DataService){
     if(localStorage.getItem("token")){
       this.decoded=jwtDecode(localStorage.getItem("token"));
     }else if(sessionStorage.getItem("token")){
@@ -37,14 +38,8 @@ export class MenuComponent {
     this.reciveData()
     this.recievFriend()
     this.url=environment.images+this.decoded.Avatar;
+    this.conectedUsers=this.dataService.players
   }
-
-   
-  connectRxjs() {
-    this.type = 'rxjs';
-    this.webSocketService.connectRxjs();
-  }
-
   type:'rxjs'
   serverResponse: string = '';
   isConnected: boolean = false;
@@ -62,7 +57,6 @@ export class MenuComponent {
 
 
   ngOnInit(): void {
-    this.connected$ = this.webSocketService.connected.subscribe(() => this.isConnected = true);
     this.messageReceived$ = this.webSocketService.messageReceived.subscribe(message => {
       if(message.message=="Has recibido una solicitud de amistad"){
         console.log("amistad")
@@ -90,15 +84,18 @@ export class MenuComponent {
           }
         });
         this.conectedUsers=message.quantity
+        this.dataService.players=message.quantity
       }
       if(message.message=="usuarios conectados"){
         console.log("La cantidad de usuarios que ahi ahora conectados son: "+message.quantity)
         this.conectedUsers=message.quantity
+        this.dataService.players=message.quantity
       }
       if(message.message=="usuarios desconectados"){
         console.log("HOLAAAA")
         console.log("Se ha desconectado un usuario ahora quedan:"+message.quantity)
         this.conectedUsers=message.quantity
+        this.dataService.players=message.quantity
       }
       if(message.message=="amigo desconectado"){
         console.log("Ahora tu amigo se ha desconectado:"+message.friendId)
@@ -108,12 +105,11 @@ export class MenuComponent {
           }
         });
         this.conectedUsers=message.quantity
+        this.dataService.players=message.quantity
       }
       this.serverResponse = message
     });
-    this.disconnected$ = this.webSocketService.disconnected.subscribe(() => this.isConnected = false);
-    // Pide los amigos que tiene el usuario
-    // this.friendList = JSON.parse(this.serverResponse);*/
+    /*this.disconnected$ = this.webSocketService.disconnected.subscribe(() => this.isConnected = false);*/
   }
 
 
@@ -125,13 +121,9 @@ export class MenuComponent {
   adios:Friend={nickName:"adiós"}
   deleteToken(){
     this.apiService.deleteToken();
+    /*this.disconnected$.unsubscribe();*/
     this.webSocketService.disconnectRxjs();
     this.router.navigateByUrl("login");
-  }
-  ngOnDestroy(): void {
-    this.connected$.unsubscribe();
-    this.messageReceived$.unsubscribe();
-    this.disconnected$.unsubscribe();
   }
   search(){
     const input = document.getElementById("search") as HTMLInputElement
@@ -240,6 +232,10 @@ export class MenuComponent {
       });
     }
     this.friendList = result.data
+  }
+
+  ngOnDestroy(): void {
+    this.messageReceived$.unsubscribe();
   }
 
   open_close_dropdown(){
