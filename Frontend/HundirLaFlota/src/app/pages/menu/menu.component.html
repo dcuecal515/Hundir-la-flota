@@ -6,7 +6,7 @@
         @if(requestList != null && requestList != []){
             <div>
                 @for(request of requestList; track request.nickName){
-                    <p><b>{{request.nickName}}</b> te a solicitado ser tu amigo<button (click)="addUser(request.nickName)">Aceptar solicitud</button><button (click)="rejectUser(request.nickName)">Rechazar Solicitud</button></p>
+                    <p><b>{{request.nickName}}</b> te ha solicitado ser tu amigo<button (click)="addUser(request.nickName)">Aceptar solicitud</button><button (click)="rejectUser(request.nickName)">Rechazar Solicitud</button></p>
                 }
             </div>
         }
@@ -35,7 +35,7 @@
             }
         </div>
         <div class="main-buttons">
-            <button>Jugar</button>
+            <button [routerLink]="'/matchmaking'">Jugar</button>
             <!--<form (ngSubmit)="searchUser()">-->
                 <!--<input type="text" [(ngModel)]="name" [ngModelOptions]="{standalone: true}">-->
                 <button>Buscar</button>
