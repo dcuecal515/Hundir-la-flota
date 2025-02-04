@@ -53,7 +53,7 @@ export class MenuComponent {
   userList:Friend[]
   friendList:Friend[] = []
   conectedUsers:number = 0
-
+  isOpen:boolean = false
 
 
   ngOnInit(): void {
@@ -233,7 +233,71 @@ export class MenuComponent {
     }
     this.friendList = result.data
   }
+
   ngOnDestroy(): void {
     this.messageReceived$.unsubscribe();
   }
+
+  open_close_dropdown(){
+    if(this.requestList != null){
+      if(this.isOpen){
+        this.isOpen = false
+        var dropdown = document.getElementById("header-requests")
+        dropdown?.classList.remove("header-requests-closed");
+        dropdown?.classList.add("header-requests");
+      }else{
+        this.isOpen = true
+        var dropdown = document.getElementById("header-requests")
+        dropdown?.classList.remove("header-requests");
+        dropdown?.classList.add("header-requests-closed");
+      }
+    }
+  }
+
+  openAlert(){
+    Swal.fire({
+      title: 'Ingresa el nombre del usuario',
+      input: 'text',
+      inputPlaceholder: 'Escribe aquí...',
+      showCancelButton: true,
+      confirmButtonText: 'Aceptar',
+      cancelButtonText: 'Cancelar',
+    }).then(async (result) => {
+      if (result.isConfirmed && result.value) {
+        this.name = result.value
+        await this.searchUser()
+        if (!this.userList || this.userList.length == 0) {
+          Swal.fire('No hay usuarios disponibles');
+          return;
+        }
+      
+        let userHtml = '<div>';
+        this.userList.forEach((user, index) => {
+          userHtml += `<p>${user.nickName} `;
+          if (user.message == 'no') {
+            userHtml += `<button id="requestUserBtn${index}" class="swal2-confirm swal2-styled">Enviar solicitud</button>`;
+          }
+          userHtml += '</p>';
+        });
+        userHtml += '</div>';
+      
+        Swal.fire({
+          title: 'Lista de Usuarios',
+          html: userHtml,
+          showCloseButton: true,
+          showConfirmButton: false,
+          didOpen: () => {
+            // Asignar evento click manualmente a cada botón
+            this.userList.forEach((user, index) => {
+              const button = document.getElementById(`requestUserBtn${index}`);
+              if (button) {
+                button.addEventListener('click', () => this.requestUser(user.nickName));
+              }
+            });
+          }
+        });
+      }
+    });
+  }
+
 }
