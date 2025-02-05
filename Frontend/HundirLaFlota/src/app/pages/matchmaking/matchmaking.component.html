@@ -10,7 +10,7 @@
     @if(friendList!=null && friendList.length>0){
         @for (friend of friendList; track friend.id) {
             <p>{{friend.nickName}}</p>
-            <button (click)="sendInvite()">Invitar a partida</button>
+            <button (click)="sendInvite(friend.nickName)">Invitar a partida</button>
         }
     }
 }

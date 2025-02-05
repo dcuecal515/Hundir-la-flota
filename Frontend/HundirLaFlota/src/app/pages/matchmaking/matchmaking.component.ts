@@ -5,6 +5,9 @@ import { Friend } from '../../models/Friend';
 import { environment } from '../../../environments/environment.development';
 import { Request } from '../../models/Request';
 import { RequestService } from '../../services/request.service';
+import { User } from '../../models/user';
+import { jwtDecode } from 'jwt-decode';
+import { FriendRequest } from '../../models/FriendRequest';
 
 @Component({
   selector: 'app-matchmaking',
@@ -14,7 +17,16 @@ import { RequestService } from '../../services/request.service';
   styleUrl: './matchmaking.component.css'
 })
 export class MatchmakingComponent {
-  constructor(private webSocketService:WebsocketService,private requestService:RequestService){}
+  constructor(private webSocketService:WebsocketService,private requestService:RequestService){
+    if(localStorage.getItem("token")){
+          this.decoded=jwtDecode(localStorage.getItem("token"));
+        }else if(sessionStorage.getItem("token")){
+          this.decoded=jwtDecode(sessionStorage.getItem("token"));
+        }else{
+          this.decoded=null
+        }
+    this.url=environment.images+this.decoded.Avatar;
+  }
   conectedUsers:number = 0
   isConnected: boolean = false;
   messageReceived$: Subscription;
@@ -24,6 +36,8 @@ export class MatchmakingComponent {
   friendList:Friend[] = []
   serverResponse: string = '';
   gamemode:string;
+  decoded:User;
+  url:string
   ngOnInit(): void {
       this.messageReceived$ = this.webSocketService.messageReceived.subscribe(message => {
         if(message.message=="amigo conectado"){
@@ -73,8 +87,11 @@ export class MatchmakingComponent {
     playgame(){
       
     }
-    sendInvite(){
-
+    sendInvite(nickName){
+      const message:FriendRequest={TypeMessage:"solicitud de partida",Identifier:nickName}
+      const jsonData = JSON.stringify(message)
+      console.log(jsonData)
+      this.webSocketService.sendRxjs(jsonData)
     }
     ngOnDestroy(): void {
       this.messageReceived$.unsubscribe();
