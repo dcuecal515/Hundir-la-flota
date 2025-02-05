@@ -5,6 +5,7 @@ using Server.Mappers;
 using System.Text;
 using System.Text.Json;
 using Microsoft.AspNetCore.SignalR.Protocol;
+using System.Numerics;
 
 namespace Server.Services
 {
@@ -21,8 +22,8 @@ namespace Server.Services
         private readonly List<WebSocketHandler> _handlers = new List<WebSocketHandler>();
         private readonly List<WebSocketHandler> _players = new List<WebSocketHandler>();
         // Semáforo para controlar el acceso a la lista de WebSocketHandler
-        private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1, 1);
-        //private readonly SemaphoreSlim _semaphoreplayers=new SemaphoreSlim(1);
+        private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1);
+        private readonly SemaphoreSlim _semaphoreplayers=new SemaphoreSlim(1);
         public async Task HandleAsync(WebSocket webSocket, User user)
         {
             WebSocketHandler handler = await AddWebsocketAsync(webSocket, user.Id);
@@ -196,7 +197,6 @@ namespace Server.Services
             List<Task> tasks = new List<Task>();
             // Guardamos una copia de los WebSocketHandler para evitar problemas de concurrencia
             WebSocketHandler[] handlers = _handlers.ToArray();
-            WebSocketHandler[] players = _players.ToArray();
 
             /*string messageToMe = $"Tú: {message}";
             string messageToOthers = $"Usuario {userHandler.Id}: {message}";*/
@@ -434,11 +434,13 @@ namespace Server.Services
             {
 
                 //Espero para el semaforo
-                //await _semaphoreplayers.WaitAsync();
+                await _semaphoreplayers.WaitAsync();
                 _players.Add(userHandler);
                     if (_players.Count == 2)
                     {
-                        foreach (WebSocketHandler player in players)
+                    WebSocketHandler[] players = _players.ToArray();
+
+                    foreach (WebSocketHandler player in players)
                         {
                             WebsocketMessageDto outMessage = new WebsocketMessageDto
                             {
@@ -447,14 +449,39 @@ namespace Server.Services
                             string messageToSend = JsonSerializer.Serialize(outMessage, JsonSerializerOptions.Web);
                             tasks.Add(player.SendAsync(messageToSend));
                         }
+
                         _players.Clear();
                     }
+
                 //Liberamos el semaforo
-                //_semaphore.Release();
+                _semaphoreplayers.Release();
+            }
+            if (receivedUser.TypeMessage.Equals("Cancelar busqueda de partida"))
+            {
+                
+                if (_players.Contains(userHandler))
+                {
+                    _players.Remove(userHandler);
+                }
+                WebsocketMessageDto outMessage = new WebsocketMessageDto
+                {
+                    Message = "Busqueda cancelada"
+                };
+                string messageToSend = JsonSerializer.Serialize(outMessage, JsonSerializerOptions.Web);
+                tasks.Add(userHandler.SendAsync(messageToSend));
+            }
+            if (receivedUser.TypeMessage.Equals("solicitud de partida contra bot"))
+            {
+                WebsocketMessageDto outMessage = new WebsocketMessageDto
+                {
+                    Message = "Partida Encontrada"
+                };
+                string messageToSend = JsonSerializer.Serialize(outMessage, JsonSerializerOptions.Web);
+                tasks.Add(userHandler.SendAsync(messageToSend));
             }
 
 
-                await Task.WhenAll(tasks);
+            await Task.WhenAll(tasks);
         }
 
 

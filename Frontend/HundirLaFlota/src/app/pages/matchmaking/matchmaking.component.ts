@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component,ViewChild,ElementRef } from '@angular/core';
 import { WebsocketService } from '../../services/websocket.service';
 import { Subscription } from 'rxjs';
 import { Friend } from '../../models/Friend';
@@ -109,7 +109,10 @@ export class MatchmakingComponent {
       }
     }
     playgame(){
-
+      const message:FriendRequest={TypeMessage:"solicitud de partida contra bot"}
+      const jsonData = JSON.stringify(message)
+      console.log(jsonData)
+      this.webSocketService.sendRxjs(jsonData)
     }
     sendInvite(nickName){
       const message:FriendRequest={TypeMessage:"solicitud de partida",Identifier:nickName}
@@ -122,6 +125,18 @@ export class MatchmakingComponent {
       const jsonData = JSON.stringify(message)
       console.log(jsonData)
       this.webSocketService.sendRxjs(jsonData)
+      var idrecivido=document.getElementById("cancel")
+      idrecivido.classList.remove("cancel")
+      idrecivido.classList.add("cancelview")
+    }
+    cancelSearch(){
+      const message:FriendRequest={TypeMessage:"Cancelar busqueda de partida"}
+      const jsonData = JSON.stringify(message)
+      console.log(jsonData)
+      this.webSocketService.sendRxjs(jsonData)
+      var idrecivido=document.getElementById("cancel")
+      idrecivido.classList.remove("cancelview")
+      idrecivido.classList.add("cancel")
     }
     ngOnDestroy(): void {
       this.messageReceived$.unsubscribe();
