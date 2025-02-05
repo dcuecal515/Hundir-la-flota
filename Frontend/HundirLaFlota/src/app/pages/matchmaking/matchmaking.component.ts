@@ -77,6 +77,9 @@ export class MatchmakingComponent {
           this.conectedUsers=message.quantity
           this.dataService.players=message.quantity
         }
+        if(message.message=="Partida Encontrada"){
+          console.log("TE REDIRIGO A VISTA PARTIDA")
+        }
         this.serverResponse = message
       });
     }
