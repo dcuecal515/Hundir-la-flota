@@ -392,9 +392,44 @@ namespace Server.Services
                 }
 
             }
+            if (receivedUser.TypeMessage.Equals("solicitud de partida"))
+            {
+                string userName = receivedUser.Identifier;
+
+                using (var scope = _serviceProvider.CreateScope())
+                {
+                    var _wsHelper = scope.ServiceProvider.GetRequiredService<WSHelper>();
+                    User user = await _wsHelper.GetUserById(userHandler.Id);
+                    User user2 = await _wsHelper.GetUserByNickname(userName);
+
+                    if (user2 != null)
+                    {
+                        bool isFriend = _wsHelper.GetIfUsersAreFriends(user, user2);
+                        if (isFriend)
+                        {
+                            foreach (WebSocketHandler handler in handlers)
+                            {
+                                if (handler.Id == user2.Id)
+                                {
+                                    UserDateDto outMessage = new UserDateDto
+                                    {
+                                        Id = user.Id,
+                                        NickName = user.NickName,
+                                        Avatar = user.Avatar,
+                                        Message = "Has recibido una solicitud de partida"
+                                    };
+                                    string messageToSend = JsonSerializer.Serialize(outMessage, JsonSerializerOptions.Web);
+                                    tasks.Add(handler.SendAsync(messageToSend));
+                                }
+
+                            }
+                        }
+                    }
+                }
+            }
 
 
-            await Task.WhenAll(tasks);
+                await Task.WhenAll(tasks);
         }
 
 
