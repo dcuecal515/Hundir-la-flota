@@ -3,18 +3,21 @@
     src: url('/assets/fonts/oldtimer.regular.ttf');
 }
 .allContent {
-    width: 80%;
+    width: 100%;
     margin: 0 auto;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 20px;
     height: 100vh;
+    background-image: url(/assets/background.png);
+    background-repeat: no-repeat;
+    background-size: cover;
 }
 
 /* Estilos para la cabecera */
 .header {
-    width: 100%;
+    width: 80%;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -56,11 +59,17 @@
 
 .header-requests{
     position: absolute;
-    top: 100%; /* Justo debajo del icono */
+    top: 190%; /* Justo debajo del icono */
     left: 50%;
     transform: translateX(-50%); /* Centrar con respecto al icono */
     padding: 10px;
     display: block;
+    background-color: #ccc;
+}
+
+.header-request{
+    display: flex;
+    flex-direction: row;
 }
 
 .avatar {
@@ -154,8 +163,9 @@
     width: 100%;
 }
 
-.main-buttons button, .central-search-button {
+.main-buttons button{
     width: 80%;
+    font-size: x-large;
 }
 
 button {
