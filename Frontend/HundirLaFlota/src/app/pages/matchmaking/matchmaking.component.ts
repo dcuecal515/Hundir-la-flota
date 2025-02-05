@@ -8,6 +8,8 @@ import { RequestService } from '../../services/request.service';
 import { User } from '../../models/user';
 import { jwtDecode } from 'jwt-decode';
 import { FriendRequest } from '../../models/FriendRequest';
+import { DataService } from '../../services/data.service';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-matchmaking',
@@ -17,7 +19,7 @@ import { FriendRequest } from '../../models/FriendRequest';
   styleUrl: './matchmaking.component.css'
 })
 export class MatchmakingComponent {
-  constructor(private webSocketService:WebsocketService,private requestService:RequestService){
+  constructor(private webSocketService:WebsocketService,private requestService:RequestService,private dataService:DataService){
     if(localStorage.getItem("token")){
           this.decoded=jwtDecode(localStorage.getItem("token"));
         }else if(sessionStorage.getItem("token")){
@@ -38,8 +40,18 @@ export class MatchmakingComponent {
   gamemode:string;
   decoded:User;
   url:string
+  partyRequestSended:string[] = []
+
   ngOnInit(): void {
-      this.messageReceived$ = this.webSocketService.messageReceived.subscribe(message => {
+    window.addEventListener('beforeunload', () => {
+      this.partyRequestSended.forEach(nickName => {
+        const message:FriendRequest={TypeMessage:"sala finalizada",Identifier:nickName}
+        const jsonData = JSON.stringify(message)
+        console.log(jsonData)
+        this.webSocketService.sendRxjs(jsonData)
+      });
+    });
+      this.messageReceived$ = this.webSocketService.messageReceived.subscribe(async message => {
         if(message.message=="amigo conectado"){
           console.log("HOLAAAA")
           console.log("Ahora tu amigo se ha conectado:"+message.friendId)
@@ -59,6 +71,30 @@ export class MatchmakingComponent {
           });
           this.conectedUsers=message.quantity
         }
+        if(message.message=="Has recibido una solicitud de partida"){
+          console.log("Solicitud de partida de "+message.nickName)
+          const playRequest = await Swal.fire({
+                                  title: "Solicitud de partida",
+                                  text: message.nickName+" te a invitado a jugar",
+                                  icon: "info",
+                                  showCancelButton: true,
+                                  confirmButtonText: "Aceptar",
+                                  cancelButtonText: "Cerrar"
+                                });
+                                if (playRequest.isConfirmed) {
+                                  Swal.fire("Confirmado", "Entrando a partida", "success");
+                                  const messageToSend:FriendRequest={TypeMessage:"Aceptar Partida",Identifier:message.nickName}
+                                  const jsonData = JSON.stringify(messageToSend)
+                                  console.log(jsonData)
+                                  this.webSocketService.sendRxjs(jsonData)
+                                } else {
+                                  const messageToSend:FriendRequest={TypeMessage:"Rechazar Partida",Identifier:message.nickName}
+                                  const jsonData = JSON.stringify(messageToSend)
+                                  console.log(jsonData)
+                                  this.webSocketService.sendRxjs(jsonData)
+                                }
+        }
+
         this.serverResponse = message
       });
     }
@@ -92,8 +128,15 @@ export class MatchmakingComponent {
       const jsonData = JSON.stringify(message)
       console.log(jsonData)
       this.webSocketService.sendRxjs(jsonData)
+      this.partyRequestSended.push(nickName);
     }
     ngOnDestroy(): void {
       this.messageReceived$.unsubscribe();
+      this.partyRequestSended.forEach(nickName => {
+        const message:FriendRequest={TypeMessage:"sala finalizada",Identifier:nickName}
+        const jsonData = JSON.stringify(message)
+        console.log(jsonData)
+        this.webSocketService.sendRxjs(jsonData)
+      });
     }
 }

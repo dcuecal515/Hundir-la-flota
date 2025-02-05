@@ -187,5 +187,11 @@ button:hover {
     background-color: #f1f1f1;
     padding: 15px;
     border-radius: 10px;
-    height: 60%;
+    min-height: 60%;
+    height: auto;
+}
+
+.party-request{
+    display: flex;
+    flex-direction: row;
 }
