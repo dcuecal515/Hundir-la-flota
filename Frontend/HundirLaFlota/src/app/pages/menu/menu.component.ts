@@ -239,7 +239,7 @@ export class MenuComponent {
   }
 
   open_close_dropdown(){
-    if(this.requestList != null){
+    if(this.requestList != null && this.requestList.length != 0){
       if(this.isOpen){
         this.isOpen = false
         var dropdown = document.getElementById("header-requests")
@@ -267,7 +267,7 @@ export class MenuComponent {
         this.name = result.value
         await this.searchUser()
         if (!this.userList || this.userList.length == 0) {
-          Swal.fire('No hay usuarios disponibles');
+          Swal.fire('No existe este usuario');
           return;
         }
       
@@ -277,7 +277,7 @@ export class MenuComponent {
           if (user.message == 'no') {
             userHtml += `<button id="requestUserBtn${index}" class="swal2-confirm swal2-styled">Enviar solicitud</button>`;
           }
-          userHtml += '</p>';
+          userHtml += '<button class="swal2-confirm swal2-styled">Perfil</button></p>';
         });
         userHtml += '</div>';
       
@@ -291,7 +291,7 @@ export class MenuComponent {
             this.userList.forEach((user, index) => {
               const button = document.getElementById(`requestUserBtn${index}`);
               if (button) {
-                button.addEventListener('click', () => this.requestUser(user.nickName));
+                button.addEventListener('click', () => {this.requestUser(user.nickName); Swal.close()});
               }
             });
           }
