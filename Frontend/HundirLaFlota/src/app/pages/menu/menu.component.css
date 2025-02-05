@@ -3,28 +3,31 @@
     src: url('/assets/fonts/oldtimer.regular.ttf');
 }
 .allContent {
-    width: 80%;
+    width: 100%;
     margin: 0 auto;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 20px;
     height: 100vh;
+    background-image: url(/assets/background.png);
+    background-repeat: no-repeat;
+    background-size: cover;
 }
 
 /* Estilos para la cabecera */
 .header {
-    width: 100%;
+    width: 80%;
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
+    gap: 19%;
     padding: 10px;
     background-color: #f8f8f8;
     border-radius: 10px;
 }
 
 .header div {
-    display: flex;
     align-items: center;
     gap: 10px;
 }
@@ -41,6 +44,34 @@
     font-family: titulo;
 }
 
+.header-dropdown{
+    position: relative;
+    display: inline-block;
+}
+
+#request-box{
+    font-size: 50px;
+}
+
+.header-requests-closed{
+    display: none;
+}
+
+.header-requests{
+    position: absolute;
+    top: 190%; /* Justo debajo del icono */
+    left: 50%;
+    transform: translateX(-50%); /* Centrar con respecto al icono */
+    padding: 10px;
+    display: block;
+    background-color: #ccc;
+}
+
+.header-request{
+    display: flex;
+    flex-direction: row;
+}
+
 .avatar {
     width: 60px;
     height: 60px;
@@ -52,7 +83,7 @@
 
 .user-information{
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
 }
 
 /* Cuerpo principal */
@@ -79,7 +110,8 @@
     align-items: center;
     background-color: #f1f1f1;
     gap: 10px;
-    height: 60%;
+    height: auto;
+    min-height: 60%;
 }
 
 .friend-list-searchBar{
@@ -107,17 +139,33 @@
     border-radius: 5px;
 }
 
+.friend-list-friends{
+    display: flex;
+    flex-direction: column;
+}
+
+.friend-data{
+    display: flex;
+    flex-direction: row;
+}
+
+.friend-data-nickname{
+    font-family: titulo;
+}
+
 .main-buttons {
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 10px;
-    height: 60%;
+    height: auto;
+    min-height: 60%;
     width: 100%;
 }
 
-.main-buttons button, .central-search-button {
+.main-buttons button{
     width: 80%;
+    font-size: x-large;
 }
 
 button {
