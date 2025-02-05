@@ -38,6 +38,7 @@ export class MenuComponent {
     this.reciveData()
     this.recievFriend()
     this.url=environment.images+this.decoded.Avatar;
+    console.log(this.dataService.players)
     this.conectedUsers=this.dataService.players
   }
   type:'rxjs'
@@ -239,7 +240,6 @@ export class MenuComponent {
   }
 
   open_close_dropdown(){
-    if(this.requestList != null && this.requestList.length != 0){
       if(this.isOpen){
         this.isOpen = false
         var dropdown = document.getElementById("header-requests")
@@ -251,7 +251,6 @@ export class MenuComponent {
         dropdown?.classList.remove("header-requests");
         dropdown?.classList.add("header-requests-closed");
       }
-    }
   }
 
   openAlert(){
