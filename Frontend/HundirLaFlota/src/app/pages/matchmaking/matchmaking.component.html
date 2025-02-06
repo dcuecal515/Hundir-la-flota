@@ -4,23 +4,24 @@
     <button (click)="gameFriend()">Jugar con amigo</button>
     <button (click)="gameRamdon()">Jugar aleatorio</button>
 
-    @if(gamemode=="partywithbot"){
-        <p>Jugando con bot</p>
-    }
-    @if(gamemode=="partywithfriend"){
-        <p>Jugando con amigos</p>
-        @if(friendList!=null && friendList.length>0){
-            @for (friend of friendList; track friend.id) {
-                <p>{{friend.nickName}}</p>
-                <button (click)="sendInvite(friend.nickName)">Invitar a partida</button>
-            }
-        }
-    }
-    @if(gamemode=="partywithrandom"){
-        <p>Partida aleatoria</p>
-        <button (click)="playGameRamdon()">Jugar partida</button>
-        
-    }
+  @if(gamemode=="partywithbot"){
+      <p>Jugando con bot</p>
+      <button (click)="playgame()">Jugar partida</button>
+  }
+  @if(gamemode=="partywithfriend"){
+      <p>Jugando con amigos</p>
+      @if(friendList!=null && friendList.length>0){
+          @for (friend of friendList; track friend.id) {
+              <p>{{friend.nickName}}</p>
+              <button (click)="sendInvite(friend.nickName)">Invitar a partida</button>
+          }
+      }
+  }
+  @if(gamemode=="partywithrandom"){
+    <p>Partida aleatoria</p>
+    <button (click)="playGameRamdon()">Jugar partida</button>
+    <button id="cancel" class="cancel" (click)="cancelSearch()">Cancelar busqueda</button>
+  }
 }@else {
     <p>Host: {{partyHost.nickName}}</p>
     @if(partyHost.nickName == decoded.nickName){
@@ -47,5 +48,6 @@
         </div>
         <button (click)="exitGuest()">Salir</button>
     }
+    <button (click)="playgame()">Jugar partida</button>
 }
 

@@ -5,6 +5,7 @@ using Server.Mappers;
 using System.Text;
 using System.Text.Json;
 using Microsoft.AspNetCore.SignalR.Protocol;
+using System.Numerics;
 
 namespace Server.Services
 {
@@ -19,8 +20,10 @@ namespace Server.Services
 
         // Lista de WebSocketHandler (clase que gestiona cada WebSocket)
         private readonly List<WebSocketHandler> _handlers = new List<WebSocketHandler>();
+        private readonly List<WebSocketHandler> _players = new List<WebSocketHandler>();
         // Semáforo para controlar el acceso a la lista de WebSocketHandler
-        private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1, 1);
+        private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1);
+        private readonly SemaphoreSlim _semaphoreplayers=new SemaphoreSlim(1);
         public async Task HandleAsync(WebSocket webSocket, User user)
         {
             WebSocketHandler handler = await AddWebsocketAsync(webSocket, user.Id);
@@ -426,6 +429,75 @@ namespace Server.Services
                         }
                     }
                 }
+            }
+            if(receivedUser.TypeMessage.Equals("Buscando Partida"))
+            {
+
+                //Espero para el semaforo
+                await _semaphoreplayers.WaitAsync();
+                if(_players.Count > 0)
+                {
+                    var exist=_players.Contains(userHandler);
+                    if (exist)
+                    {
+                        WebsocketMessageDto outMessage = new WebsocketMessageDto
+                        {
+                            Message = "Estas ya en la lista de busqueda"
+                        };
+                        string messageToSend = JsonSerializer.Serialize(outMessage, JsonSerializerOptions.Web);
+                        tasks.Add(userHandler.SendAsync(messageToSend));
+                    }
+                    else
+                    {
+                        _players.Add(userHandler);
+                    }
+                }
+                else
+                {
+                    _players.Add(userHandler);
+                }
+                    if (_players.Count == 2)
+                    {
+                    WebSocketHandler[] players = _players.ToArray();
+
+                    foreach (WebSocketHandler player in players)
+                        {
+                            WebsocketMessageDto outMessage = new WebsocketMessageDto
+                            {
+                                Message = "Partida Encontrada"
+                            };
+                            string messageToSend = JsonSerializer.Serialize(outMessage, JsonSerializerOptions.Web);
+                            tasks.Add(player.SendAsync(messageToSend));
+                        }
+
+                        _players.Clear();
+                    }
+
+                //Liberamos el semaforo
+                _semaphoreplayers.Release();
+            }
+            if (receivedUser.TypeMessage.Equals("Cancelar busqueda de partida"))
+            {
+                
+                if (_players.Contains(userHandler))
+                {
+                    _players.Remove(userHandler);
+                }
+                WebsocketMessageDto outMessage = new WebsocketMessageDto
+                {
+                    Message = "Busqueda cancelada"
+                };
+                string messageToSend = JsonSerializer.Serialize(outMessage, JsonSerializerOptions.Web);
+                tasks.Add(userHandler.SendAsync(messageToSend));
+            }
+            if (receivedUser.TypeMessage.Equals("solicitud de partida contra bot"))
+            {
+                WebsocketMessageDto outMessage = new WebsocketMessageDto
+                {
+                    Message = "Partida Encontrada"
+                };
+                string messageToSend = JsonSerializer.Serialize(outMessage, JsonSerializerOptions.Web);
+                tasks.Add(userHandler.SendAsync(messageToSend));
             }
 
             if (receivedUser.TypeMessage.Equals("sala finalizada"))

@@ -6,6 +6,7 @@
         <div class="header-dropdown">
             <div (click)="open_close_dropdown()">
                 <i class="fa-regular fa-envelope" id="request-box"></i>
+                <div class="request-count"></div>
             </div>
             @if(requestList != null && requestList.length != 0){
                 <div class="header-requests-closed" id="header-requests">
