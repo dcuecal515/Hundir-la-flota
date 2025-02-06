@@ -41,6 +41,8 @@ export class MatchmakingComponent {
   decoded:User;
   url:string
   partyRequestSended:string[] = []
+  partyHost:Request = null
+  partyGuest:Request = null
 
   ngOnInit(): void {
     window.addEventListener('beforeunload', () => {
@@ -94,6 +96,46 @@ export class MatchmakingComponent {
                                   this.webSocketService.sendRxjs(jsonData)
                                 }
         }
+        if(message.message=="Te rechazo la partida"){
+          console.log(message.nickName+" te rezacho la partida")
+          const newPartyRequestSended = this.partyRequestSended.filter(nickName => nickName !== message.nickName);
+          this.partyRequestSended = newPartyRequestSended;
+          console.log(this.partyRequestSended)
+        }
+
+        if(message.message=="Se unieron a tu lobby"){
+          console.log("Se unió "+message.nickName)
+          // Quita de la lista al que se ha unido
+          const newPartyRequestSended = this.partyRequestSended.filter(nickName => nickName !== message.nickName);
+          this.partyRequestSended = newPartyRequestSended;
+          // Avisa a los demás que se ha cancelado la invitación
+          this.partyRequestSended.forEach(nickName => {
+            const message:FriendRequest={TypeMessage:"sala finalizada",Identifier:nickName}
+            const jsonData = JSON.stringify(message)
+            console.log(jsonData)
+            this.webSocketService.sendRxjs(jsonData)
+          });
+          // Vacia la lista de invitaciones
+          this.partyRequestSended = []
+          // Guarda el anfitrion y el invitado
+          this.partyHost = {
+            id:this.decoded.id,
+            nickName:this.decoded.nickName,
+            avatar:environment.images+this.decoded.Avatar
+          };
+          this.partyGuest = message
+        }
+
+        if(message.message=="Te uniste a una lobby"){
+          console.log("Te uniste a "+message.nickName)
+          // Guarda el anfitrion y el invitado
+          this.partyHost = message
+          this.partyGuest = {
+            id:this.decoded.id,
+            nickName:this.decoded.nickName,
+            avatar:environment.images+this.decoded.Avatar
+          };
+        }
 
         this.serverResponse = message
       });
@@ -124,11 +166,19 @@ export class MatchmakingComponent {
       
     }
     sendInvite(nickName){
-      const message:FriendRequest={TypeMessage:"solicitud de partida",Identifier:nickName}
-      const jsonData = JSON.stringify(message)
-      console.log(jsonData)
-      this.webSocketService.sendRxjs(jsonData)
-      this.partyRequestSended.push(nickName);
+      var isRequested = false
+      this.partyRequestSended.forEach(nickNameSaved => {
+        if(nickNameSaved == nickName){
+          isRequested = true
+        }
+      });
+      if(!isRequested){
+        const message:FriendRequest={TypeMessage:"solicitud de partida",Identifier:nickName}
+        const jsonData = JSON.stringify(message)
+        console.log(jsonData)
+        this.webSocketService.sendRxjs(jsonData)
+        this.partyRequestSended.push(nickName);
+      }
     }
     ngOnDestroy(): void {
       this.messageReceived$.unsubscribe();

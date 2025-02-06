@@ -118,6 +118,7 @@ export class MenuComponent {
                       });
                       if (playRequest.isConfirmed) {
                         Swal.fire("Aceptada", "Entrando a partida", "success");
+                        this.router.navigate(['/matchmaking']);
                         const messageToSend:FriendRequest={TypeMessage:"Aceptar Partida",Identifier:message.nickName}
                         const jsonData = JSON.stringify(messageToSend)
                         console.log(jsonData)
