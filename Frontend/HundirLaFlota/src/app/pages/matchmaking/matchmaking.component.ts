@@ -10,7 +10,6 @@ import { jwtDecode } from 'jwt-decode';
 import { Router } from '@angular/router';
 import { DataService } from '../../services/data.service';
 import { FriendRequest } from '../../models/FriendRequest';
-import { DataService } from '../../services/data.service';
 import Swal from 'sweetalert2';
 
 @Component({
