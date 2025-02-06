@@ -47,6 +47,7 @@
 .header-dropdown{
     position: relative;
     display: inline-block;
+    cursor: pointer;
 }
 
 #request-box{

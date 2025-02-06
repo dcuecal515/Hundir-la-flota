@@ -7,6 +7,8 @@ import { Request } from '../../models/Request';
 import { RequestService } from '../../services/request.service';
 import { User } from '../../models/user';
 import { jwtDecode } from 'jwt-decode';
+import { Router } from '@angular/router';
+import { DataService } from '../../services/data.service';
 import { FriendRequest } from '../../models/FriendRequest';
 import { DataService } from '../../services/data.service';
 import Swal from 'sweetalert2';
@@ -19,7 +21,7 @@ import Swal from 'sweetalert2';
   styleUrl: './matchmaking.component.css'
 })
 export class MatchmakingComponent {
-  constructor(private webSocketService:WebsocketService,private requestService:RequestService,private dataService:DataService){
+  constructor(private webSocketService:WebsocketService,private requestService:RequestService,private router:Router,private dataService:DataService){
     if(localStorage.getItem("token")){
           this.decoded=jwtDecode(localStorage.getItem("token"));
         }else if(sessionStorage.getItem("token")){
@@ -138,9 +140,28 @@ export class MatchmakingComponent {
             avatar:environment.images+this.decoded.Avatar
           };
         }
+        if(message.message=="Has sido eliminado de amigos"){
+          console.log("Te eliminaron")
+          const newFriendList = this.friendList.filter(friend => friend.nickName !== message.nickName);
+          this.friendList = newFriendList;
+        }
+        if(message.message=="usuarios conectados"){
+          console.log("La cantidad de usuarios que ahi ahora conectados son: "+message.quantity)
+          this.conectedUsers=message.quantity
+          this.dataService.players=message.quantity
+        }
+        if(message.message=="usuarios desconectados"){
+          console.log("HOLAAAA")
+          console.log("Se ha desconectado un usuario ahora quedan:"+message.quantity)
+          this.conectedUsers=message.quantity
+          this.dataService.players=message.quantity
+        }
 
         this.serverResponse = message
       });
+    }
+    backToTheMenu(){
+      this.router.navigateByUrl("menu");
     }
     gameBot(){
       this.gamemode="partywithbot";
@@ -165,7 +186,7 @@ export class MatchmakingComponent {
       }
     }
     playgame(){
-      
+
     }
     sendInvite(nickName){
       var isRequested = false
@@ -186,11 +207,18 @@ export class MatchmakingComponent {
     exitGuest(){
       
     }
-
+  
     exitHost(){
 
     }
 
+    playGameRamdon(){
+      const message:FriendRequest={TypeMessage:"Buscando Partida"}
+      const jsonData = JSON.stringify(message)
+      console.log(jsonData)
+      this.webSocketService.sendRxjs(jsonData)
+    }
+  
     ngOnDestroy(): void {
       this.messageReceived$.unsubscribe();
       this.partyRequestSended.forEach(nickName => {
