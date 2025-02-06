@@ -137,7 +137,7 @@ export class MenuComponent {
       }
       this.serverResponse = message
     });
-    /*this.disconnected$ = this.webSocketService.disconnected.subscribe(() => this.isConnected = false);*/
+    this.disconnected$ = this.webSocketService.disconnected.subscribe(() => this.isConnected = false);
   }
 
 
@@ -264,6 +264,7 @@ export class MenuComponent {
 
   ngOnDestroy(): void {
     this.messageReceived$.unsubscribe();
+    this.disconnected$.unsubscribe();
   }
 
   open_close_dropdown(){

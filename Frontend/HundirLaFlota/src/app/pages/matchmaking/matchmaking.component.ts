@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component,ViewChild,ElementRef } from '@angular/core';
 import { WebsocketService } from '../../services/websocket.service';
 import { Subscription } from 'rxjs';
 import { Friend } from '../../models/Friend';
@@ -156,9 +156,15 @@ export class MatchmakingComponent {
           this.conectedUsers=message.quantity
           this.dataService.players=message.quantity
         }
-
+        if(message.message=="Partida Encontrada"){
+          this.router.navigateByUrl("game");
+        }
+        if(message.message=="Estas ya en la lista de busqueda"){
+          console.log("No busques otra vez bobo");
+        }
         this.serverResponse = message
       });
+      this.disconnected$ = this.webSocketService.disconnected.subscribe(() => this.isConnected = false);
     }
     backToTheMenu(){
       this.router.navigateByUrl("menu");
@@ -186,7 +192,10 @@ export class MatchmakingComponent {
       }
     }
     playgame(){
-
+      const message:FriendRequest={TypeMessage:"solicitud de partida contra bot"}
+      const jsonData = JSON.stringify(message)
+      console.log(jsonData)
+      this.webSocketService.sendRxjs(jsonData)
     }
     sendInvite(nickName){
       var isRequested = false
@@ -217,10 +226,23 @@ export class MatchmakingComponent {
       const jsonData = JSON.stringify(message)
       console.log(jsonData)
       this.webSocketService.sendRxjs(jsonData)
+      var idrecivido=document.getElementById("cancel")
+      idrecivido.classList.remove("cancel")
+      idrecivido.classList.add("cancelview")
+    }
+    cancelSearch(){
+      const message:FriendRequest={TypeMessage:"Cancelar busqueda de partida"}
+      const jsonData = JSON.stringify(message)
+      console.log(jsonData)
+      this.webSocketService.sendRxjs(jsonData)
+      var idrecivido=document.getElementById("cancel")
+      idrecivido.classList.remove("cancelview")
+      idrecivido.classList.add("cancel")
     }
   
     ngOnDestroy(): void {
       this.messageReceived$.unsubscribe();
+      this.disconnected$.unsubscribe();
       this.partyRequestSended.forEach(nickName => {
         const message:FriendRequest={TypeMessage:"sala finalizada",Identifier:nickName}
         const jsonData = JSON.stringify(message)
