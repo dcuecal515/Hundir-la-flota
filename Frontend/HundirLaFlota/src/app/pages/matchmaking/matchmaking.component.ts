@@ -78,10 +78,14 @@ export class MatchmakingComponent {
           this.dataService.players=message.quantity
         }
         if(message.message=="Partida Encontrada"){
-          console.log("TE REDIRIGO A VISTA PARTIDA")
+          this.router.navigateByUrl("game");
+        }
+        if(message.message=="Estas ya en la lista de busqueda"){
+          console.log("No busques otra vez bobo");
         }
         this.serverResponse = message
       });
+      this.disconnected$ = this.webSocketService.disconnected.subscribe(() => this.isConnected = false);
     }
     backToTheMenu(){
       this.router.navigateByUrl("menu");
@@ -140,5 +144,6 @@ export class MatchmakingComponent {
     }
     ngOnDestroy(): void {
       this.messageReceived$.unsubscribe();
+      this.disconnected$.unsubscribe();
     }
 }

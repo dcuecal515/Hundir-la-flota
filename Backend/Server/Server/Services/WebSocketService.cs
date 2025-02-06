@@ -435,7 +435,27 @@ namespace Server.Services
 
                 //Espero para el semaforo
                 await _semaphoreplayers.WaitAsync();
-                _players.Add(userHandler);
+                if(_players.Count > 0)
+                {
+                    var exist=_players.Contains(userHandler);
+                    if (exist)
+                    {
+                        WebsocketMessageDto outMessage = new WebsocketMessageDto
+                        {
+                            Message = "Estas ya en la lista de busqueda"
+                        };
+                        string messageToSend = JsonSerializer.Serialize(outMessage, JsonSerializerOptions.Web);
+                        tasks.Add(userHandler.SendAsync(messageToSend));
+                    }
+                    else
+                    {
+                        _players.Add(userHandler);
+                    }
+                }
+                else
+                {
+                    _players.Add(userHandler);
+                }
                     if (_players.Count == 2)
                     {
                     WebSocketHandler[] players = _players.ToArray();
