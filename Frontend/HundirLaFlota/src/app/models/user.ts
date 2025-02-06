@@ -1,9 +1,9 @@
 export interface User{
-    Avatar: String
+    Avatar: string
     exp: number
     iat: number
     id: number
     nbf: number
-    nickName: String
+    nickName: string
     role: String
 }

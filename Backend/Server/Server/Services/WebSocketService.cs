@@ -500,6 +500,109 @@ namespace Server.Services
                 tasks.Add(userHandler.SendAsync(messageToSend));
             }
 
+            if (receivedUser.TypeMessage.Equals("sala finalizada"))
+            {
+                string userName = receivedUser.Identifier;
+
+                using (var scope = _serviceProvider.CreateScope())
+                {
+                    var _wsHelper = scope.ServiceProvider.GetRequiredService<WSHelper>();
+                    User user = await _wsHelper.GetUserById(userHandler.Id);
+                    User user2 = await _wsHelper.GetUserByNickname(userName);
+
+                    if (user2 != null)
+                    {
+                        foreach (WebSocketHandler handler in handlers)
+                        {
+                            if (handler.Id == user2.Id)
+                            {
+                                UserDateDto outMessage = new UserDateDto
+                                {
+                                    Id = user.Id,
+                                    NickName = user.NickName,
+                                    Avatar = user.Avatar,
+                                    Message = "Se finalizo la partida"
+                                };
+                                string messageToSend = JsonSerializer.Serialize(outMessage, JsonSerializerOptions.Web);
+                                tasks.Add(handler.SendAsync(messageToSend));
+                            }
+
+                        }
+                    }
+                }
+            }
+
+            if (receivedUser.TypeMessage.Equals("Aceptar Partida"))
+            {
+                string userName = receivedUser.Identifier;
+
+                using (var scope = _serviceProvider.CreateScope())
+                {
+                    var _wsHelper = scope.ServiceProvider.GetRequiredService<WSHelper>();
+                    User user = await _wsHelper.GetUserById(userHandler.Id);
+                    User user2 = await _wsHelper.GetUserByNickname(userName);
+
+                    if (user2 != null)
+                    { 
+                        foreach (WebSocketHandler handler in handlers)
+                        {
+                            if (handler.Id == user2.Id)
+                            {
+                                UserDateDto outMessage = new UserDateDto
+                                {
+                                    Id = user.Id,
+                                    NickName = user.NickName,
+                                    Avatar = user.Avatar,
+                                    Message = "Se unieron a tu lobby"
+                                };
+                                string messageToSend = JsonSerializer.Serialize(outMessage, JsonSerializerOptions.Web);
+                                tasks.Add(handler.SendAsync(messageToSend));
+                            }
+                            if(handler.Id == user.Id)
+                            {
+                                UserDateDto outMessage = new UserDateDto
+                                {
+                                    Id = user2.Id,
+                                    NickName = user2.NickName,
+                                    Avatar = user2.Avatar,
+                                    Message = "Te uniste a una lobby"
+                                };
+                                string messageToSend = JsonSerializer.Serialize(outMessage, JsonSerializerOptions.Web);
+                                tasks.Add(handler.SendAsync(messageToSend));
+                            }
+                        } // POR HACER
+                    }
+                }
+            }
+
+            if (receivedUser.TypeMessage.Equals("Rechazar Partida"))
+            {
+                string userName = receivedUser.Identifier;
+
+                using (var scope = _serviceProvider.CreateScope())
+                {
+                    var _wsHelper = scope.ServiceProvider.GetRequiredService<WSHelper>();
+                    User user = await _wsHelper.GetUserById(userHandler.Id);
+                    User user2 = await _wsHelper.GetUserByNickname(userName);
+
+                    if (user2 != null)
+                    {
+                        foreach (WebSocketHandler handler in handlers)
+                        {
+                            if (handler.Id == user2.Id)
+                            {
+                                DeleteDto outMessage = new DeleteDto
+                                {
+                                    NickName = user.NickName,
+                                    Message = "Te rechazo la partida"
+                                };
+                                string messageToSend = JsonSerializer.Serialize(outMessage, JsonSerializerOptions.Web);
+                                tasks.Add(handler.SendAsync(messageToSend));
+                            }
+                        }
+                    }
+                }
+            }
 
             await Task.WhenAll(tasks);
         }
