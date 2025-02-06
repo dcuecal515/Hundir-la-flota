@@ -498,7 +498,7 @@ namespace Server.Services
                                 string messageToSend = JsonSerializer.Serialize(outMessage, JsonSerializerOptions.Web);
                                 tasks.Add(handler.SendAsync(messageToSend));
                             }
-                        } // POR HACER
+                        }
                     }
                 }
             }
@@ -523,6 +523,93 @@ namespace Server.Services
                                 {
                                     NickName = user.NickName,
                                     Message = "Te rechazo la partida"
+                                };
+                                string messageToSend = JsonSerializer.Serialize(outMessage, JsonSerializerOptions.Web);
+                                tasks.Add(handler.SendAsync(messageToSend));
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (receivedUser.TypeMessage.Equals("Abandono invitado"))
+            {
+                string userName = receivedUser.Identifier;
+
+                using (var scope = _serviceProvider.CreateScope())
+                {
+                    var _wsHelper = scope.ServiceProvider.GetRequiredService<WSHelper>();
+                    User user = await _wsHelper.GetUserById(userHandler.Id);
+                    User user2 = await _wsHelper.GetUserByNickname(userName);
+
+                    if (user2 != null)
+                    {
+                        foreach (WebSocketHandler handler in handlers)
+                        {
+                            if (handler.Id == user2.Id)
+                            {
+                                DeleteDto outMessage = new DeleteDto
+                                {
+                                    NickName = user.NickName,
+                                    Message = "Se salieron de tu lobby"
+                                };
+                                string messageToSend = JsonSerializer.Serialize(outMessage, JsonSerializerOptions.Web);
+                                tasks.Add(handler.SendAsync(messageToSend));
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (receivedUser.TypeMessage.Equals("Abandono anfitrion"))
+            {
+                string userName = receivedUser.Identifier;
+
+                using (var scope = _serviceProvider.CreateScope())
+                {
+                    var _wsHelper = scope.ServiceProvider.GetRequiredService<WSHelper>();
+                    User user = await _wsHelper.GetUserById(userHandler.Id);
+                    User user2 = await _wsHelper.GetUserByNickname(userName);
+
+                    if (user2 != null)
+                    {
+                        foreach (WebSocketHandler handler in handlers)
+                        {
+                            if (handler.Id == user2.Id)
+                            {
+                                DeleteDto outMessage = new DeleteDto
+                                {
+                                    NickName = user.NickName,
+                                    Message = "Te volviste anfitrion"
+                                };
+                                string messageToSend = JsonSerializer.Serialize(outMessage, JsonSerializerOptions.Web);
+                                tasks.Add(handler.SendAsync(messageToSend));
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (receivedUser.TypeMessage.Equals("Empezar partida"))
+            {
+                string userName = receivedUser.Identifier;
+
+                using (var scope = _serviceProvider.CreateScope())
+                {
+                    var _wsHelper = scope.ServiceProvider.GetRequiredService<WSHelper>();
+                    User user = await _wsHelper.GetUserById(userHandler.Id);
+                    User user2 = await _wsHelper.GetUserByNickname(userName);
+
+                    if (user2 != null)
+                    {
+                        foreach (WebSocketHandler handler in handlers)
+                        {
+                            if (handler.Id == user2.Id)
+                            {
+                                DeleteDto outMessage = new DeleteDto
+                                {
+                                    NickName = user.NickName,
+                                    Message = "Empezo la partida"
                                 };
                                 string messageToSend = JsonSerializer.Serialize(outMessage, JsonSerializerOptions.Web);
                                 tasks.Add(handler.SendAsync(messageToSend));

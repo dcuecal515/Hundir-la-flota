@@ -1,27 +1,26 @@
 @if(partyGuest == null){
   <button (click)="backToTheMenu()">Volver al menu</button>
-  <button (click)="gameBot()">Jugar con bot</button>
-  <button (click)="gameFriend()">Jugar con amigo</button>
-  <button (click)="gameRamdon()">Jugar aleatorio</button>
+    <button (click)="gameBot()">Jugar con bot</button>
+    <button (click)="gameFriend()">Jugar con amigo</button>
+    <button (click)="gameRamdon()">Jugar aleatorio</button>
 
-  @if(gamemode=="partywithbot"){
-      <p>Jugando con bot</p>
-      <button (click)="playgame()">Jugar partida</button>
-  }
-  @if(gamemode=="partywithfriend"){
-      <p>Jugando con amigos</p>
-      @if(friendList!=null && friendList.length>0){
-          @for (friend of friendList; track friend.id) {
-              <p>{{friend.nickName}}</p>
-              <button (click)="sendInvite(friend.nickName)">Invitar a partida</button>
-          }
-      }
-      <button (click)="playgame()">Jugar partida</button>
-  }
-  @if(gamemode=="partywithrandom"){
-      <p>Partida aleatoria</p>
-      <button (click)="playGameRamdon()">Jugar partida</button>
-  }
+    @if(gamemode=="partywithbot"){
+        <p>Jugando con bot</p>
+    }
+    @if(gamemode=="partywithfriend"){
+        <p>Jugando con amigos</p>
+        @if(friendList!=null && friendList.length>0){
+            @for (friend of friendList; track friend.id) {
+                <p>{{friend.nickName}}</p>
+                <button (click)="sendInvite(friend.nickName)">Invitar a partida</button>
+            }
+        }
+    }
+    @if(gamemode=="partywithrandom"){
+        <p>Partida aleatoria</p>
+        <button (click)="playGameRamdon()">Jugar partida</button>
+        
+    }
 }@else {
     <p>Host: {{partyHost.nickName}}</p>
     @if(partyHost.nickName == decoded.nickName){
@@ -34,8 +33,8 @@
             <img [src]="partyGuest.avatar">
             <h2>{{partyGuest.nickName}}</h2>
         </div>
-        <button>Cancelar partida</button>
-        <button>Empezar partida</button>
+        <button (click)="exitHost()">Salir</button>
+        <button (click)="startGame()">Empezar partida</button>
     }@else {
         <div class="guest-data">
             <img [src]="partyGuest.avatar">
@@ -46,6 +45,7 @@
             <img [src]="partyHost.avatar">
             <h2>{{partyHost.nickName}}</h2>
         </div>
-        <button (click)="exit()">Salir</button>
+        <button (click)="exitGuest()">Salir</button>
     }
 }
+

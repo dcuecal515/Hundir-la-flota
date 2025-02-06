@@ -10,7 +10,6 @@ import { jwtDecode } from 'jwt-decode';
 import { Router } from '@angular/router';
 import { DataService } from '../../services/data.service';
 import { FriendRequest } from '../../models/FriendRequest';
-import { DataService } from '../../services/data.service';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -53,6 +52,17 @@ export class MatchmakingComponent {
         const jsonData = JSON.stringify(message)
         console.log(jsonData)
         this.webSocketService.sendRxjs(jsonData)
+        if(this.partyHost.nickName == this.decoded.nickName){
+          const message:FriendRequest={TypeMessage:"Abandono anfitrion",Identifier:this.partyGuest.nickName}
+          const jsonData = JSON.stringify(message)
+          console.log(jsonData)
+          this.webSocketService.sendRxjs(jsonData)
+        }else{
+          const message:FriendRequest={TypeMessage:"Abandono invitado",Identifier:this.partyHost.nickName}
+          const jsonData = JSON.stringify(message)
+          console.log(jsonData)
+          this.webSocketService.sendRxjs(jsonData)
+        }
       });
     });
       this.messageReceived$ = this.webSocketService.messageReceived.subscribe(async message => {
@@ -156,6 +166,23 @@ export class MatchmakingComponent {
           this.conectedUsers=message.quantity
           this.dataService.players=message.quantity
         }
+        if(message.message=="Se salieron de tu lobby"){
+          console.log("Se salió "+message.nickName)
+          this.partyGuest = null
+        }
+        if(message.message=="Te volviste anfitrion"){
+          console.log("Se salió "+message.nickName)
+          this.partyGuest = null
+          this.partyHost = {
+            id:this.decoded.id,
+            nickName:this.decoded.nickName,
+            avatar:environment.images+this.decoded.Avatar
+          };
+        }
+        if(message.message=="Empezo la partida"){
+          console.log("Enpezaste la partida con "+message.nickName)
+          //this.router.navigateByUrl("game")
+        }
 
         this.serverResponse = message
       });
@@ -205,11 +232,27 @@ export class MatchmakingComponent {
     }
 
     exitGuest(){
-      
+      const message:FriendRequest={TypeMessage:"Abandono invitado",Identifier:this.partyHost.nickName}
+      const jsonData = JSON.stringify(message)
+      console.log(jsonData)
+      this.webSocketService.sendRxjs(jsonData)
+      this.router.navigateByUrl("menu")
     }
   
     exitHost(){
+      const message:FriendRequest={TypeMessage:"Abandono anfitrion",Identifier:this.partyGuest.nickName}
+      const jsonData = JSON.stringify(message)
+      console.log(jsonData)
+      this.webSocketService.sendRxjs(jsonData)
+      this.router.navigateByUrl("menu")
+    }
 
+    startGame(){
+      const message:FriendRequest={TypeMessage:"Empezar partida",Identifier:this.decoded.nickName}
+      const jsonData = JSON.stringify(message)
+      console.log(jsonData)
+      this.webSocketService.sendRxjs(jsonData)
+      //this.router.navigateByUrl("game")
     }
 
     playGameRamdon(){
@@ -221,11 +264,13 @@ export class MatchmakingComponent {
   
     ngOnDestroy(): void {
       this.messageReceived$.unsubscribe();
-      this.partyRequestSended.forEach(nickName => {
-        const message:FriendRequest={TypeMessage:"sala finalizada",Identifier:nickName}
-        const jsonData = JSON.stringify(message)
-        console.log(jsonData)
-        this.webSocketService.sendRxjs(jsonData)
-      });
+      if(this.partyRequestSended && this.partyRequestSended.length != 0){
+        this.partyRequestSended.forEach(nickName => {
+          const message:FriendRequest={TypeMessage:"sala finalizada",Identifier:nickName}
+          const jsonData = JSON.stringify(message)
+          console.log(jsonData)
+          this.webSocketService.sendRxjs(jsonData)
+        });
+      }
     }
 }
