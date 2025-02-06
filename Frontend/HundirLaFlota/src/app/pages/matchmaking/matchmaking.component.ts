@@ -123,12 +123,14 @@ export class MatchmakingComponent {
             nickName:this.decoded.nickName,
             avatar:environment.images+this.decoded.Avatar
           };
+          message.avatar = environment.images+message.avatar
           this.partyGuest = message
         }
 
         if(message.message=="Te uniste a una lobby"){
           console.log("Te uniste a "+message.nickName)
           // Guarda el anfitrion y el invitado
+          message.avatar = environment.images+message.avatar
           this.partyHost = message
           this.partyGuest = {
             id:this.decoded.id,
@@ -180,6 +182,15 @@ export class MatchmakingComponent {
         this.partyRequestSended.push(nickName);
       }
     }
+
+    exitGuest(){
+      
+    }
+
+    exitHost(){
+
+    }
+
     ngOnDestroy(): void {
       this.messageReceived$.unsubscribe();
       this.partyRequestSended.forEach(nickName => {
