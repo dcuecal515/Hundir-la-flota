@@ -1,14 +1,17 @@
 ﻿using Server.Models;
+using Server.Services;
 
 namespace Server
 {
     public class WSHelper
     {
         private readonly UnitOfWork _unitOfWork;
+        private readonly FriendService _friendService;
 
-        public WSHelper(UnitOfWork unitOfWork)
+        public WSHelper(UnitOfWork unitOfWork, FriendService friendService)
         {
             _unitOfWork = unitOfWork;
+            _friendService = friendService;
         }
 
         public async Task<User> GetUserById(int id)
@@ -51,21 +54,7 @@ namespace Server
 
         public async Task DeleteFrienshipByUsers(User user1, User user2)
         {
-            foreach (var friend in user1.friends)
-            {
-                if (friend.FriendId == user2.Id)
-                {
-                    _unitOfWork.FriendRepository.Delete(friend);
-                }
-            }
-            foreach (var friend in user2.friends)
-            {
-                if (friend.FriendId == user1.Id)
-                {
-                    _unitOfWork.FriendRepository.Delete(friend);
-                }
-            }
-            await _unitOfWork.SaveAsync();
+            await _friendService.DeleteFrienshipByUsers(user1,user2);
         }
     }
 }
