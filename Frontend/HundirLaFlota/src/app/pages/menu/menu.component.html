@@ -1,3 +1,4 @@
+<div class="the-father">
 <div class="allContent">
     <div class="header">
         <button (click)="deleteToken()" class="header-logOut"><i class="fa-solid fa-right-from-bracket"></i></button>
@@ -6,7 +7,7 @@
         <div class="header-dropdown">
             <div (click)="open_close_dropdown()">
                 <i class="fa-regular fa-envelope" id="request-box"></i>
-                <div class="request-count"></div>
+                <div class="request-count">{{requestList.length}}</div>
             </div>
             @if(requestList != null && requestList.length != 0){
                 <div class="header-requests-closed" id="header-requests">
@@ -91,4 +92,5 @@
             <h3>Usuarios conectados: {{conectedUsers}}</h3>
         </div>
     </div>
+</div>
 </div>
