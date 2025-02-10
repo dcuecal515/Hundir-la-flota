@@ -1,27 +1,38 @@
+<div class="the-father">
+    <button (click)="backToTheMenu()">Volver al menu</button>
+    <div class="title">
+        <h1>Zarpar a los mares</h1>
+    </div>
 @if(partyGuest == null){
-  <button (click)="backToTheMenu()">Volver al menu</button>
-    <button (click)="gameBot()">Jugar con bot</button>
-    <button (click)="gameFriend()">Jugar con amigo</button>
-    <button (click)="gameRamdon()">Jugar aleatorio</button>
-
-  @if(gamemode=="partywithbot"){
-      <p>Jugando con bot</p>
-      <button (click)="playgame()">Jugar partida</button>
-  }
-  @if(gamemode=="partywithfriend"){
-      <p>Jugando con amigos</p>
-      @if(friendList!=null && friendList.length>0){
-          @for (friend of friendList; track friend.id) {
-              <p>{{friend.nickName}}</p>
-              <button (click)="sendInvite(friend.nickName)">Invitar a partida</button>
-          }
-      }
-  }
-  @if(gamemode=="partywithrandom"){
-    <p>Partida aleatoria</p>
-    <button (click)="playGameRamdon()">Jugar partida</button>
-    <button id="cancel" class="cancel" (click)="cancelSearch()">Cancelar busqueda</button>
-  }
+    <div class="body">
+    <div class="buttons">
+        <button class="button-design" (click)="gameBot()">Jugar con bot</button>
+        <button class="button-design" (click)="gameFriend()">Jugar con amigo</button>
+        <button class="button-design" (click)="gameRamdon()">Jugar aleatorio</button>
+    </div>
+    <div class="player">
+        @if(gamemode=="partywithbot"){
+          <div class="player-content">
+          <p>Jugando con bot</p>
+          <button (click)="playgame()">Jugar partida</button>
+          </div>
+        }
+        @if(gamemode=="partywithfriend"){
+            <p>Jugando con amigos</p>
+            @if(friendList!=null && friendList.length>0){
+                @for (friend of friendList; track friend.id) {
+                    <p>{{friend.nickName}}</p>
+                    <button (click)="sendInvite(friend.nickName)">Invitar a partida</button>
+                }
+            }
+        }
+        @if(gamemode=="partywithrandom"){
+          <p>Partida aleatoria</p>
+          <button (click)="playGameRamdon()">Jugar partida</button>
+          <button id="cancel" class="cancel" (click)="cancelSearch()">Cancelar busqueda</button>
+        }
+    </div>
+    </div>
 }@else {
     <p>Host: {{partyHost.nickName}}</p>
     @if(partyHost.nickName == decoded.nickName){
@@ -50,4 +61,4 @@
     }
     <button (click)="playgame()">Jugar partida</button>
 }
-
+</div>
