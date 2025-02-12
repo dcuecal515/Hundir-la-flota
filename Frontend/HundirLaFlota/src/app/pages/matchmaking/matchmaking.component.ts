@@ -181,8 +181,16 @@ export class MatchmakingComponent {
           };
         }
         if(message.message=="Empezo la partida"){
-          console.log("Enpezaste la partida con "+message.nickName)
-          //this.router.navigateByUrl("game")
+          console.log("Empezaste la partida con "+message.nickName)
+          this.router.navigateByUrl("game")
+
+        }
+        if(message.message=="Partida Aleatoria Encontrada"){
+          this.router.navigateByUrl("game");
+          const messageToSend:FriendRequest={TypeMessage:"Envio de oponentes",Identifier:message.opponentId}
+          const jsonData = JSON.stringify(messageToSend)
+          console.log(jsonData)
+          this.webSocketService.sendRxjs(jsonData)
         }
 
         if(message.message=="Partida Encontrada"){
@@ -264,7 +272,7 @@ export class MatchmakingComponent {
       const jsonData = JSON.stringify(message)
       console.log(jsonData)
       this.webSocketService.sendRxjs(jsonData)
-      //this.router.navigateByUrl("game")
+      this.router.navigateByUrl("game")
     }
 
     playGameRamdon(){

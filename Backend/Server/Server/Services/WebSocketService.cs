@@ -462,12 +462,25 @@ namespace Server.Services
 
                     foreach (WebSocketHandler player in players)
                         {
-                            WebsocketMessageDto outMessage = new WebsocketMessageDto
+                            if (userHandler.Id != player.Id)
                             {
-                                Message = "Partida Encontrada"
-                            };
-                            string messageToSend = JsonSerializer.Serialize(outMessage, JsonSerializerOptions.Web);
-                            tasks.Add(player.SendAsync(messageToSend));
+                                StartGameDto outMessage = new StartGameDto
+                                {
+                                    Message = "Partida Aleatoria Encontrada",
+                                    OpponentId = players[1].Id
+                                };
+                                string messageToSend = JsonSerializer.Serialize(outMessage, JsonSerializerOptions.Web);
+                                tasks.Add(player.SendAsync(messageToSend));
+                            } else
+                            {
+                                StartGameDto outMessage = new StartGameDto
+                                {
+                                    Message = "Partida Aleatoria Encontrada",
+                                    OpponentId = players[0].Id
+                                };
+                                string messageToSend = JsonSerializer.Serialize(outMessage, JsonSerializerOptions.Web);
+                                tasks.Add(player.SendAsync(messageToSend));
+                            }
                         }
 
                         _players.Clear();
@@ -476,6 +489,25 @@ namespace Server.Services
                 //Liberamos el semaforo
                 _semaphoreplayers.Release();
             }
+
+            if (receivedUser.TypeMessage.Equals("Envio de oponentes"))
+            {
+                foreach (WebSocketHandler handler in handlers)
+                {
+                    if (handler.Id == Int32.Parse(receivedUser.Identifier))
+                    {
+                        StartGameDto outMessage = new StartGameDto
+                        {
+                            Message = "Datos iniciales",
+                            OpponentId = Int32.Parse(receivedUser.Identifier)
+                        };
+                        string messageToSend = JsonSerializer.Serialize(outMessage, JsonSerializerOptions.Web);
+                        tasks.Add(handler.SendAsync(messageToSend));
+                    }
+
+                }
+            }
+
             if (receivedUser.TypeMessage.Equals("Cancelar busqueda de partida"))
             {
                 
@@ -490,6 +522,7 @@ namespace Server.Services
                 string messageToSend = JsonSerializer.Serialize(outMessage, JsonSerializerOptions.Web);
                 tasks.Add(userHandler.SendAsync(messageToSend));
             }
+
             if (receivedUser.TypeMessage.Equals("solicitud de partida contra bot"))
             {
                 WebsocketMessageDto outMessage = new WebsocketMessageDto
