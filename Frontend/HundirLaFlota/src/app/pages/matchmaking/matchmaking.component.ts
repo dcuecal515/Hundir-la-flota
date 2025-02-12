@@ -201,6 +201,21 @@ export class MatchmakingComponent {
     }
     gameBot(){
       this.gamemode="partywithbot";
+      var body=document.getElementById("body")
+      var buttons=document.getElementById("buttons")
+      var buttonDesign=document.getElementById("button-design")
+      var buttonDesign2=document.getElementById("button-design2")
+      var buttonDesign3=document.getElementById("button-design3")
+      body.classList.remove("body")
+      body.classList.add("bodyview")
+      buttons.classList.remove("buttons")
+      buttons.classList.add("buttonsview")
+      buttonDesign.classList.remove("button-design")
+      buttonDesign.classList.add("button-design-view")
+      buttonDesign2.classList.remove("button-design")
+      buttonDesign2.classList.add("button-design-view")
+      buttonDesign3.classList.remove("button-design")
+      buttonDesign3.classList.add("button-design-view")
     }
     gameFriend(){
       this.gamemode="partywithfriend";
@@ -214,9 +229,13 @@ export class MatchmakingComponent {
       console.log(result.data)
       if(result.data != null){
         result.data.forEach(friend => {
-          friend.avatar = environment.images+friend.avatar
-          if(friend.status=="Conectado"){
-            this.friendList.push(friend);
+          if(this.friendList.includes(friend)){
+            console.log("NO ME AÑADO")
+          }else{
+            friend.avatar = environment.images+friend.avatar
+            if(friend.status=="Conectado"){
+              this.friendList.push(friend);
+            }
           }
         });
       }
