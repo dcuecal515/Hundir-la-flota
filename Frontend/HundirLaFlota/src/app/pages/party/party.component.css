@@ -1,6 +1,17 @@
+.body-colocar-barcos{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
 .rows{
     display: flex;
     flex-direction: row;
+}
+.tablero{
+    display: flex;
+    flex-direction: column;
+    width: 50%;
+    align-items: center;
 }
 .game-box{
     background-color: aqua;
@@ -10,11 +21,28 @@
     text-align: center;
     cursor: pointer;
 }
-.game-box-view{
-    background-color: blue;
+.game-box-barco4{
     height: 50px;
     width: 50px;
-    border: 2px solid black;
+    border: 2px solid green;
     text-align: center;
     cursor: pointer;
+}
+.barcos{
+    width: 50%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+.barco4-column{
+    display: flex;
+    flex-direction: column;
+    width: 54px;
+    height: 220px;
+}
+.barco4-row{
+    display: flex;
+    flex-direction: row;
+    width: 220px;
+    height: 54px;
 }

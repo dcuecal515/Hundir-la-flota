@@ -2,12 +2,24 @@
 @if(barcosoponente==null){
     
 }@else{
+<div class="body-colocar-barcos">
+    <div class="tablero">
     @for (letra of letras; track $index) {
         <div class="rows">
         @for (item of items; track $index) {
-            <div id="game-box" class="game-box" (click)="guardarposicion(letra,item)"><p>{{letra}}{{item}}</p></div>
+                <div id="{{letra}}{{item}}" class="game-box"><p>{{letra}}{{item}}</p></div>
         }
         </div>
     }
+    </div>
+    <div class="barcos">
+        <div id="barco4" class="barco4-column" (click)="cambiarposicionbarco4()" draggable="true">
+            <div class="game-box-barco4"><p></p></div>
+            <div class="game-box-barco4"><p></p></div>
+            <div class="game-box-barco4"><p></p></div>
+            <div class="game-box-barco4"><p></p></div>
+        </div>
+    </div>
+</div>
 }
 
