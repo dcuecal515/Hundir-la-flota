@@ -6,6 +6,8 @@ import { Router } from '@angular/router';
 import { DataService } from '../../services/data.service';
 import { User } from '../../models/user';
 import { Subscription } from 'rxjs';
+import { FriendRequest } from '../../models/FriendRequest';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-party',
@@ -29,6 +31,10 @@ export class PartyComponent {
   disconnected$: Subscription;
   isConnected: boolean = false;
   opponentName:string = ""
+  items=[1,2,3,4,5,6,7,8,9,10]
+  letras=['a','b','c','d','e','f','g','h','i','j']
+  barcos=[]
+  barcosoponente=[]
 
   ngOnInit(): void {
     this.messageReceived$ = this.webSocketService.messageReceived.subscribe(async message => {
@@ -36,8 +42,48 @@ export class PartyComponent {
         console.log("Te enfrentas a "+message.nickName)
         this.opponentName = message.nickName
       }
+      if(message.message=="Empezo la partida"){
+        console.log("Empezaste la partida con "+message.opponentId)
+        const messageToSend:FriendRequest={TypeMessage:"Envio de oponentes",Identifier:message.opponentId.toString()}
+        const jsonData = JSON.stringify(messageToSend)
+        console.log(jsonData)
+        this.webSocketService.sendRxjs(jsonData)
+      }
+      if(message.message=="Has ganado"){
+        console.log("has ganado contra "+this.opponentName)
+        this.router.navigateByUrl("menu")
+      }
     });
     this.disconnected$ = this.webSocketService.disconnected.subscribe(() => this.isConnected = false);
+  }
+
+  guardarposicion(letra:string,item:number){
+    var miposicion=letra+item
+    var gamebox=document.getElementById(miposicion)
+    gamebox.classList.remove("game-box")
+    gamebox.classList.add("game-box-view")
+    console.log(miposicion)
+  }
+
+  async exit(){
+    const exitRequest = await Swal.fire({
+                            title: "Abandonar partida",
+                            text: "¿Estás seguro que quieres abandonar la partida?",
+                            icon: "warning",
+                            showCancelButton: true,
+                            confirmButtonText: "Aceptar",
+                            cancelButtonText: "Cancelar"
+                          });
+                          if (exitRequest.isConfirmed) {
+                            this.router.navigateByUrl("menu")
+                            const messageToSend:FriendRequest={TypeMessage:"Abandono de partida",Identifier:this.opponentName}
+                            const jsonData = JSON.stringify(messageToSend)
+                            console.log(jsonData)
+                            this.webSocketService.sendRxjs(jsonData)
+                          } else {
+                            Swal.close()
+                          }
+    
   }
   ngOnDestroy(): void {
     this.messageReceived$.unsubscribe();

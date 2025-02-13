@@ -202,7 +202,7 @@ export class MatchmakingComponent {
         if(message.message=="Estas ya en la lista de busqueda"){
           console.log("No busques otra vez bobo");
         }
-
+        
         this.serverResponse = message
       });
       this.disconnected$ = this.webSocketService.disconnected.subscribe(() => this.isConnected = false);

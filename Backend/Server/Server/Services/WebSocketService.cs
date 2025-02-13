@@ -24,7 +24,6 @@ namespace Server.Services
         // Semáforo para controlar el acceso a la lista de WebSocketHandler
         private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1);
         private readonly SemaphoreSlim _semaphoreplayers=new SemaphoreSlim(1);
-        private readonly SemaphoreSlim _semaphoreStartGame = new SemaphoreSlim(1);
         public async Task HandleAsync(WebSocket webSocket, User user)
         {
             WebSocketHandler handler = await AddWebsocketAsync(webSocket, user.Id);
@@ -463,25 +462,38 @@ namespace Server.Services
 
                     foreach (WebSocketHandler player in players)
                         {
-                            if (userHandler.Id != player.Id)
+                            using (var scope = _serviceProvider.CreateScope())
                             {
-                                StartGameDto outMessage = new StartGameDto
+                                var _wsHelper = scope.ServiceProvider.GetRequiredService<WSHelper>();
+
+                                if (userHandler.Id != player.Id)
                                 {
-                                    Message = "Partida Aleatoria Encontrada",
-                                    OpponentId = players[1].Id
-                                };
-                                string messageToSend = JsonSerializer.Serialize(outMessage, JsonSerializerOptions.Web);
-                                tasks.Add(player.SendAsync(messageToSend));
-                            } else
-                            {
-                                StartGameDto outMessage = new StartGameDto
+                                    User user = await _wsHelper.GetUserById(player.Id);
+                                    user.Status = "Jugando";
+                                    await _wsHelper.UpdateUserAsync(user);
+                                    StartGameDto outMessage = new StartGameDto
+                                    {
+                                        Message = "Partida Aleatoria Encontrada",
+                                        OpponentId = players [1].Id
+                                    };
+                                    string messageToSend = JsonSerializer.Serialize(outMessage, JsonSerializerOptions.Web);
+                                    tasks.Add(player.SendAsync(messageToSend));
+                                } else
                                 {
-                                    Message = "Partida Aleatoria Encontrada",
-                                    OpponentId = players[0].Id
-                                };
-                                string messageToSend = JsonSerializer.Serialize(outMessage, JsonSerializerOptions.Web);
-                                tasks.Add(player.SendAsync(messageToSend));
+                                    User user = await _wsHelper.GetUserById(player.Id);
+                                    user.Status = "Jugando";
+                                    await _wsHelper.UpdateUserAsync(user);
+                                    StartGameDto outMessage = new StartGameDto
+                                    {
+                                        Message = "Partida Aleatoria Encontrada",
+                                        OpponentId = players [0].Id
+                                    };
+                                    string messageToSend = JsonSerializer.Serialize(outMessage, JsonSerializerOptions.Web);
+                                    tasks.Add(player.SendAsync(messageToSend));
+                                }
                             }
+
+                            
                         }
 
                         _players.Clear();
@@ -534,6 +546,14 @@ namespace Server.Services
 
             if (receivedUser.TypeMessage.Equals("solicitud de partida contra bot"))
             {
+                using (var scope = _serviceProvider.CreateScope())
+                {
+                    var _wsHelper = scope.ServiceProvider.GetRequiredService<WSHelper>();
+                    User user = await _wsHelper.GetUserById(userHandler.Id);
+                    user.Status = "Jugando";
+                    await _wsHelper.UpdateUserAsync(user);
+                }
+
                 WebsocketMessageDto outMessage = new WebsocketMessageDto
                 {
                     Message = "Partida Encontrada"
@@ -707,7 +727,6 @@ namespace Server.Services
             if (receivedUser.TypeMessage.Equals("Empezar partida"))
             {
                 string userName = receivedUser.Identifier;
-                await _semaphoreStartGame.WaitAsync();
                 using (var scope = _serviceProvider.CreateScope())
                 {
                     var _wsHelper = scope.ServiceProvider.GetRequiredService<WSHelper>();
@@ -716,6 +735,11 @@ namespace Server.Services
 
                     if (user2 != null)
                     {
+                        user.Status = "Jugando";
+                        user2.Status = "Jugando";
+                        await _wsHelper.UpdateUserAsync(user);
+                        await _wsHelper.UpdateUserAsync(user2);
+
                         foreach (WebSocketHandler handler in handlers)
                         {
                             if (handler.Id == user2.Id)
@@ -741,7 +765,45 @@ namespace Server.Services
                         }
                     }
                 }
-                _semaphoreStartGame.Release();
+            }
+            if (receivedUser.TypeMessage.Equals("Abandono de partida"))
+            {
+                string userName = receivedUser.Identifier;
+                using (var scope = _serviceProvider.CreateScope())
+                {
+                    var _wsHelper = scope.ServiceProvider.GetRequiredService<WSHelper>();
+                    User user = await _wsHelper.GetUserById(userHandler.Id);
+                    User user2 = await _wsHelper.GetUserByNickname(userName);
+                    if (user2 != null)
+                    {
+                        user.Status = "Conectado";
+                        user2.Status = "Conectado";
+                        await _wsHelper.UpdateUserAsync(user);
+                        await _wsHelper.UpdateUserAsync(user2);
+
+                        foreach (WebSocketHandler handler in handlers)
+                        {
+                            if (handler.Id == user2.Id)
+                            {
+                                WebsocketMessageDto outMessage = new WebsocketMessageDto
+                                {
+                                    Message = "Has ganado"
+                                };
+                                string messageToSend = JsonSerializer.Serialize(outMessage, JsonSerializerOptions.Web);
+                                tasks.Add(handler.SendAsync(messageToSend));
+                            }
+                            if (handler.Id == user.Id)
+                            {
+                                WebsocketMessageDto outMessage = new WebsocketMessageDto
+                                {
+                                    Message = "Has perdido"
+                                };
+                                string messageToSend = JsonSerializer.Serialize(outMessage, JsonSerializerOptions.Web);
+                                tasks.Add(handler.SendAsync(messageToSend));
+                            }
+                        }
+                    }
+                }
             }
 
             await Task.WhenAll(tasks);
