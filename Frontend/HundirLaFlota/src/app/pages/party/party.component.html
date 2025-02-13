@@ -1,1 +1,13 @@
-<p>party works!</p>
+<h1>Partida</h1>
+@if(barcosoponente==null){
+    
+}@else{
+    @for (letra of letras; track $index) {
+        <div class="rows">
+        @for (item of items; track $index) {
+            <div id="game-box" class="game-box" (click)="guardarposicion(letra,item)"><p>{{letra}}{{item}}</p></div>
+        }
+        </div>
+    }
+}
+
