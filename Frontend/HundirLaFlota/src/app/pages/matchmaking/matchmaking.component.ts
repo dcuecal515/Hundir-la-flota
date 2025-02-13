@@ -181,13 +181,16 @@ export class MatchmakingComponent {
           };
         }
         if(message.message=="Empezo la partida"){
-          console.log("Empezaste la partida con "+message.nickName)
+          console.log("Empezaste la partida con "+message.opponentId)
           this.router.navigateByUrl("game")
-
+          const messageToSend:FriendRequest={TypeMessage:"Envio de oponentes",Identifier:message.opponentId.toString()}
+          const jsonData = JSON.stringify(messageToSend)
+          console.log(jsonData)
+          this.webSocketService.sendRxjs(jsonData)
         }
         if(message.message=="Partida Aleatoria Encontrada"){
           this.router.navigateByUrl("game");
-          const messageToSend:FriendRequest={TypeMessage:"Envio de oponentes",Identifier:message.opponentId}
+          const messageToSend:FriendRequest={TypeMessage:"Envio de oponentes",Identifier:message.opponentId.toString()}
           const jsonData = JSON.stringify(messageToSend)
           console.log(jsonData)
           this.webSocketService.sendRxjs(jsonData)
@@ -268,7 +271,7 @@ export class MatchmakingComponent {
     }
 
     startGame(){
-      const message:FriendRequest={TypeMessage:"Empezar partida",Identifier:this.decoded.nickName}
+      const message:FriendRequest={TypeMessage:"Empezar partida",Identifier:this.partyGuest.nickName}
       const jsonData = JSON.stringify(message)
       console.log(jsonData)
       this.webSocketService.sendRxjs(jsonData)

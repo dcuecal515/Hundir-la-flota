@@ -24,6 +24,7 @@ namespace Server.Services
         // Semáforo para controlar el acceso a la lista de WebSocketHandler
         private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1);
         private readonly SemaphoreSlim _semaphoreplayers=new SemaphoreSlim(1);
+        private readonly SemaphoreSlim _semaphoreStartGame = new SemaphoreSlim(1);
         public async Task HandleAsync(WebSocket webSocket, User user)
         {
             WebSocketHandler handler = await AddWebsocketAsync(webSocket, user.Id);
@@ -492,20 +493,28 @@ namespace Server.Services
 
             if (receivedUser.TypeMessage.Equals("Envio de oponentes"))
             {
+                
                 foreach (WebSocketHandler handler in handlers)
                 {
                     if (handler.Id == Int32.Parse(receivedUser.Identifier))
                     {
-                        StartGameDto outMessage = new StartGameDto
+                        using (var scope = _serviceProvider.CreateScope())
                         {
-                            Message = "Datos iniciales",
-                            OpponentId = Int32.Parse(receivedUser.Identifier)
-                        };
-                        string messageToSend = JsonSerializer.Serialize(outMessage, JsonSerializerOptions.Web);
-                        tasks.Add(handler.SendAsync(messageToSend));
+                            var _wsHelper = scope.ServiceProvider.GetRequiredService<WSHelper>();
+                            User user = await _wsHelper.GetUserById(userHandler.Id);
+
+                            DeleteDto outMessage = new DeleteDto
+                            {
+                                Message = "Datos iniciales",
+                                NickName = user.NickName
+                            };
+                            string messageToSend = JsonSerializer.Serialize(outMessage, JsonSerializerOptions.Web);
+                            tasks.Add(handler.SendAsync(messageToSend));
+                        }
                     }
 
                 }
+                
             }
 
             if (receivedUser.TypeMessage.Equals("Cancelar busqueda de partida"))
@@ -698,7 +707,7 @@ namespace Server.Services
             if (receivedUser.TypeMessage.Equals("Empezar partida"))
             {
                 string userName = receivedUser.Identifier;
-
+                await _semaphoreStartGame.WaitAsync();
                 using (var scope = _serviceProvider.CreateScope())
                 {
                     var _wsHelper = scope.ServiceProvider.GetRequiredService<WSHelper>();
@@ -711,10 +720,20 @@ namespace Server.Services
                         {
                             if (handler.Id == user2.Id)
                             {
-                                DeleteDto outMessage = new DeleteDto
+                                StartGameDto outMessage = new StartGameDto
                                 {
-                                    NickName = user.NickName,
-                                    Message = "Empezo la partida"
+                                    Message = "Empezo la partida",
+                                    OpponentId = user.Id
+                                };
+                                string messageToSend = JsonSerializer.Serialize(outMessage, JsonSerializerOptions.Web);
+                                tasks.Add(handler.SendAsync(messageToSend));
+                            }
+                            if(handler.Id == user.Id)
+                            {
+                                StartGameDto outMessage = new StartGameDto
+                                {
+                                    Message = "Empezo la partida",
+                                    OpponentId = user2.Id
                                 };
                                 string messageToSend = JsonSerializer.Serialize(outMessage, JsonSerializerOptions.Web);
                                 tasks.Add(handler.SendAsync(messageToSend));
@@ -722,6 +741,7 @@ namespace Server.Services
                         }
                     }
                 }
+                _semaphoreStartGame.Release();
             }
 
             await Task.WhenAll(tasks);

@@ -28,12 +28,13 @@ export class PartyComponent {
   messageReceived$: Subscription;
   disconnected$: Subscription;
   isConnected: boolean = false;
-
+  opponentName:string = ""
 
   ngOnInit(): void {
     this.messageReceived$ = this.webSocketService.messageReceived.subscribe(async message => {
       if(message.message == "Datos iniciales"){
-
+        console.log("Te enfrentas a "+message.nickName)
+        this.opponentName = message.nickName
       }
     });
     this.disconnected$ = this.webSocketService.disconnected.subscribe(() => this.isConnected = false);
