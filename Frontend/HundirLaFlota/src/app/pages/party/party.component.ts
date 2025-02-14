@@ -30,14 +30,15 @@ export class PartyComponent {
   messageReceived$: Subscription;
   disconnected$: Subscription;
   isConnected: boolean = false;
-  opponentName:string = ""
+  opponentName:string = "Bot1"
   items=[1,2,3,4,5,6,7,8,9,10]
   letras=['a','b','c','d','e','f','g','h','i','j']
-  barcos=[]
+  ships=[]
   shipsBeforePlace=[]
   shoots=[]
   barcosoponente=false
   turn=false
+  impacted=false
 
   ngOnInit(): void {
     this.messageReceived$ = this.webSocketService.messageReceived.subscribe(async message => {
@@ -56,12 +57,54 @@ export class PartyComponent {
         console.log("has ganado contra "+this.opponentName)
         this.router.navigateByUrl("menu")
       }
+      if(message.message=="Disparo enemigo"){
+        console.log("Te dispararon en la posición: "+message.position)
+        this.ships.forEach(ship => {
+          ship.forEach(position => {
+            if(position == message.position){
+              this.impacted=true
+              position="tocado"
+              const messageToSend:FriendRequest={TypeMessage:"Dado en el blanco",Identifier:this.opponentName,Identifier2:message.position}
+              const jsonData = JSON.stringify(messageToSend)
+              console.log(jsonData)
+              this.webSocketService.sendRxjs(jsonData)
+            }
+          });
+        });
+        if(!this.impacted){
+          const messageToSend:FriendRequest={TypeMessage:"Agua",Identifier:this.opponentName,Identifier2:message.position}
+          const jsonData = JSON.stringify(messageToSend)
+          console.log(jsonData)
+          this.webSocketService.sendRxjs(jsonData)
+        }else{
+          this.impacted=false
+        }
+        Swal.fire({
+          title: 'Te toca disparar',
+          icon: 'success',
+          timer: 1000, 
+          showConfirmButton: false
+        });
+        this.turn=true
+      }
+      if(message.message=="Tocado"){
+        console.log("Has dado al barco con posición: "+message.position)
+        var gamebox=document.getElementById(message.position)
+        gamebox.classList.remove("game-box")
+        gamebox.classList.add("game-box-touched")
+      }
+      if(message.message=="Fallo"){
+        console.log("Has fallado en la posición: "+message.position)
+        var gamebox=document.getElementById(message.position)
+        gamebox.classList.remove("game-box")
+        gamebox.classList.add("game-box-miss")
+      }
     });
     this.disconnected$ = this.webSocketService.disconnected.subscribe(() => this.isConnected = false);
   }
 
   guardarposicion(letra:string,item:number){
-    if(this.barcosoponente && this.barcos.length > 0 && this.turn){
+    if(this.barcosoponente && this.ships.length > 0 && this.turn){
       var miposicion:string=letra+item
       if(!this.shoots.includes(miposicion)){
         this.shoots.push(miposicion)
