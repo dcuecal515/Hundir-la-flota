@@ -7,7 +7,7 @@
     @for (letra of letras; track $index) {
         <div class="rows">
         @for (item of items; track $index) {
-                <div id="dropzone" class="game-box"><p>{{letra}}{{item}}</p></div>
+                <div id="{{letra}}{{item}}" class="game-box"><p>{{letra}}{{item}}</p></div>
         }
         </div>
     }

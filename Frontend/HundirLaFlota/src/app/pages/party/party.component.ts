@@ -14,12 +14,33 @@ export class PartyComponent implements AfterViewInit {
   barcos=[]
   barcosoponente=[]
   ngAfterViewInit() {
-    const dropzone = document.getElementById('dropzone');
-    const draggable = document.getElementById('barco4');
-    draggable.addEventListener('dragstart', (event) => {
-      event.dataTransfer.setData('text/plain', draggable.id);
+    const dropzones = document.querySelectorAll('.game-box');
+    const draggablebarco4 = document.getElementById('barco4');
+    draggablebarco4.addEventListener('dragstart', (event) => {
+      event.dataTransfer.setData('text/plain', draggablebarco4.id);
       console.log('Estoy arrastrando mi elemento');
     });
+    dropzones.forEach(dropzone => {
+      dropzone.addEventListener("dragover", (ev:DragEvent) => ev.preventDefault());
+      
+      dropzone.addEventListener("drop", (ev:DragEvent) => {
+        const id = ev.dataTransfer.getData("text/plain");
+        const item = document.querySelector("#" + id);
+        const miId=dropzone.id
+        const elemento=document.getElementById(miId)
+        console.log('posicon donde he soltado mi barco', miId);
+        elemento.style.backgroundColor = 'grey';
+        elemento.style.border = '';
+        dropzone.append(item)
+        draggablebarco4.draggable=false
+      });
+    });
+    /*dropzone.addEventListener("dragover", (ev) => ev.preventDefault());
+    dropzone.addEventListener("drop", (ev) => {
+      const id = ev.dataTransfer.getData("text/plain");
+      const item = document.querySelector("#" + id);
+      dropzone.append(item);
+    });*/
   }
   cambiarposicionbarco4(){
     var barco4=document.getElementById("barco4");
