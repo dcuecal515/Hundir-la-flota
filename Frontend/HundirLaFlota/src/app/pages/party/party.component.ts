@@ -34,7 +34,10 @@ export class PartyComponent {
   items=[1,2,3,4,5,6,7,8,9,10]
   letras=['a','b','c','d','e','f','g','h','i','j']
   barcos=[]
-  barcosoponente=[]
+  shipsBeforePlace=[]
+  shoots=[]
+  barcosoponente=false
+  turn=false
 
   ngOnInit(): void {
     this.messageReceived$ = this.webSocketService.messageReceived.subscribe(async message => {
@@ -58,11 +61,38 @@ export class PartyComponent {
   }
 
   guardarposicion(letra:string,item:number){
-    var miposicion=letra+item
-    var gamebox=document.getElementById(miposicion)
-    gamebox.classList.remove("game-box")
-    gamebox.classList.add("game-box-view")
-    console.log(miposicion)
+    if(this.barcosoponente && this.barcos.length > 0 && this.turn){
+      var miposicion:string=letra+item
+      if(!this.shoots.includes(miposicion)){
+        this.shoots.push(miposicion)
+        var gamebox=document.getElementById(miposicion)
+        gamebox.classList.remove("game-box")
+        gamebox.classList.add("game-box-view")
+        console.log("Posición mandada: "+miposicion)
+        const messageToSend:FriendRequest={TypeMessage:"Disparo",Identifier:this.opponentName,Identifier2:miposicion}
+        const jsonData = JSON.stringify(messageToSend)
+        console.log(jsonData)
+        this.webSocketService.sendRxjs(jsonData)
+        this.turn = false
+      }else{
+        Swal.fire({
+          title: 'Error',
+          text: 'Selecciona una posicion nueva',
+          icon: 'error',
+          timer: 1000,
+          showConfirmButton: false
+        });
+      }
+    }else{
+      Swal.fire({
+        title: 'Error',
+        text: 'Todavia no puedes atacar',
+        icon: 'error',
+        timer: 1000, 
+        showConfirmButton: false
+      });
+    }
+    
   }
 
   async exit(){
