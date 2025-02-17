@@ -1,0 +1,38 @@
+.rows{
+    display: flex;
+    flex-direction: row;
+}
+.game-box{
+    background-color: aqua;
+    height: 50px;
+    width: 50px;
+    border: 2px solid black;
+    text-align: center;
+    cursor: pointer;
+}
+.game-box-view{
+    background-color: blue;
+    height: 50px;
+    width: 50px;
+    border: 2px solid black;
+    text-align: center;
+    cursor: pointer;
+}
+
+.game-box-touched{
+    background-color: green;
+    height: 50px;
+    width: 50px;
+    border: 2px solid black;
+    text-align: center;
+    cursor: pointer;
+}
+
+.game-box-miss{
+    background-color: red;
+    height: 50px;
+    width: 50px;
+    border: 2px solid black;
+    text-align: center;
+    cursor: pointer;
+}
