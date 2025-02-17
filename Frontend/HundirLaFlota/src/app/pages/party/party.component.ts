@@ -17,18 +17,28 @@ export class PartyComponent implements AfterViewInit {
     const dropzones = document.querySelectorAll('.game-box');
     const draggablebarco4 = document.getElementById('barco4');
     draggablebarco4.addEventListener('dragstart', (event) => {
+      console.log(event)
+      const altura=event.offsetY
+      console.log('La posición del clic (altura) dentro del div es:', altura);
+      console.log('Altura total del div:', draggablebarco4.offsetHeight);
       event.dataTransfer.setData('text/plain', draggablebarco4.id);
       console.log('Estoy arrastrando mi elemento');
     });
     dropzones.forEach(dropzone => {
       dropzone.addEventListener("dragover", (ev:DragEvent) => ev.preventDefault());
-      
       dropzone.addEventListener("drop", (ev:DragEvent) => {
-        const id = ev.dataTransfer.getData("text/plain");
-        const item = document.querySelector("#" + id);
-        const miId=dropzone.id
-        const elemento=document.getElementById(miId)
-        console.log('posicon donde he soltado mi barco', miId);
+        const idelemento = ev.dataTransfer.getData("text/plain");
+        const item = document.querySelector("#" + idelemento);
+        const Idsuelto=dropzone.id
+        const elemento=document.getElementById(Idsuelto)
+        const padre=document.getElementById(idelemento)
+        const hijos=padre.children
+        const clase=padre.className
+        
+        console.log("MI ID ES: ",idelemento)
+        console.log("Mis hijos son",hijos)
+        console.log("Mi clase del padre",clase)
+        console.log('posicon donde he soltado mi barco', Idsuelto);
         elemento.style.backgroundColor = 'grey';
         elemento.style.border = '';
         dropzone.append(item)
