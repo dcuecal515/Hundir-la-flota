@@ -11,15 +11,17 @@ export class PartyComponent implements AfterViewInit {
 
   items=[1,2,3,4,5,6,7,8,9,10]
   letras=['a','b','c','d','e','f','g','h','i','j']
-  barcos=[]
+  barcos:string[][]=[]
   barcosoponente=[]
+  barco:string[]=[]
+  altura:number
   ngAfterViewInit() {
     const dropzones = document.querySelectorAll('.game-box');
     const draggablebarco4 = document.getElementById('barco4');
     draggablebarco4.addEventListener('dragstart', (event) => {
       console.log(event)
-      const altura=event.offsetY
-      console.log('La posición del clic (altura) dentro del div es:', altura);
+      this.altura=event.offsetY
+      console.log('La posición del clic (altura) dentro del div es:', this.altura);
       console.log('Altura total del div:', draggablebarco4.offsetHeight);
       event.dataTransfer.setData('text/plain', draggablebarco4.id);
       console.log('Estoy arrastrando mi elemento');
@@ -30,17 +32,144 @@ export class PartyComponent implements AfterViewInit {
         const idelemento = ev.dataTransfer.getData("text/plain");
         const item = document.querySelector("#" + idelemento);
         const Idsuelto=dropzone.id
-        const elemento=document.getElementById(Idsuelto)
         const padre=document.getElementById(idelemento)
         const hijos=padre.children
         const clase=padre.className
-        
+        let numero
         console.log("MI ID ES: ",idelemento)
         console.log("Mis hijos son",hijos)
         console.log("Mi clase del padre",clase)
         console.log('posicon donde he soltado mi barco', Idsuelto);
-        elemento.style.backgroundColor = 'grey';
-        elemento.style.border = '';
+        console.log('altura a donde pincho '+this.altura)
+        if(clase=="barco4-column"){
+          if(this.altura>0 && this.altura<=54){
+            console.log("Pongo la posicion uno")
+            console.log("Esta seria mi letra"+Idsuelto[0])
+            const letra=Idsuelto[0]
+            if(Idsuelto.length<3){
+              numero=Idsuelto[1]
+            }else{
+              numero=Idsuelto[1]+Idsuelto[2]
+            }
+            this.barco = [];
+            this.barco.push(Idsuelto)
+            let indice=this.letras.indexOf(letra)
+            for(let i=0; i<3; i++){
+              indice+=1
+              let letra=this.letras[indice]
+              console.log(letra)
+              let posicion=letra+numero
+              console.log(posicion)
+              this.barco.push(posicion)
+            }
+            console.log("Mi barco es: "+this.barco)
+            for(let i=0; i<4; i++){
+              let posicion=document.getElementById(this.barco[i])
+              posicion.style.background='grey'
+            }
+            this.barcos.push(this.barco)
+            console.log("Mi lista de barcos: "+this.barcos)
+          }
+          if(this.altura>54 && this.altura<=108){
+            console.log("Pongo la posicion dos")
+            console.log("Esta seria mi letra"+Idsuelto[0])
+            const letra=Idsuelto[0]
+            if(Idsuelto.length<3){
+              numero=Idsuelto[1]
+            }else{
+              numero=Idsuelto[1]+Idsuelto[2]
+            }
+            this.barco = [];
+            let indice=this.letras.indexOf(letra)
+            this.barco.push(this.letras[indice-1]+numero)
+            this.barco.push(Idsuelto)
+            for(let i=0; i<2; i++){
+              indice+=1
+              let letra=this.letras[indice]
+              console.log(letra)
+              let posicion=letra+numero
+              console.log(posicion)
+              this.barco.push(posicion)
+            }
+            console.log("Mi barco es: "+this.barco)
+            for(let i=0; i<4; i++){
+              let elemento=document.getElementById(this.barco[i])
+              elemento.style.background='grey'
+            }
+            this.barcos.push(this.barco)
+            console.log("Mi lista de barcos: "+this.barcos)
+          }
+          if(this.altura>108 && this.altura<=162){
+            console.log("Pongo la posicion tres")
+            let posicionesanteriores=[]
+            console.log("Esta seria mi letra"+Idsuelto[0])
+            const letra=Idsuelto[0]
+            if(Idsuelto.length<3){
+              numero=Idsuelto[1]
+            }else{
+              numero=Idsuelto[1]+Idsuelto[2]
+            }
+            this.barco = [];
+            let indice=this.letras.indexOf(letra)
+            let indicesecundario=this.letras.indexOf(letra)
+            for(let i=0; i<2; i++){
+              indicesecundario-=1
+              let letra=this.letras[indicesecundario]
+              console.log(letra)
+              let posicion=letra+numero
+              console.log(posicion)
+              posicionesanteriores.push(posicion)
+            }
+            posicionesanteriores=posicionesanteriores.reverse()
+            for(let i=0; i<2; i++){
+              this.barco.push(posicionesanteriores[i])
+            }
+            this.barco.push(Idsuelto)
+            this.barco.push(this.letras[indice+1]+numero)
+            console.log("Mi barco es: "+this.barco)
+            for(let i=0; i<4; i++){
+              let elemento=document.getElementById(this.barco[i])
+              elemento.style.background='grey'
+            }
+            this.barcos.push(this.barco)
+            console.log("Mi lista de barcos: "+this.barcos)
+          }
+          if(this.altura>162 && this.altura<=220){
+            console.log("pongo la posicion cuatro")
+            console.log("Pongo la posicion tres")
+            let posicionesanteriores=[]
+            console.log("Esta seria mi letra"+Idsuelto[0])
+            const letra=Idsuelto[0]
+            if(Idsuelto.length<3){
+              numero=Idsuelto[1]
+            }else{
+              numero=Idsuelto[1]+Idsuelto[2]
+            }
+            this.barco = [];
+            let indice=this.letras.indexOf(letra)
+            for(let i=0; i<3; i++){
+              indice-=1
+              let letra=this.letras[indice]
+              console.log(letra)
+              let posicion=letra+numero
+              console.log(posicion)
+              posicionesanteriores.push(posicion)
+            }
+            posicionesanteriores=posicionesanteriores.reverse()
+            for(let i=0; i<3; i++){
+              this.barco.push(posicionesanteriores[i])
+            }
+            this.barco.push(Idsuelto)
+            console.log("Mi barco es: "+this.barco)
+            for(let i=0; i<4; i++){
+              let elemento=document.getElementById(this.barco[i])
+              elemento.style.background='grey'
+            }
+            this.barcos.push(this.barco)
+            console.log("Mi lista de barcos: "+this.barcos)
+          }
+        }
+        
         dropzone.append(item)
         draggablebarco4.draggable=false
       });
