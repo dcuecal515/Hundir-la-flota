@@ -24,7 +24,7 @@
 .game-box-barco4{
     height: 50px;
     width: 50px;
-    border: 2px solid green;
+    border: 2px solid grey;
     text-align: center;
     cursor: pointer;
 }
@@ -44,5 +44,17 @@
     display: flex;
     flex-direction: row;
     width: 220px;
+    height: 54px;
+}
+.barco3-column{
+        display: flex;
+        flex-direction: column;
+        width: 54px;
+        height: 162px;
+}
+.barco3-row{
+    display: flex;
+    flex-direction: row;
+    width: 162px;
     height: 54px;
 }
