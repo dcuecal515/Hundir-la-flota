@@ -5,7 +5,7 @@ import { jwtDecode } from 'jwt-decode';
 import { Router } from '@angular/router';
 import { DataService } from '../../services/data.service';
 import { User } from '../../models/user';
-import { Subscription } from 'rxjs';
+import { delay, Subscription } from 'rxjs';
 import { FriendRequest } from '../../models/FriendRequest';
 import Swal from 'sweetalert2';
 
@@ -34,11 +34,14 @@ export class PartyComponent {
   items=[1,2,3,4,5,6,7,8,9,10]
   letras=['a','b','c','d','e','f','g','h','i','j']
   ships=[]
-  shipsBeforePlace=[]
   shoots=[]
   barcosoponente=false
   turn=false
   impacted=false
+  timeSeconds:number=120
+  timeString:string="2:00"
+  stopTimer = false
+  timerInterval: any
 
   ngOnInit(): void {
     this.messageReceived$ = this.webSocketService.messageReceived.subscribe(async message => {
@@ -99,8 +102,21 @@ export class PartyComponent {
         gamebox.classList.remove("game-box")
         gamebox.classList.add("game-box-miss")
       }
+      if(message.message=="Se te acabo el tiempo"){
+        console.log("Se te ha acabado el tiempo")
+        this.router.navigateByUrl("menu")
+        const messageToSend:FriendRequest={TypeMessage:"Abandono de partida",Identifier:this.opponentName}
+        const jsonData = JSON.stringify(messageToSend)
+        console.log(jsonData)
+        this.webSocketService.sendRxjs(jsonData)
+      }
+      if(message.message=="Tu oponente coloco los barcos primero"){
+        console.log("Tu oponete es mas rapido")
+        this.barcosoponente=true
+      }
     });
     this.disconnected$ = this.webSocketService.disconnected.subscribe(() => this.isConnected = false);
+    this.startTimer()
   }
 
   guardarposicion(letra:string,item:number){
@@ -158,6 +174,40 @@ export class PartyComponent {
                           }
     
   }
+
+  async startTimer(){
+    this.stopTimer = false
+    this.timeSeconds=120
+    this.timeString="2:00"
+    this.timerInterval = setInterval(() => {
+      if (this.stopTimer || this.timeSeconds <= 0) {
+        clearInterval(this.timerInterval);
+        return;
+      }
+  
+      this.timeSeconds--; // Reducir el tiempo
+      const minutes = Math.floor(this.timeSeconds / 60);
+      const seconds = this.timeSeconds % 60;
+      this.timeString = minutes + ":" + seconds.toString().padStart(2, '0');
+    }, 1000);
+  }
+
+  stopTimerfuction(){
+    this.stopTimer = true
+    if(this.barcosoponente){
+      const messageToSend:FriendRequest={TypeMessage:"Yo tambien los coloque",Identifier:this.opponentName}
+      const jsonData = JSON.stringify(messageToSend)
+      console.log(jsonData)
+      this.webSocketService.sendRxjs(jsonData)
+    }else{
+      const messageToSend:FriendRequest={TypeMessage:"He colocado mis barcos",Identifier:this.opponentName}
+      const jsonData = JSON.stringify(messageToSend)
+      console.log(jsonData)
+      this.webSocketService.sendRxjs(jsonData)
+    }
+    
+  }
+
   ngOnDestroy(): void {
     this.messageReceived$.unsubscribe();
     this.disconnected$.unsubscribe();
