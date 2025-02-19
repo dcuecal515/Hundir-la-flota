@@ -1,8 +1,15 @@
-<h1>Partida</h1>
-@if(barcosoponente==null){
-    
-}@else{
-<div class="body-colocar-barcos">
+<p>party works!</p>
+<p>{{timeString}}</p>
+<button (click)="stopTimerfuction()">Stop Timer</button>
+
+@for (chatMessage of chatContent; track chatMessage.userName){
+    <p>{{chatMessage.userName}}: {{chatMessage.message}}</p>
+}
+
+<input type="text" id="chat">
+<button (click)="sendChat()">Enviar</button>
+@if(barcosoponente==false){
+    <div class="body-colocar-barcos">
     <div class="tablero">
     @for (letra of letras; track $index) {
         <div class="rows">
@@ -38,6 +45,13 @@
         </div>
     </div>
 </div>
-<div><button>Enviar los barcos</button></div>
+}@else{
+    @for (letra of letras; track $index) {
+        <div class="rows">
+        @for (item of items; track $index) {
+            <div id="{{letra}}{{item}}" class="game-box" (click)="guardarposicion(letra,item)"><p>{{letra}}{{item}}</p></div>
+        }
+        </div>
+    }
 }
-
+<button (click)="exit()">Abandonar partida</button>

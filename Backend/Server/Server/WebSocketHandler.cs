@@ -31,12 +31,17 @@ namespace Server
             while (IsOpen)
             {
                 // Leemos el mensaje
-                string message = await ReadAsync();
-
-                // Si hay mensaje y hay suscriptores al evento MessageReceived, gestionamos el evento
-                if (!string.IsNullOrWhiteSpace(message) && MessageReceived != null)
+                try
                 {
-                    await MessageReceived.Invoke(this, message);
+                    string message = await ReadAsync();
+                    // Si hay mensaje y hay suscriptores al evento MessageReceived, gestionamos el evento
+                    if (!string.IsNullOrWhiteSpace(message) && MessageReceived != null)
+                    {
+                        await MessageReceived.Invoke(this, message);
+                    }
+                } catch (Exception e)
+                {
+                    Dispose();
                 }
             }
 

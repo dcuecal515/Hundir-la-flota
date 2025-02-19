@@ -181,8 +181,19 @@ export class MatchmakingComponent {
           };
         }
         if(message.message=="Empezo la partida"){
-          console.log("Enpezaste la partida con "+message.nickName)
-          //this.router.navigateByUrl("game")
+          console.log("Empezaste la partida con "+message.opponentId)
+          this.router.navigateByUrl("game")
+          const messageToSend:FriendRequest={TypeMessage:"Envio de oponentes",Identifier:message.opponentId.toString()}
+          const jsonData = JSON.stringify(messageToSend)
+          console.log(jsonData)
+          this.webSocketService.sendRxjs(jsonData)
+        }
+        if(message.message=="Partida Aleatoria Encontrada"){
+          this.router.navigateByUrl("game");
+          const messageToSend:FriendRequest={TypeMessage:"Envio de oponentes",Identifier:message.opponentId.toString()}
+          const jsonData = JSON.stringify(messageToSend)
+          console.log(jsonData)
+          this.webSocketService.sendRxjs(jsonData)
         }
 
         if(message.message=="Partida Encontrada"){
@@ -191,7 +202,7 @@ export class MatchmakingComponent {
         if(message.message=="Estas ya en la lista de busqueda"){
           console.log("No busques otra vez bobo");
         }
-
+        
         this.serverResponse = message
       });
       this.disconnected$ = this.webSocketService.disconnected.subscribe(() => this.isConnected = false);
@@ -279,11 +290,11 @@ export class MatchmakingComponent {
     }
 
     startGame(){
-      const message:FriendRequest={TypeMessage:"Empezar partida",Identifier:this.decoded.nickName}
+      const message:FriendRequest={TypeMessage:"Empezar partida",Identifier:this.partyGuest.nickName}
       const jsonData = JSON.stringify(message)
       console.log(jsonData)
       this.webSocketService.sendRxjs(jsonData)
-      //this.router.navigateByUrl("game")
+      this.router.navigateByUrl("game")
     }
 
     playGameRamdon(){

@@ -135,6 +135,9 @@ export class MenuComponent {
         Swal.close()
         Swal.fire("Cancelación", "Se canceló la invitación", "error");
       }
+      if(message.message=="Has perdido"){
+        console.log("Has perdido una partida contra ") // Añadir contra quien a perdido
+      }
       this.serverResponse = message
     });
     this.disconnected$ = this.webSocketService.disconnected.subscribe(() => this.isConnected = false);
