@@ -6,6 +6,8 @@ using System.Text;
 using System.Text.Json;
 using Microsoft.AspNetCore.SignalR.Protocol;
 using System.Numerics;
+using System.Timers;
+using Timer = System.Timers.Timer;
 
 namespace Server.Services
 {
@@ -24,6 +26,9 @@ namespace Server.Services
         // Semáforo para controlar el acceso a la lista de WebSocketHandler
         private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1);
         private readonly SemaphoreSlim _semaphoreplayers=new SemaphoreSlim(1);
+        // Temporizadores de partidas
+        private Dictionary<int, Timer> _timers = new Dictionary<int, Timer>();
+
         public async Task HandleAsync(WebSocket webSocket, User user)
         {
             WebSocketHandler handler = await AddWebsocketAsync(webSocket, user.Id);
@@ -491,6 +496,8 @@ namespace Server.Services
                                     string messageToSend = JsonSerializer.Serialize(outMessage, JsonSerializerOptions.Web);
                                     tasks.Add(player.SendAsync(messageToSend));
                                 }
+
+                                StartGameTimer(player.Id, player);
                             }
 
                             
@@ -553,6 +560,8 @@ namespace Server.Services
                     user.Status = "Jugando";
                     await _wsHelper.UpdateUserAsync(user);
                 }
+
+                StartGameTimer(userHandler.Id, userHandler);
 
                 WebsocketMessageDto outMessage = new WebsocketMessageDto
                 {
@@ -762,6 +771,8 @@ namespace Server.Services
                                 string messageToSend = JsonSerializer.Serialize(outMessage, JsonSerializerOptions.Web);
                                 tasks.Add(handler.SendAsync(messageToSend));
                             }
+
+                            StartGameTimer(handler.Id, handler);
                         }
                     }
                 }
@@ -809,6 +820,7 @@ namespace Server.Services
             if (receivedUser.TypeMessage.Equals("Disparo"))
             {
                 string userName = receivedUser.Identifier;
+                StopGameTimer(userHandler.Id);
                 using (var scope = _serviceProvider.CreateScope())
                 {
                     var _wsHelper = scope.ServiceProvider.GetRequiredService<WSHelper>();
@@ -825,6 +837,7 @@ namespace Server.Services
                                     Message = "Disparo enemigo",
                                     Position = receivedUser.Identifier2
                                 };
+                                StartGameTimer(user2.Id, handler);
                                 string messageToSend = JsonSerializer.Serialize(outMessage, JsonSerializerOptions.Web);
                                 tasks.Add(handler.SendAsync(messageToSend));
                             }
@@ -887,10 +900,124 @@ namespace Server.Services
                 }
             }
 
+            if(receivedUser.TypeMessage.Equals("He colocado mis barcos"))
+            {
+                string userName = receivedUser.Identifier;
+                StopGameTimer(userHandler.Id);
+                using (var scope = _serviceProvider.CreateScope())
+                {
+                    var _wsHelper = scope.ServiceProvider.GetRequiredService<WSHelper>();
+                    User user = await _wsHelper.GetUserById(userHandler.Id);
+                    User user2 = await _wsHelper.GetUserByNickname(userName);
+                    if (user2 != null)
+                    {
+                        foreach (WebSocketHandler handler in handlers)
+                        {
+                            if (handler.Id == user2.Id)
+                            {
+                                WebsocketMessageDto outMessage = new WebsocketMessageDto
+                                {
+                                    Message = "Tu oponente coloco los barcos primero"
+                                };
+                                string messageToSend = JsonSerializer.Serialize(outMessage, JsonSerializerOptions.Web);
+                                tasks.Add(handler.SendAsync(messageToSend));
+                            }
+                        }
+                    }
+                }
+            }
+
+            if(receivedUser.TypeMessage.Equals("Yo tambien los coloque"))
+            {
+                string userName = receivedUser.Identifier;
+                StopGameTimer(userHandler.Id);
+                using (var scope = _serviceProvider.CreateScope())
+                {
+                    var _wsHelper = scope.ServiceProvider.GetRequiredService<WSHelper>();
+                    User user = await _wsHelper.GetUserById(userHandler.Id);
+                    User user2 = await _wsHelper.GetUserByNickname(userName);
+                    if (user2 != null)
+                    {
+                        foreach (WebSocketHandler handler in handlers)
+                        {
+                            if (handler.Id == user2.Id)
+                            {
+                                WebsocketMessageDto outMessage = new WebsocketMessageDto
+                                {
+                                    Message = "Empiezas tu"
+                                };
+                                StartGameTimer(user2.Id, handler);
+                                string messageToSend = JsonSerializer.Serialize(outMessage, JsonSerializerOptions.Web);
+                                tasks.Add(handler.SendAsync(messageToSend));
+                            }
+                        }
+                    }
+                }
+            }
+            if (receivedUser.TypeMessage.Equals("Mensaje de texto")) {
+                string userName = receivedUser.Identifier;
+                using (var scope = _serviceProvider.CreateScope())
+                {
+                    var _wsHelper = scope.ServiceProvider.GetRequiredService<WSHelper>();
+                    User user = await _wsHelper.GetUserById(userHandler.Id);
+                    User user2 = await _wsHelper.GetUserByNickname(userName);
+                    if (user2 != null)
+                    {
+                        foreach (WebSocketHandler handler in handlers)
+                        {
+                            if (handler.Id == user2.Id)
+                            {
+                                WebsocketMessageDto outMessage = new WebsocketMessageDto
+                                {
+                                    Message = "Te llego un mensaje",
+                                    MessageToOpponent = receivedUser.Identifier2
+                                };
+                                string messageToSend = JsonSerializer.Serialize(outMessage, JsonSerializerOptions.Web);
+                                tasks.Add(handler.SendAsync(messageToSend));
+                            }
+                        }
+                    }
+                }
+            }
+
             await Task.WhenAll(tasks);
         }
 
+        private void StartGameTimer(int userId, WebSocketHandler handler)
+        {
+            StopGameTimer(userId); // Por si se inicia habiendo otro timer con el mismo userId
+            var timer = new Timer(TimeSpan.FromMinutes(2).TotalMilliseconds);
+            timer.Elapsed += async (sender, e) => await OnTimerElapsed(userId, handler);
+            timer.AutoReset = false;
+            timer.Start();
 
+            _timers [userId] = timer;
+        }
+
+        private async Task OnTimerElapsed(int userId, WebSocketHandler handler)
+        {
+            if (_timers.ContainsKey(userId))
+            {
+                StopGameTimer(userId);
+
+                WebsocketMessageDto outMessage = new WebsocketMessageDto
+                {
+                    Message = "Se te acabo el tiempo"
+                };
+                string messageToSend = JsonSerializer.Serialize(outMessage, JsonSerializerOptions.Web);
+                await handler.SendAsync(messageToSend);
+            }
+        }
+
+        private void StopGameTimer(int userId)
+        {
+            if (_timers.ContainsKey(userId))
+            {
+                _timers [userId].Stop();
+                _timers [userId].Dispose();
+                _timers.Remove(userId);
+            }
+        }
 
     }
 }
