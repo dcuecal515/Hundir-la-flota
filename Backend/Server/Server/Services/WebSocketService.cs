@@ -820,6 +820,7 @@ namespace Server.Services
             if (receivedUser.TypeMessage.Equals("Disparo"))
             {
                 string userName = receivedUser.Identifier;
+                StopGameTimer(userHandler.Id);
                 using (var scope = _serviceProvider.CreateScope())
                 {
                     var _wsHelper = scope.ServiceProvider.GetRequiredService<WSHelper>();
@@ -836,6 +837,7 @@ namespace Server.Services
                                     Message = "Disparo enemigo",
                                     Position = receivedUser.Identifier2
                                 };
+                                StartGameTimer(user2.Id, handler);
                                 string messageToSend = JsonSerializer.Serialize(outMessage, JsonSerializerOptions.Web);
                                 tasks.Add(handler.SendAsync(messageToSend));
                             }
@@ -925,11 +927,65 @@ namespace Server.Services
                 }
             }
 
+            if(receivedUser.TypeMessage.Equals("Yo tambien los coloque"))
+            {
+                string userName = receivedUser.Identifier;
+                StopGameTimer(userHandler.Id);
+                using (var scope = _serviceProvider.CreateScope())
+                {
+                    var _wsHelper = scope.ServiceProvider.GetRequiredService<WSHelper>();
+                    User user = await _wsHelper.GetUserById(userHandler.Id);
+                    User user2 = await _wsHelper.GetUserByNickname(userName);
+                    if (user2 != null)
+                    {
+                        foreach (WebSocketHandler handler in handlers)
+                        {
+                            if (handler.Id == user2.Id)
+                            {
+                                WebsocketMessageDto outMessage = new WebsocketMessageDto
+                                {
+                                    Message = "Empiezas tu"
+                                };
+                                StartGameTimer(user2.Id, handler);
+                                string messageToSend = JsonSerializer.Serialize(outMessage, JsonSerializerOptions.Web);
+                                tasks.Add(handler.SendAsync(messageToSend));
+                            }
+                        }
+                    }
+                }
+            }
+            if (receivedUser.TypeMessage.Equals("Mensaje de texto")) {
+                string userName = receivedUser.Identifier;
+                using (var scope = _serviceProvider.CreateScope())
+                {
+                    var _wsHelper = scope.ServiceProvider.GetRequiredService<WSHelper>();
+                    User user = await _wsHelper.GetUserById(userHandler.Id);
+                    User user2 = await _wsHelper.GetUserByNickname(userName);
+                    if (user2 != null)
+                    {
+                        foreach (WebSocketHandler handler in handlers)
+                        {
+                            if (handler.Id == user2.Id)
+                            {
+                                WebsocketMessageDto outMessage = new WebsocketMessageDto
+                                {
+                                    Message = "Te llego un mensaje",
+                                    MessageToOpponent = receivedUser.Identifier2
+                                };
+                                string messageToSend = JsonSerializer.Serialize(outMessage, JsonSerializerOptions.Web);
+                                tasks.Add(handler.SendAsync(messageToSend));
+                            }
+                        }
+                    }
+                }
+            }
+
             await Task.WhenAll(tasks);
         }
 
         private void StartGameTimer(int userId, WebSocketHandler handler)
         {
+            StopGameTimer(userId); // Por si se inicia habiendo otro timer con el mismo userId
             var timer = new Timer(TimeSpan.FromMinutes(2).TotalMilliseconds);
             timer.Elapsed += async (sender, e) => await OnTimerElapsed(userId, handler);
             timer.AutoReset = false;

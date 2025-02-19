@@ -8,6 +8,7 @@ import { User } from '../../models/user';
 import { delay, Subscription } from 'rxjs';
 import { FriendRequest } from '../../models/FriendRequest';
 import Swal from 'sweetalert2';
+import { chatMessage } from '../../models/chatMessage';
 
 @Component({
   selector: 'app-party',
@@ -35,13 +36,14 @@ export class PartyComponent {
   letras=['a','b','c','d','e','f','g','h','i','j']
   ships=[]
   shoots=[]
-  barcosoponente=false
+  barcosoponente=false 
   turn=false
   impacted=false
   timeSeconds:number=120
   timeString:string="2:00"
   stopTimer = false
   timerInterval: any
+  chatContent:chatMessage[] = []
 
   ngOnInit(): void {
     this.messageReceived$ = this.webSocketService.messageReceived.subscribe(async message => {
@@ -113,6 +115,14 @@ export class PartyComponent {
       if(message.message=="Tu oponente coloco los barcos primero"){
         console.log("Tu oponete es mas rapido")
         this.barcosoponente=true
+      }
+      if(message.message=="Empiezas tu"){
+        console.log("te toca atacar")
+        this.turn = true
+      }
+      if(message.message=="Te llego un mensaje"){
+        const chatMessageToSave:chatMessage = {userName:this.opponentName,message:message.messageToOpponent} 
+        this.chatContent.push(chatMessageToSave)
       }
     });
     this.disconnected$ = this.webSocketService.disconnected.subscribe(() => this.isConnected = false);
@@ -200,12 +210,33 @@ export class PartyComponent {
       console.log(jsonData)
       this.webSocketService.sendRxjs(jsonData)
     }else{
-      const messageToSend:FriendRequest={TypeMessage:"He colocado mis barcos",Identifier:this.opponentName}
+      if(this.opponentName=="Bot1"){
+        const messageToSend:FriendRequest={TypeMessage:"Mis barcos contra bot",Identifier:JSON.stringify(this.ships)}
+        const jsonData = JSON.stringify(messageToSend)
+        console.log(jsonData)
+        this.webSocketService.sendRxjs(jsonData)
+      }else{
+        const messageToSend:FriendRequest={TypeMessage:"He colocado mis barcos",Identifier:this.opponentName}
+        const jsonData = JSON.stringify(messageToSend)
+        console.log(jsonData)
+        this.webSocketService.sendRxjs(jsonData)
+      }
+    }
+    
+  }
+
+  sendChat(){
+    const textInput = document.getElementById("chat") as HTMLInputElement
+    const text = textInput.value
+    if(text != ""){
+      const chatMessageToSave:chatMessage = {userName:"Yo",message:text} 
+      this.chatContent.push(chatMessageToSave)
+      const messageToSend:FriendRequest={TypeMessage:"Mensaje de texto",Identifier:this.opponentName, Identifier2:text}
       const jsonData = JSON.stringify(messageToSend)
       console.log(jsonData)
       this.webSocketService.sendRxjs(jsonData)
+      textInput.value = ""
     }
-    
   }
 
   ngOnDestroy(): void {

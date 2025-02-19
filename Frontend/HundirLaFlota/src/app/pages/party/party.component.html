@@ -1,6 +1,13 @@
 <p>party works!</p>
 <p>{{timeString}}</p>
 <button (click)="stopTimerfuction()">Stop Timer</button>
+
+@for (chatMessage of chatContent; track chatMessage.userName){
+    <p>{{chatMessage.userName}}: {{chatMessage.message}}</p>
+}
+
+<input type="text" id="chat">
+<button (click)="sendChat()">Enviar</button>
 @if(barcosoponente==null){
     
 }@else{
