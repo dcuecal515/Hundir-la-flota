@@ -232,3 +232,63 @@ button:hover {
         height: auto;
     }
 }
+@media(max-width:760px){
+    .header{
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12%;
+        padding: 10px;
+        background-color: #f8f8f8;
+        border-radius: 10px;
+        width: 97.2%;
+    }
+    h1{
+        font-size: 1em;
+    }
+}
+@media(max-width:470px){
+    .header{
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8%;
+        padding: 10px;
+        background-color: #f8f8f8;
+        border-radius: 10px;
+        width: 95.6%;
+    }
+    h1{
+        font-size: 1em;
+    }
+}
+@media(max-width:432px) {
+    .header{
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6%;
+        padding: 10px;
+        background-color: #f8f8f8;
+        border-radius: 10px;
+        width: 94%;
+    }
+    h1{
+        font-size: 1em;
+    }
+}
+@media(max-width:320px){
+    .header{
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 4%;
+        padding: 10px;
+        background-color: #f8f8f8;
+        border-radius: 10px;
+        width: auto;
+    }
+    h1{
+        font-size: 1em;
+    }
+}
