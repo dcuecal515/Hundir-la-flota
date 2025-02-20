@@ -4,5 +4,6 @@
     {
         public string Message { get; set; }
         public string Position { get; set; }
+        public bool Impacted { get; set; }
     }
 }

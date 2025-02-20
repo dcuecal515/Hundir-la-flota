@@ -801,12 +801,14 @@ namespace Server.Services
                     var _wsHelper = scope.ServiceProvider.GetRequiredService<WSHelper>();
                     User user = await _wsHelper.GetUserById(userHandler.Id);
                     User user2 = await _wsHelper.GetUserByNickname(userName);
+                    StopGameTimer(user.Id);
                     if (user2 != null)
                     {
                         user.Status = "Conectado";
                         user2.Status = "Conectado";
                         await _wsHelper.UpdateUserAsync(user);
                         await _wsHelper.UpdateUserAsync(user2);
+                        StopGameTimer(user2.Id);
 
                         foreach (WebSocketHandler handler in handlers)
                         {
@@ -844,18 +846,98 @@ namespace Server.Services
                     User user2 = await _wsHelper.GetUserByNickname(userName);
                     if (user2 != null)
                     {
-                        foreach (WebSocketHandler handler in handlers)
+                        List<List<string>> Ships = _ships [user2.Id].Select(ship => ship.ToList()).ToList();
+                        bool shooterWins = false;
+                        bool shootImpact = false;
+
+                        List<List<string>> shipsToRemove = new List<List<string>>();
+
+                        // Comprueba si el bot impacta un barco del usuario
+                        foreach (var ship in Ships)
                         {
-                            if (handler.Id == user2.Id)
+                            foreach (var pos in ship)
                             {
-                                ShootSenderDto outMessage = new ShootSenderDto
+                                if (pos == receivedUser.Identifier2)
                                 {
-                                    Message = "Disparo enemigo",
-                                    Position = receivedUser.Identifier2
-                                };
-                                StartGameTimer(user2.Id, handler);
-                                string messageToSend = JsonSerializer.Serialize(outMessage, JsonSerializerOptions.Web);
-                                tasks.Add(handler.SendAsync(messageToSend));
+                                    shootImpact = true;
+                                    ship.Remove(pos);
+
+                                    if (ship.Count == 0)
+                                    {
+                                        shipsToRemove.Add(ship);
+                                    }
+                                    break;
+                                }
+                            }
+                        }
+
+                        // Eliminar barcos vacíos después del bucle
+                        foreach (var ship in shipsToRemove)
+                        {
+                            Ships.Remove(ship);
+                        }
+
+                        // Verificar si el bot gana
+                        if (Ships.Count == 0)
+                        {
+                            shooterWins = true;
+                        }
+
+                        // Guarda los cambios
+                        _ships [user2.Id] = Ships.Select(ship => ship.ToArray()).ToArray();
+
+                        if (shooterWins)
+                        {
+                            foreach (WebSocketHandler handler in handlers)
+                            {
+                                if (handler.Id == user2.Id)
+                                {
+                                    ShootSenderDto outMessage = new ShootSenderDto
+                                    {
+                                        Message = "Has perdido la partida",
+                                        Position = receivedUser.Identifier2
+                                    };
+                                    string messageToSend = JsonSerializer.Serialize(outMessage, JsonSerializerOptions.Web);
+                                    tasks.Add(handler.SendAsync(messageToSend));
+                                }
+                                if(handler.Id == user.Id)
+                                {
+                                    ShootSenderDto outMessage = new ShootSenderDto
+                                    {
+                                        Message = "Has ganado la parida",
+                                        Position = receivedUser.Identifier2
+                                    };
+                                    string messageToSend = JsonSerializer.Serialize(outMessage, JsonSerializerOptions.Web);
+                                    tasks.Add(handler.SendAsync(messageToSend));
+                                }
+                            }
+                        } else
+                        {
+                            foreach (WebSocketHandler handler in handlers)
+                            {
+                                if (handler.Id == user2.Id)
+                                {
+                                    ShootSenderDto outMessage = new ShootSenderDto
+                                    {
+                                        Message = "Disparo enemigo",
+                                        Position = receivedUser.Identifier2,
+                                        Impacted = shootImpact
+                                    };
+                                    StartGameTimer(user2.Id, handler);
+                                    string messageToSend = JsonSerializer.Serialize(outMessage, JsonSerializerOptions.Web);
+                                    tasks.Add(handler.SendAsync(messageToSend));
+                                }
+                                if(handler.Id == user.Id)
+                                {
+                                    ShootSenderDto outMessage = new ShootSenderDto
+                                    {
+                                        Message = "Tu disparo ha sido enviado",
+                                        Position = receivedUser.Identifier2,
+                                        Impacted = shootImpact
+                                    };
+                                    string messageToSend = JsonSerializer.Serialize(outMessage, JsonSerializerOptions.Web);
+                                    tasks.Add(handler.SendAsync(messageToSend));
+                                }
                             }
                         }
                     }
@@ -927,6 +1009,8 @@ namespace Server.Services
                     User user2 = await _wsHelper.GetUserByNickname(userName);
                     if (user2 != null)
                     {
+                        string [] [] ships = JsonSerializer.Deserialize<string [] []>(receivedUser.Identifier2);
+                        _ships [userHandler.Id] = ships;
                         foreach (WebSocketHandler handler in handlers)
                         {
                             if (handler.Id == user2.Id)
@@ -954,6 +1038,8 @@ namespace Server.Services
                     User user2 = await _wsHelper.GetUserByNickname(userName);
                     if (user2 != null)
                     {
+                        string [] [] ships = JsonSerializer.Deserialize<string [] []>(receivedUser.Identifier2);
+                        _ships [userHandler.Id] = ships;
                         foreach (WebSocketHandler handler in handlers)
                         {
                             if (handler.Id == user2.Id)
