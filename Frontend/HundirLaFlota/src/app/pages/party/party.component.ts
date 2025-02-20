@@ -38,6 +38,7 @@ export class PartyComponent implements AfterViewInit {
   barcos:string[][]=[]
   shoots=[]
   barcosoponente=false 
+  barcosBot=false
   turn=false
   impacted=false
   timeSeconds:number=120
@@ -129,13 +130,40 @@ export class PartyComponent implements AfterViewInit {
         const chatMessageToSave:chatMessage = {userName:this.opponentName,message:message.messageToOpponent} 
         this.chatContent.push(chatMessageToSave)
       }
+      if(message.message=="Ya estan los barcos"){
+        this.barcosBot=true
+        this.turn=true
+        this.startTimer()
+      }
     });
     this.disconnected$ = this.webSocketService.disconnected.subscribe(() => this.isConnected = false);
     this.startTimer()
   }
 
   guardarposicion(letra:string,item:number){
-    if(this.barcosoponente && this.barcos.length > 0 && this.turn){
+    if(this.barcosBot && this.opponentName=="Bot1" && this.turn){
+      var miposicion:string=letra+item
+      if(!this.shoots.includes(miposicion)){
+        this.shoots.push(miposicion)
+        var gamebox=document.getElementById(miposicion+"enemigo")
+        gamebox.classList.remove("game-box-enemigo")
+        gamebox.classList.add("game-box-view")
+        console.log("Posición mandada: "+miposicion)
+        const messageToSend:FriendRequest={TypeMessage:"Disparo a bot",Identifier:miposicion}
+        const jsonData = JSON.stringify(messageToSend)
+        console.log(jsonData)
+        this.webSocketService.sendRxjs(jsonData)
+        this.turn = false
+      }else{
+        Swal.fire({
+          title: 'Error',
+          text: 'Selecciona una posicion nueva',
+          icon: 'error',
+          timer: 1000,
+          showConfirmButton: false
+        });
+      }
+    }else if(this.barcosoponente && this.barcos.length > 0 && this.turn){
       var miposicion:string=letra+item
       if(!this.shoots.includes(miposicion)){
         this.shoots.push(miposicion)
@@ -208,26 +236,35 @@ export class PartyComponent implements AfterViewInit {
   }
 
   stopTimerfuction(){
-    this.stopTimer = true
-    if(this.barcosoponente){
-      const messageToSend:FriendRequest={TypeMessage:"Yo tambien los coloque",Identifier:this.opponentName}
-      const jsonData = JSON.stringify(messageToSend)
-      console.log(jsonData)
-      this.webSocketService.sendRxjs(jsonData)
-    }else{
-      if(this.opponentName=="Bot1"){
-        const messageToSend:FriendRequest={TypeMessage:"Mis barcos contra bot",Identifier:JSON.stringify(this.barcos)}
+    if(this.barcos.length ==4){
+      this.stopTimer = true
+      if(this.barcosoponente){
+        const messageToSend:FriendRequest={TypeMessage:"Yo tambien los coloque",Identifier:this.opponentName,Identifier2:JSON.stringify(this.barcos)}
         const jsonData = JSON.stringify(messageToSend)
         console.log(jsonData)
         this.webSocketService.sendRxjs(jsonData)
       }else{
-        const messageToSend:FriendRequest={TypeMessage:"He colocado mis barcos",Identifier:this.opponentName}
-        const jsonData = JSON.stringify(messageToSend)
-        console.log(jsonData)
-        this.webSocketService.sendRxjs(jsonData)
+        if(this.opponentName=="Bot1"){
+          const messageToSend:FriendRequest={TypeMessage:"Mis barcos contra bot",Identifier:JSON.stringify(this.barcos)}
+          const jsonData = JSON.stringify(messageToSend)
+          console.log(jsonData)
+          this.webSocketService.sendRxjs(jsonData)
+        }else{
+          const messageToSend:FriendRequest={TypeMessage:"He colocado mis barcos",Identifier:this.opponentName,Identifier2:JSON.stringify(this.barcos)}
+          const jsonData = JSON.stringify(messageToSend)
+          console.log(jsonData)
+          this.webSocketService.sendRxjs(jsonData)
+        }
       }
+    }else{
+      Swal.fire({
+        title: 'Error',
+        text: 'Coloca todos los barcos para continuar',
+        icon: 'error',
+        timer: 1000, 
+        showConfirmButton: false
+      });
     }
-    
   }
 
   sendChat(){

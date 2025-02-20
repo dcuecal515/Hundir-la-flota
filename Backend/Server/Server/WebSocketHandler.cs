@@ -39,7 +39,7 @@ namespace Server
                     {
                         await MessageReceived.Invoke(this, message);
                     }
-                } catch (Exception e)
+                } catch (WebSocketException e)
                 {
                     Dispose();
                 }

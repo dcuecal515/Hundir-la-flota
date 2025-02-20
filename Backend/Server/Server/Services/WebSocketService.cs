@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.SignalR.Protocol;
 using System.Numerics;
 using System.Timers;
 using Timer = System.Timers.Timer;
+using System;
 
 namespace Server.Services
 {
@@ -28,6 +29,9 @@ namespace Server.Services
         private readonly SemaphoreSlim _semaphoreplayers=new SemaphoreSlim(1);
         // Temporizadores de partidas
         private Dictionary<int, Timer> _timers = new Dictionary<int, Timer>();
+        // Barcos de jugadores
+        private Dictionary<int, string[][]> _ships = new Dictionary<int, string[][]>();
+        private Dictionary<int, string[][]> _botShips = new Dictionary<int, string[][]>();
 
         public async Task HandleAsync(WebSocket webSocket, User user)
         {
@@ -205,8 +209,18 @@ namespace Server.Services
 
             /*string messageToMe = $"Tú: {message}";
             string messageToOthers = $"Usuario {userHandler.Id}: {message}";*/
+            //Console.WriteLine(message);
             message = message.Substring(1, message.Length - 2); //Arreglos por recibir mal
+            message = message.Replace("\\\\", "@"); // Para los arrays de barcos
             message = message.Replace("\\", "");
+            message = message.Replace("@", "\\");
+            //Console.WriteLine(message);
+
+            // ReceivedUserDto ejemplo = new ReceivedUserDto { TypeMessage = "Mis barcos contra bot", Identifier = "[[\"a1\", \"a2\"], [\"b1\", \"b2\", \"b3\"]]" };
+
+            // string ejemploTransformado = JsonSerializer.Serialize<ReceivedUserDto>(ejemplo);
+
+            // Console.WriteLine(ejemploTransformado);
 
             ReceivedUserDto receivedUser = JsonSerializer.Deserialize<ReceivedUserDto>(message);
 
@@ -980,6 +994,57 @@ namespace Server.Services
                 }
             }
 
+            if(receivedUser.TypeMessage.Equals("Mis barcos contra bot"))
+            {
+                StopGameTimer(userHandler.Id);
+                string [][] ships = JsonSerializer.Deserialize<string [] []>(receivedUser.Identifier);
+                /*foreach (var ship in ships)
+                {
+                    Console.WriteLine(string.Join(", ", ship));
+                }*/
+                _ships [userHandler.Id] = ships;
+                string [][] botShips = GenerateBotShips();
+                /*foreach (var ship in botShips)
+                {
+                    Console.WriteLine(string.Join(", ", ship));
+                }*/
+                _botShips [userHandler.Id] = botShips;
+
+                WebsocketMessageDto outMessage = new WebsocketMessageDto
+                {
+                    Message = "Ya estan los barcos"
+                };
+                string messageToSend = JsonSerializer.Serialize(outMessage, JsonSerializerOptions.Web);
+                StartGameTimer(userHandler.Id, userHandler);
+                tasks.Add(userHandler.SendAsync(messageToSend));
+
+            }
+
+            if(receivedUser.TypeMessage.Equals("Disparo a bot"))
+            {
+                StopGameTimer(userHandler.Id);
+                Boolean impacted = false;
+                string[][] botShips = _botShips [userHandler.Id];
+
+                foreach (var ship in botShips)
+                {
+                    foreach (var pos in ship)
+                    {
+                       if(pos == receivedUser.Identifier)
+                        {
+                            impacted = true;
+                        } 
+                    }
+                }
+
+                if (impacted) {
+
+                } else
+                {
+
+                }
+            }
+
             await Task.WhenAll(tasks);
         }
 
@@ -1017,6 +1082,67 @@ namespace Server.Services
                 _timers [userId].Dispose();
                 _timers.Remove(userId);
             }
+        }
+
+        private string[][] GenerateBotShips()
+        {
+            List<string[]> ships = new List<string[]>();
+            int [] sizes = [2, 3, 3, 4];
+
+            foreach (var size in sizes)
+            {
+                string [] ship;
+                do
+                {
+                    ship = GenerateShip(size);
+                }
+                while (IsOverlapping(ship,ships));
+
+                ships.Add(ship);
+            }
+
+            return ships.ToArray();
+        }
+
+        private string [] GenerateShip(int size)
+        {
+            Random random = new Random();
+            int boardSize = 10;
+            bool isHorizontal = random.Next(2) == 0;
+            int row, col;
+
+            if (isHorizontal)
+            {
+                row = random.Next(boardSize);
+                col = random.Next(boardSize - size + 1);
+            } else
+            {
+                row = random.Next(boardSize - size + 1);
+                col = random.Next(boardSize);
+            }
+
+            string [] ship = new string [size];
+            for (int i = 0; i < size; i++)
+            {
+                ship [i] = isHorizontal ? $"{(char)('a' + row)}{col + i + 1}" : $"{(char)('a' + row + i)}{col + 1}";
+            }
+
+            return ship;
+        }
+
+        private bool IsOverlapping(string [] ship, List<string []> existingShips)
+        {
+            foreach (var existingShip in existingShips)
+            {
+                foreach (var pos in existingShip)
+                {
+                    if (Array.Exists(ship, s => s == pos))
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
 
     }
