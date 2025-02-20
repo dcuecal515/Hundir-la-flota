@@ -16,7 +16,6 @@
 
 <input type="text" id="chat">
 <button (click)="sendChat()">Enviar</button>
-@if(barcosoponente==false && barcosBot == false){
     <div class="body-colocar-barcos">
     <div class="tablero">
     @for (letra of letras; track $index) {
@@ -53,13 +52,13 @@
         </div>
     </div>
 </div>
-}@else{
-    @for (letra of letras; track $index) {
-        <div class="rows">
-        @for (item of items; track $index) {
-            <div id="{{letra}}{{item}}enemigo" class="game-box-enemigo" (click)="guardarposicion(letra,item)"><p>{{letra}}{{item}}</p></div>
-        }
-        </div>
+
+@for (letra of letras; track $index) {
+    <div class="rows">
+    @for (item of items; track $index) {
+        <div id="{{letra}}{{item}}enemigo" class="game-box" (click)="guardarposicion(letra,item)"><p>{{letra}}{{item}}</p></div>
     }
+    </div>
 }
+
 <button (click)="exit()">Abandonar partida</button>
