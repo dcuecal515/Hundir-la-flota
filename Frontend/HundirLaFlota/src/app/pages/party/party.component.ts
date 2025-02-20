@@ -69,7 +69,7 @@ export class PartyComponent implements AfterViewInit {
       }
       if(message.message=="Disparo enemigo"){
         console.log("Te dispararon en la posición: "+message.position)
-        this.ships.forEach(ship => {
+        this.barcos.forEach(ship => {
           ship.forEach(position => {
             if(position == message.position){
               this.impacted=true
@@ -135,7 +135,7 @@ export class PartyComponent implements AfterViewInit {
   }
 
   guardarposicion(letra:string,item:number){
-    if(this.barcosoponente && this.ships.length > 0 && this.turn){
+    if(this.barcosoponente && this.barcos.length > 0 && this.turn){
       var miposicion:string=letra+item
       if(!this.shoots.includes(miposicion)){
         this.shoots.push(miposicion)

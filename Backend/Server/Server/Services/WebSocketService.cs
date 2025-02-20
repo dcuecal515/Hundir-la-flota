@@ -23,6 +23,8 @@ namespace Server.Services
         // Lista de WebSocketHandler (clase que gestiona cada WebSocket)
         private readonly List<WebSocketHandler> _handlers = new List<WebSocketHandler>();
         private readonly List<WebSocketHandler> _players = new List<WebSocketHandler>();
+        private readonly List<List<WebSocketHandler>> _partidas = new List<List<WebSocketHandler>>();
+        private readonly List<WebSocketHandler> _partidasbot = new List<WebSocketHandler>();
         // Semáforo para controlar el acceso a la lista de WebSocketHandler
         private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1);
         private readonly SemaphoreSlim _semaphoreplayers=new SemaphoreSlim(1);
@@ -58,7 +60,11 @@ namespace Server.Services
             List<Task> tasks = new List<Task>();
             // Guardamos una copia de los WebSocketHandler para evitar problemas de concurrencia
             WebSocketHandler[] handlers = _handlers.ToArray();
+            WebSocketHandler[] partidabot = _partidasbot.ToArray();
+            WebSocketHandler[][] partidas = _partidas.Select(partida => partida.ToArray()).ToArray();
             int totalHandlers = handlers.Length;
+            int totalpartidabot = partidabot.Length;
+            int totalpartidas = partidas.Length;
 
             string messageToNew = $"usuarios conectados";//newHandler.Id es donde esta mi id
             string messageToOthers = $"amigo conectado";
@@ -86,7 +92,9 @@ namespace Server.Services
                                 {
                                     Message = messageToOthers,
                                     FriendId = newHandler.Id,
-                                    quantity = totalHandlers
+                                    quantity = totalHandlers,
+                                    quantitygame= totalpartidabot+totalpartidas,
+                                    quantityplayer=totalpartidabot+(totalpartidas*2)
                                 };
                                 string messageToSend = JsonSerializer.Serialize(message, JsonSerializerOptions.Web);
                                 tasks.Add(handler.SendAsync(messageToSend));
@@ -96,7 +104,9 @@ namespace Server.Services
                                 MessageWorldDto message = new MessageWorldDto
                                 {
                                     Message = messageToNew,
-                                    quantity = totalHandlers
+                                    quantity = totalHandlers,
+                                    quantitygame = totalpartidabot + totalpartidas,
+                                    quantityplayer = totalpartidabot + (totalpartidas * 2)
                                 };
                                 string messageToSend = JsonSerializer.Serialize(message, JsonSerializerOptions.Web);
                                 tasks.Add(handler.SendAsync(messageToSend));
@@ -108,7 +118,9 @@ namespace Server.Services
                         MessageWorldDto message = new MessageWorldDto
                         {
                             Message = messageToNew,
-                            quantity = totalHandlers
+                            quantity = totalHandlers,
+                            quantitygame = totalpartidabot + totalpartidas,
+                            quantityplayer = totalpartidabot + (totalpartidas * 2)
                         };
                         string messageToSend = JsonSerializer.Serialize(message, JsonSerializerOptions.Web);
                         tasks.Add(handler.SendAsync(messageToSend));
@@ -137,6 +149,8 @@ namespace Server.Services
             List<Task> tasks = new List<Task>();
             // Guardamos una copia de los WebSocketHandler para evitar problemas de concurrencia
             WebSocketHandler[] handlers = _handlers.ToArray();
+            WebSocketHandler[] partidabot = _partidasbot.ToArray();
+            WebSocketHandler[][] partidas = _partidas.Select(partida => partida.ToArray()).ToArray();
 
             /*string message = $"Se ha desconectado el usuario con id {disconnectedHandler.Id}. Ahora hay {handlers.Length} usuarios conectados";*/
             using (var scope = _serviceProvider.CreateScope())
@@ -172,7 +186,9 @@ namespace Server.Services
                                 MessageWorldDto message = new MessageWorldDto
                                 {
                                     Message = "usuarios desconectados",
-                                    quantity = handlers.Length
+                                    quantity = handlers.Length,
+                                    quantitygame = partidabot.Length + partidas.Length,
+                                    quantityplayer = partidabot.Length + (partidas.Length * 2)
                                 };
                                 string messageToSend = JsonSerializer.Serialize(message, JsonSerializerOptions.Web);
                                 tasks.Add(handler.SendAsync(messageToSend));
@@ -184,7 +200,9 @@ namespace Server.Services
                         MessageWorldDto message = new MessageWorldDto
                         {
                             Message = "usuarios desconectados",
-                            quantity = handlers.Length
+                            quantity = handlers.Length,
+                            quantitygame = partidabot.Length + partidas.Length,
+                            quantityplayer = partidabot.Length + (partidas.Length * 2)
                         };
                         string messageToSend = JsonSerializer.Serialize(message, JsonSerializerOptions.Web);
                         tasks.Add(handler.SendAsync(messageToSend));
@@ -502,8 +520,9 @@ namespace Server.Services
 
                             
                         }
-
-                        _players.Clear();
+                    _partidas.Add(new List<WebSocketHandler> { players[0], players[1] });
+                    Console.WriteLine(_partidas.Count);
+                    _players.Clear();
                     }
 
                 //Liberamos el semaforo
@@ -558,6 +577,7 @@ namespace Server.Services
                     var _wsHelper = scope.ServiceProvider.GetRequiredService<WSHelper>();
                     User user = await _wsHelper.GetUserById(userHandler.Id);
                     user.Status = "Jugando";
+                    _partidasbot.Add(userHandler);
                     await _wsHelper.UpdateUserAsync(user);
                 }
 
@@ -606,13 +626,13 @@ namespace Server.Services
             if (receivedUser.TypeMessage.Equals("Aceptar Partida"))
             {
                 string userName = receivedUser.Identifier;
-
+                
                 using (var scope = _serviceProvider.CreateScope())
                 {
                     var _wsHelper = scope.ServiceProvider.GetRequiredService<WSHelper>();
                     User user = await _wsHelper.GetUserById(userHandler.Id);
                     User user2 = await _wsHelper.GetUserByNickname(userName);
-
+                    
                     if (user2 != null)
                     { 
                         foreach (WebSocketHandler handler in handlers)
@@ -628,6 +648,7 @@ namespace Server.Services
                                 };
                                 string messageToSend = JsonSerializer.Serialize(outMessage, JsonSerializerOptions.Web);
                                 tasks.Add(handler.SendAsync(messageToSend));
+                                
                             }
                             if(handler.Id == user.Id)
                             {
@@ -736,6 +757,7 @@ namespace Server.Services
             if (receivedUser.TypeMessage.Equals("Empezar partida"))
             {
                 string userName = receivedUser.Identifier;
+                List<WebSocketHandler> _jugadores = new List<WebSocketHandler>();
                 using (var scope = _serviceProvider.CreateScope())
                 {
                     var _wsHelper = scope.ServiceProvider.GetRequiredService<WSHelper>();
@@ -759,6 +781,7 @@ namespace Server.Services
                                     OpponentId = user.Id
                                 };
                                 string messageToSend = JsonSerializer.Serialize(outMessage, JsonSerializerOptions.Web);
+                                _jugadores.Add(userHandler);
                                 tasks.Add(handler.SendAsync(messageToSend));
                             }
                             if(handler.Id == user.Id)
@@ -769,6 +792,7 @@ namespace Server.Services
                                     OpponentId = user2.Id
                                 };
                                 string messageToSend = JsonSerializer.Serialize(outMessage, JsonSerializerOptions.Web);
+                                _jugadores.Add(userHandler);
                                 tasks.Add(handler.SendAsync(messageToSend));
                             }
 
@@ -776,6 +800,7 @@ namespace Server.Services
                         }
                     }
                 }
+                _partidas.Add(new List<WebSocketHandler> { _jugadores[0], _jugadores[1] });
             }
             if (receivedUser.TypeMessage.Equals("Abandono de partida"))
             {
