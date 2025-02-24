@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.SignalR.Protocol;
 using System.Numerics;
 using System.Timers;
 using Timer = System.Timers.Timer;
+using System;
 
 namespace Server.Services
 {
@@ -30,6 +31,11 @@ namespace Server.Services
         private readonly SemaphoreSlim _semaphoreplayers=new SemaphoreSlim(1);
         // Temporizadores de partidas
         private Dictionary<int, Timer> _timers = new Dictionary<int, Timer>();
+        // Barcos de jugadores
+        private Dictionary<int, string[][]> _ships = new Dictionary<int, string[][]>();
+        private Dictionary<int, string[][]> _botShips = new Dictionary<int, string[][]>();
+        // Disparos guardados por cada bot
+        private Dictionary<int, string []> _botShoots = new Dictionary<int, string []>();
 
         public async Task HandleAsync(WebSocket webSocket, User user)
         {
@@ -223,8 +229,18 @@ namespace Server.Services
 
             /*string messageToMe = $"Tú: {message}";
             string messageToOthers = $"Usuario {userHandler.Id}: {message}";*/
+            //Console.WriteLine(message);
             message = message.Substring(1, message.Length - 2); //Arreglos por recibir mal
+            message = message.Replace("\\\\", "@"); // Para los arrays de barcos
             message = message.Replace("\\", "");
+            message = message.Replace("@", "\\");
+            //Console.WriteLine(message);
+
+            // ReceivedUserDto ejemplo = new ReceivedUserDto { TypeMessage = "Mis barcos contra bot", Identifier = "[[\"a1\", \"a2\"], [\"b1\", \"b2\", \"b3\"]]" };
+
+            // string ejemploTransformado = JsonSerializer.Serialize<ReceivedUserDto>(ejemplo);
+
+            // Console.WriteLine(ejemploTransformado);
 
             ReceivedUserDto receivedUser = JsonSerializer.Deserialize<ReceivedUserDto>(message);
 
@@ -1005,12 +1021,179 @@ namespace Server.Services
                 }
             }
 
+            if(receivedUser.TypeMessage.Equals("Mis barcos contra bot"))
+            {
+                StopGameTimer(userHandler.Id);
+                string [][] ships = JsonSerializer.Deserialize<string [] []>(receivedUser.Identifier);
+                /*foreach (var ship in ships)
+                {
+                    Console.WriteLine(string.Join(", ", ship));
+                }*/
+                _ships [userHandler.Id] = ships;
+                string [][] botShips = GenerateBotShips();
+                /*foreach (var ship in botShips)
+                {
+                    Console.WriteLine(string.Join(", ", ship));
+                }*/
+                _botShips [userHandler.Id] = botShips;
+
+                WebsocketMessageDto outMessage = new WebsocketMessageDto
+                {
+                    Message = "Ya estan los barcos"
+                };
+                string messageToSend = JsonSerializer.Serialize(outMessage, JsonSerializerOptions.Web);
+                StartGameTimer(userHandler.Id, userHandler);
+                tasks.Add(userHandler.SendAsync(messageToSend));
+
+            }
+
+            if(receivedUser.TypeMessage.Equals("Disparo a bot"))
+            {
+                // Para el temporizador
+                StopGameTimer(userHandler.Id);
+
+                // Declaración de variables
+                bool yourImpacted = false;
+                bool botImpacted = false;
+                bool youWin = false;
+                bool botWin = false;
+                Random random = new Random();
+                List<List<string>> botShips = _botShips [userHandler.Id].Select(ship => ship.ToList()).ToList();
+                List<List<string>> Ships = _ships [userHandler.Id].Select(ship => ship.ToList()).ToList();
+                string [] chars = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"];
+
+                if (!_botShoots.ContainsKey(userHandler.Id))
+                {
+                    _botShoots [userHandler.Id] = new string [0];
+                }
+
+                List<List<string>> botShipsToRemove = new List<List<string>>();
+
+                // Comprueba el disparo dentro de los barcos del bot
+                foreach (var ship in botShips)
+                {
+                    foreach (var pos in ship)
+                    {
+                        if (pos == receivedUser.Identifier)
+                        {
+                            yourImpacted = true;
+                            ship.Remove(pos);
+
+                            if (ship.Count == 0)
+                            {
+                                botShipsToRemove.Add(ship); // Marcar barco para eliminarlo
+                            }
+                            break;
+                        }
+                    }
+                }
+
+                // Eliminar barcos vacíos después del bucle
+                foreach (var ship in botShipsToRemove)
+                {
+                    botShips.Remove(ship);
+                }
+
+                // Verificar si ganaste
+                if (botShips.Count == 0)
+                {
+                    youWin = true;
+                }
+
+                // Guarda los cambios
+                _botShips [userHandler.Id] = botShips.Select(ship => ship.ToArray()).ToArray();
+
+
+                string botAtack;
+                int row;
+                int colum;
+                do
+                {
+                    row = random.Next(10);
+                    colum = random.Next(10);
+                    botAtack = chars[row]+(colum+1);
+                }
+                while (_botShoots[userHandler.Id].Contains(botAtack));
+
+                _botShoots[userHandler.Id] = _botShoots[userHandler.Id].Append(botAtack).ToArray();
+
+                List<List<string>> shipsToRemove = new List<List<string>>();
+
+                // Comprueba si el bot impacta un barco del usuario
+                foreach (var ship in Ships)
+                {
+                    foreach (var pos in ship)
+                    {
+                        if (pos == botAtack)
+                        {
+                            botImpacted = true;
+                            ship.Remove(pos);
+
+                            if (ship.Count == 0)
+                            {
+                                shipsToRemove.Add(ship); // Marcar barco para eliminarlo
+                            }
+                            break;
+                        }
+                    }
+                }
+
+                // Eliminar barcos vacíos después del bucle
+                foreach (var ship in shipsToRemove)
+                {
+                    Ships.Remove(ship);
+                }
+
+                // Verificar si el bot gana
+                if (Ships.Count == 0)
+                {
+                    botWin = true;
+                }
+
+                // Guarda los cambios
+                _ships [userHandler.Id] = Ships.Select(ship => ship.ToArray()).ToArray();
+
+                if (youWin)
+                {
+                    BotResponseDto outMessage2 = new BotResponseDto
+                    {
+                        Message = "Has ganado al bot",
+                        YourShoot = receivedUser.Identifier
+                    };
+                    string messageToSend = JsonSerializer.Serialize(outMessage2, JsonSerializerOptions.Web);
+                    tasks.Add(userHandler.SendAsync(messageToSend));
+                } else if (botWin) 
+                {
+                    BotResponseDto outMessage3 = new BotResponseDto
+                    {
+                        Message = "Te gano el bot",
+                        YourImpacted=yourImpacted,
+                        YourShoot=receivedUser.Identifier,
+                        BotAtack = botAtack
+                    };
+                    string messageToSend = JsonSerializer.Serialize(outMessage3, JsonSerializerOptions.Web);
+                    tasks.Add(userHandler.SendAsync(messageToSend));
+                } else
+                {
+                    BotResponseDto outMessage = new BotResponseDto
+                    {
+                        Message = "Respuesta del bot",
+                        YourImpacted = yourImpacted,
+                        YourShoot = receivedUser.Identifier,
+                        BotImpacted = botImpacted,
+                        BotAtack = botAtack
+                    };
+                    string messageToSend = JsonSerializer.Serialize(outMessage, JsonSerializerOptions.Web);
+                    tasks.Add(userHandler.SendAsync(messageToSend));
+                    StartGameTimer(userHandler.Id, userHandler);
+                }
+            }
+
             await Task.WhenAll(tasks);
         }
 
         private void StartGameTimer(int userId, WebSocketHandler handler)
         {
-            StopGameTimer(userId); // Por si se inicia habiendo otro timer con el mismo userId
             var timer = new Timer(TimeSpan.FromMinutes(2).TotalMilliseconds);
             timer.Elapsed += async (sender, e) => await OnTimerElapsed(userId, handler);
             timer.AutoReset = false;
@@ -1042,6 +1225,67 @@ namespace Server.Services
                 _timers [userId].Dispose();
                 _timers.Remove(userId);
             }
+        }
+
+        private string[][] GenerateBotShips()
+        {
+            List<string[]> ships = new List<string[]>();
+            int [] sizes = [2, 3, 3, 4];
+
+            foreach (var size in sizes)
+            {
+                string [] ship;
+                do
+                {
+                    ship = GenerateShip(size);
+                }
+                while (IsOverlapping(ship,ships));
+
+                ships.Add(ship);
+            }
+
+            return ships.ToArray();
+        }
+
+        private string [] GenerateShip(int size)
+        {
+            Random random = new Random();
+            int boardSize = 10;
+            bool isHorizontal = random.Next(2) == 0;
+            int row, col;
+
+            if (isHorizontal)
+            {
+                row = random.Next(boardSize);
+                col = random.Next(boardSize - size + 1);
+            } else
+            {
+                row = random.Next(boardSize - size + 1);
+                col = random.Next(boardSize);
+            }
+
+            string [] ship = new string [size];
+            for (int i = 0; i < size; i++)
+            {
+                ship [i] = isHorizontal ? $"{(char)('a' + row)}{col + i + 1}" : $"{(char)('a' + row + i)}{col + 1}";
+            }
+
+            return ship;
+        }
+
+        private bool IsOverlapping(string [] ship, List<string []> existingShips)
+        {
+            foreach (var existingShip in existingShips)
+            {
+                foreach (var pos in existingShip)
+                {
+                    if (Array.Exists(ship, s => s == pos))
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
 
     }

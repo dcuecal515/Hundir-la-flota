@@ -38,17 +38,17 @@ export class PartyComponent implements AfterViewInit {
   barcos:string[][]=[]
   shoots=[]
   barcosoponente=false 
+  barcosBot=false
   turn=false
   impacted=false
-  timeSeconds:number=120
   timeString:string="2:00"
   stopTimer = false
-  timerInterval: any
   chatContent:chatMessage[] = []
   barco:string[]=[]
   altura:number
   ancho:number
   quitar:boolean=false
+  timerInterval:any
 
   ngOnInit(): void {
     this.messageReceived$ = this.webSocketService.messageReceived.subscribe(async message => {
@@ -129,13 +129,100 @@ export class PartyComponent implements AfterViewInit {
         const chatMessageToSave:chatMessage = {userName:this.opponentName,message:message.messageToOpponent} 
         this.chatContent.push(chatMessageToSave)
       }
+      if(message.message=="Ya estan los barcos"){
+        this.barcosBot=true
+        this.turn=true
+        this.startTimer()
+      }
+      if(message.message=="Respuesta del bot"){
+        console.log("llegue aqui")
+        const opponentPosition = document.getElementById(message.yourShoot+"enemigo")
+        const myPosition = document.getElementById(message.botAtack)
+        if(message.yourImpacted){
+          opponentPosition.classList.remove("game-box")
+          opponentPosition.classList.add("game-box-touched")
+        }else{
+          opponentPosition.classList.remove("game-box")
+          opponentPosition.classList.add("game-box-miss")
+        }
+        if(message.botImpacted){
+          myPosition.style.backgroundColor='green'
+        }else{
+          myPosition.style.backgroundColor='red'
+        }
+        this.turn=true
+        this.startTimer()
+      }
+      if(message.message=="Has ganado al bot"){
+        const opponentPosition = document.getElementById(message.yourShoot+"enemigo")
+        opponentPosition.classList.remove("game-box")
+        opponentPosition.classList.add("game-box-touched")
+        const alertWin = await Swal.fire({
+          title: 'Victoria',
+          text: 'Has ganado a nuestro bot enhorabuena',
+          icon: 'success',
+          showConfirmButton: true
+        });
+        if(alertWin.isConfirmed){
+          this.router.navigateByUrl("menu")
+        }
+        
+      }
+      if(message.message=="Te gano el bot"){
+        console.log("Estoy aqui")
+        const opponentPosition = document.getElementById(message.yourShoot+"enemigo")
+        const myPosition = document.getElementById(message.botAtack)
+        if(message.yourImpacted){
+          opponentPosition.classList.remove("game-box")
+          opponentPosition.classList.add("game-box-touched")
+        }else{
+          opponentPosition.classList.remove("game-box")
+          opponentPosition.classList.add("game-box-miss")
+        }
+        myPosition.style.backgroundColor='green'
+        const alertDefeat = await Swal.fire({
+          title: 'Derrota',
+          text: 'Has perdido contra nuestro bot',
+          icon: 'error',
+          showConfirmButton: true
+        });
+        if(alertDefeat.isConfirmed){
+          this.router.navigateByUrl("menu")
+        }
+        
+      }
     });
     this.disconnected$ = this.webSocketService.disconnected.subscribe(() => this.isConnected = false);
     this.startTimer()
   }
 
   guardarposicion(letra:string,item:number){
-    if(this.barcosoponente && this.barcos.length > 0 && this.turn){
+
+    if(this.barcosBot && this.opponentName=="Bot1" && this.turn){
+      var miposicion:string=letra+item
+      if(!this.shoots.includes(miposicion)){
+        this.shoots.push(miposicion)
+        var gamebox=document.getElementById(miposicion+"enemigo")
+        gamebox.classList.remove("game-box")
+        gamebox.classList.add("game-box-view")
+        console.log("Posición mandada: "+miposicion)
+        const messageToSend:FriendRequest={TypeMessage:"Disparo a bot",Identifier:miposicion}
+        const jsonData = JSON.stringify(messageToSend)
+        console.log(jsonData)
+        this.webSocketService.sendRxjs(jsonData)
+        this.turn = false
+        this.stopTimer = true
+        clearInterval(this.timerInterval);
+      }else{
+        Swal.fire({
+          title: 'Error',
+          text: 'Selecciona una posicion nueva',
+          icon: 'error',
+          timer: 1000,
+          showConfirmButton: false
+        });
+      }
+    }else if(this.barcosoponente && this.barcos.length > 0 && this.turn){
       var miposicion:string=letra+item
       if(!this.shoots.includes(miposicion)){
         this.shoots.push(miposicion)
@@ -148,6 +235,8 @@ export class PartyComponent implements AfterViewInit {
         console.log(jsonData)
         this.webSocketService.sendRxjs(jsonData)
         this.turn = false
+        this.stopTimer = true
+        clearInterval(this.timerInterval);
       }else{
         Swal.fire({
           title: 'Error',
@@ -192,42 +281,52 @@ export class PartyComponent implements AfterViewInit {
 
   async startTimer(){
     this.stopTimer = false
-    this.timeSeconds=120
+    var patata=0
+    var timeSeconds=120
     this.timeString="2:00"
     this.timerInterval = setInterval(() => {
-      if (this.stopTimer || this.timeSeconds <= 0) {
+      if (this.stopTimer || timeSeconds <= patata) {
         clearInterval(this.timerInterval);
         return;
       }
   
-      this.timeSeconds--; // Reducir el tiempo
-      const minutes = Math.floor(this.timeSeconds / 60);
-      const seconds = this.timeSeconds % 60;
+      timeSeconds--; // Reducir el tiempo
+      const minutes = Math.floor(timeSeconds / 60);
+      const seconds = timeSeconds % 60;
       this.timeString = minutes + ":" + seconds.toString().padStart(2, '0');
     }, 1000);
   }
 
   stopTimerfuction(){
-    this.stopTimer = true
-    if(this.barcosoponente){
-      const messageToSend:FriendRequest={TypeMessage:"Yo tambien los coloque",Identifier:this.opponentName}
-      const jsonData = JSON.stringify(messageToSend)
-      console.log(jsonData)
-      this.webSocketService.sendRxjs(jsonData)
-    }else{
-      if(this.opponentName=="Bot1"){
-        const messageToSend:FriendRequest={TypeMessage:"Mis barcos contra bot",Identifier:JSON.stringify(this.barcos)}
+    if(this.barcos.length == 4){
+      this.stopTimer = true
+      if(this.barcosoponente){
+        const messageToSend:FriendRequest={TypeMessage:"Yo tambien los coloque",Identifier:this.opponentName,Identifier2:JSON.stringify(this.barcos)}
         const jsonData = JSON.stringify(messageToSend)
         console.log(jsonData)
         this.webSocketService.sendRxjs(jsonData)
       }else{
-        const messageToSend:FriendRequest={TypeMessage:"He colocado mis barcos",Identifier:this.opponentName}
-        const jsonData = JSON.stringify(messageToSend)
-        console.log(jsonData)
-        this.webSocketService.sendRxjs(jsonData)
+        if(this.opponentName=="Bot1"){
+          const messageToSend:FriendRequest={TypeMessage:"Mis barcos contra bot",Identifier:JSON.stringify(this.barcos)}
+          const jsonData = JSON.stringify(messageToSend)
+          console.log(jsonData)
+          this.webSocketService.sendRxjs(jsonData)
+        }else{
+          const messageToSend:FriendRequest={TypeMessage:"He colocado mis barcos",Identifier:this.opponentName,Identifier2:JSON.stringify(this.barcos)}
+          const jsonData = JSON.stringify(messageToSend)
+          console.log(jsonData)
+          this.webSocketService.sendRxjs(jsonData)
+        }
       }
+    }else{
+      Swal.fire({
+        title: 'Error',
+        text: 'Coloca todos los barcos para continuar',
+        icon: 'error',
+        timer: 1000, 
+        showConfirmButton: false
+      });
     }
-    
   }
 
   sendChat(){
