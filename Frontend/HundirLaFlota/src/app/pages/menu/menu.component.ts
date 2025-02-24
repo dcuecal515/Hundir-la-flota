@@ -40,6 +40,8 @@ export class MenuComponent {
     this.url=environment.images+this.decoded.Avatar;
     console.log(this.dataService.players)
     this.conectedUsers=this.dataService.players
+    this.playingUsers=dataService.playersPlaying
+    this.games=dataService.games
   }
   type:'rxjs'
   serverResponse: string = '';
@@ -54,6 +56,8 @@ export class MenuComponent {
   userList:Friend[]
   friendList:Friend[] = []
   conectedUsers:number = 0
+  playingUsers:number= 0
+  games:number=0
   isOpen:boolean = false
 
   ngOnInit(): void {
@@ -85,17 +89,30 @@ export class MenuComponent {
         });
         this.conectedUsers=message.quantity
         this.dataService.players=message.quantity
+        this.playingUsers=message.quantityplayer
+        this.dataService.playersPlaying=message.quantityplayer
+        this.games=message.quantitygame
+        this.dataService.games=message.quantitygame
+        
       }
       if(message.message=="usuarios conectados"){
         console.log("La cantidad de usuarios que ahi ahora conectados son: "+message.quantity)
         this.conectedUsers=message.quantity
         this.dataService.players=message.quantity
+        this.playingUsers=message.quantityplayer
+        this.dataService.playersPlaying=message.quantityplayer
+        this.games=message.quantitygame
+        this.dataService.games=message.quantitygame
       }
       if(message.message=="usuarios desconectados"){
         console.log("HOLAAAA")
         console.log("Se ha desconectado un usuario ahora quedan:"+message.quantity)
         this.conectedUsers=message.quantity
         this.dataService.players=message.quantity
+        this.playingUsers=message.quantityplayer
+        this.dataService.playersPlaying=message.quantityplayer
+        this.games=message.quantitygame
+        this.dataService.games=message.quantitygame
       }
       if(message.message=="amigo desconectado"){
         console.log("Ahora tu amigo se ha desconectado:"+message.friendId)
@@ -137,6 +154,20 @@ export class MenuComponent {
       }
       if(message.message=="Has perdido"){
         console.log("Has perdido una partida contra ") // Añadir contra quien a perdido
+      }
+      if(message.message=="Tu amigo dejo de jugar"){
+        this.friendList.forEach(friend => {
+          if(friend.nickName==message.nickName){
+            friend.status="Conectado"
+          }
+        });
+      }
+      if(message.message=="Tu amigo esta jugando"){
+        this.friendList.forEach(friend => {
+          if(friend.nickName==message.nickName){
+            friend.status="Jugando"
+          }
+        });
       }
       this.serverResponse = message
     });

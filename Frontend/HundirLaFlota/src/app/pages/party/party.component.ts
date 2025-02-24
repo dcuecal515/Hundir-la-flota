@@ -41,8 +41,8 @@ export class PartyComponent implements AfterViewInit {
   barcosBot=false
   turn=false
   impacted=false
+  timeStoped = false
   timeString:string="2:00"
-  stopTimer = false
   chatContent:chatMessage[] = []
   barco:string[]=[]
   altura:number
@@ -69,25 +69,11 @@ export class PartyComponent implements AfterViewInit {
       }
       if(message.message=="Disparo enemigo"){
         console.log("Te dispararon en la posición: "+message.position)
-        this.barcos.forEach(ship => {
-          ship.forEach(position => {
-            if(position == message.position){
-              this.impacted=true
-              position="tocado"
-              const messageToSend:FriendRequest={TypeMessage:"Dado en el blanco",Identifier:this.opponentName,Identifier2:message.position}
-              const jsonData = JSON.stringify(messageToSend)
-              console.log(jsonData)
-              this.webSocketService.sendRxjs(jsonData)
-            }
-          });
-        });
-        if(!this.impacted){
-          const messageToSend:FriendRequest={TypeMessage:"Agua",Identifier:this.opponentName,Identifier2:message.position}
-          const jsonData = JSON.stringify(messageToSend)
-          console.log(jsonData)
-          this.webSocketService.sendRxjs(jsonData)
+        const myPosition = document.getElementById(message.position)
+        if(message.impacted){
+          myPosition.style.backgroundColor='green'
         }else{
-          this.impacted=false
+          myPosition.style.backgroundColor='red'
         }
         Swal.fire({
           title: 'Te toca disparar',
@@ -96,18 +82,46 @@ export class PartyComponent implements AfterViewInit {
           showConfirmButton: false
         });
         this.turn=true
+        this.startTimer()
       }
-      if(message.message=="Tocado"){
-        console.log("Has dado al barco con posición: "+message.position)
-        var gamebox=document.getElementById(message.position)
-        gamebox.classList.remove("game-box")
-        gamebox.classList.add("game-box-touched")
+      if(message.message=="Tu disparo ha sido enviado"){
+        const opponentPosition = document.getElementById(message.position+"enemigo")
+        if(message.impacted){
+          opponentPosition.classList.remove("game-box")
+          opponentPosition.classList.add("game-box-touched")
+        }else{
+          opponentPosition.classList.remove("game-box")
+          opponentPosition.classList.add("game-box-miss")
+        }
       }
-      if(message.message=="Fallo"){
-        console.log("Has fallado en la posición: "+message.position)
-        var gamebox=document.getElementById(message.position)
-        gamebox.classList.remove("game-box")
-        gamebox.classList.add("game-box-miss")
+      if(message.message=="Has ganado la parida"){
+        const opponentPosition = document.getElementById(message.position+"enemigo")
+        opponentPosition.classList.remove("game-box")
+        opponentPosition.classList.add("game-box-touched")
+
+        const alertWin = await Swal.fire({
+          title: 'Victoria',
+          text: 'Has ganado la partida',
+          icon: 'success',
+          showConfirmButton: true
+        });
+        if(alertWin.isConfirmed){
+          this.router.navigateByUrl("menu")
+        }
+      }
+      if(message.message=="Has perdido la partida"){
+        const myPosition = document.getElementById(message.position)
+        myPosition.style.backgroundColor='green'
+
+        const alertWin = await Swal.fire({
+          title: 'Derrota',
+          text: 'Has perdido la partida',
+          icon: 'error',
+          showConfirmButton: true
+        });
+        if(alertWin.isConfirmed){
+          this.router.navigateByUrl("menu")
+        }
       }
       if(message.message=="Se te acabo el tiempo"){
         console.log("Se te ha acabado el tiempo")
@@ -123,6 +137,8 @@ export class PartyComponent implements AfterViewInit {
       }
       if(message.message=="Empiezas tu"){
         console.log("te toca atacar")
+        this.startTimer()
+        this.barcosoponente=true
         this.turn = true
       }
       if(message.message=="Te llego un mensaje"){
@@ -211,7 +227,6 @@ export class PartyComponent implements AfterViewInit {
         console.log(jsonData)
         this.webSocketService.sendRxjs(jsonData)
         this.turn = false
-        this.stopTimer = true
         clearInterval(this.timerInterval);
       }else{
         Swal.fire({
@@ -226,7 +241,7 @@ export class PartyComponent implements AfterViewInit {
       var miposicion:string=letra+item
       if(!this.shoots.includes(miposicion)){
         this.shoots.push(miposicion)
-        var gamebox=document.getElementById(miposicion)
+        var gamebox=document.getElementById(miposicion+"enemigo")
         gamebox.classList.remove("game-box")
         gamebox.classList.add("game-box-view")
         console.log("Posición mandada: "+miposicion)
@@ -235,7 +250,6 @@ export class PartyComponent implements AfterViewInit {
         console.log(jsonData)
         this.webSocketService.sendRxjs(jsonData)
         this.turn = false
-        this.stopTimer = true
         clearInterval(this.timerInterval);
       }else{
         Swal.fire({
@@ -280,12 +294,10 @@ export class PartyComponent implements AfterViewInit {
   }
 
   async startTimer(){
-    this.stopTimer = false
-    var patata=0
     var timeSeconds=120
     this.timeString="2:00"
     this.timerInterval = setInterval(() => {
-      if (this.stopTimer || timeSeconds <= patata) {
+      if (timeSeconds <= 0) {
         clearInterval(this.timerInterval);
         return;
       }
@@ -299,7 +311,8 @@ export class PartyComponent implements AfterViewInit {
 
   stopTimerfuction(){
     if(this.barcos.length == 4){
-      this.stopTimer = true
+      this.timeStoped = true
+      clearInterval(this.timerInterval);
       if(this.barcosoponente){
         const messageToSend:FriendRequest={TypeMessage:"Yo tambien los coloque",Identifier:this.opponentName,Identifier2:JSON.stringify(this.barcos)}
         const jsonData = JSON.stringify(messageToSend)
