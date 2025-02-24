@@ -213,6 +213,7 @@ export class PartyComponent implements AfterViewInit {
   }
 
   guardarposicion(letra:string,item:number){
+
     if(this.barcosBot && this.opponentName=="Bot1" && this.turn){
       var miposicion:string=letra+item
       if(!this.shoots.includes(miposicion)){
