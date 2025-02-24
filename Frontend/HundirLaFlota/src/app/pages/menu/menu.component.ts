@@ -169,6 +169,12 @@ export class MenuComponent {
           }
         });
       }
+      if(message.message=="Jugadores jugando"){
+        this.playingUsers=message.quantityplayer
+        this.dataService.playersPlaying=message.quantityplayer
+        this.games=message.quantitygame
+        this.dataService.games=message.quantitygame
+      }
       this.serverResponse = message
     });
     this.disconnected$ = this.webSocketService.disconnected.subscribe(() => this.isConnected = false);
