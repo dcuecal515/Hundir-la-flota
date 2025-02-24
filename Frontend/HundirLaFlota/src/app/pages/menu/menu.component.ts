@@ -155,14 +155,14 @@ export class MenuComponent {
       if(message.message=="Has perdido"){
         console.log("Has perdido una partida contra ") // Añadir contra quien a perdido
       }
-      if(message.message="Tu amigo dejo de jugar"){
+      if(message.message=="Tu amigo dejo de jugar"){
         this.friendList.forEach(friend => {
           if(friend.nickName==message.nickName){
             friend.status="Conectado"
           }
         });
       }
-      if(message.message="Tu amigo esta jugando"){
+      if(message.message=="Tu amigo esta jugando"){
         this.friendList.forEach(friend => {
           if(friend.nickName==message.nickName){
             friend.status="Jugando"
