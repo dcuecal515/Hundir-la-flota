@@ -22,7 +22,7 @@
     <input type="text" id="chat">
     <button (click)="sendChat()">Enviar</button>
     
-    @if(barcos.length == 4 && barcosoponente){
+    @if(barcos.length == 4 && barcosoponente && turn){
         @for (letra of letras; track $index) {
             <div class="rows">
             @for (item of items; track $index) {
@@ -32,42 +32,48 @@
         }
     }
 }
-
-<div class="body-colocar-barcos">
-    <div class="tablero">
-    @for (letra of letras; track $index) {
-        <div class="rows">
-        @for (item of items; track $index) {
-                <div id="{{letra}}{{item}}" class="game-box"><p>{{letra}}{{item}}</p></div>
+@if(timeStoped){
+    <div class="body-colocar-barcos">
+        @if(turn == false){
+            <div class="tablero">
+                @for (letra of letras; track $index) {
+                    <div class="rows">
+                    @for (item of items; track $index) {
+                            <div id="{{letra}}{{item}}" class="game-box"><p>{{letra}}{{item}}</p></div>
+                    }
+                    </div>
+                }
+            </div>
         }
-        </div>
-    }
+        @if(barcos.length < 4){
+            <div class="barcos">
+                <div id="barco4" class="barco4-column" (click)="cambiarposicionbarco4()" draggable="true">
+                    <div class="game-box-barco4"></div>
+                    <div class="game-box-barco4"></div>
+                    <div class="game-box-barco4"></div>
+                    <div class="game-box-barco4"></div>
+                </div>
+                <br>
+                <div id="barco3" class="barco3-column" (click)="cambiarposicionbarco3()" draggable="true">
+                    <div class="game-box-barco4"></div>
+                    <div class="game-box-barco4"></div>
+                    <div class="game-box-barco4"></div>
+                </div>
+                <br>
+                <div id="barco32" class="barco32-column" (click)="cambiarposicionbarco32()" draggable="true">
+                    <div class="game-box-barco4"></div>
+                    <div class="game-box-barco4"></div>
+                    <div class="game-box-barco4"></div>
+                </div>
+                <br>
+                <div id="barco2" class="barco2-column" (click)="cambiarposicionbarco2()" draggable="true">
+                    <div class="game-box-barco4"></div>
+                    <div class="game-box-barco4"></div>
+                </div>
+            </div>
+        }
     </div>
-    <div class="barcos">
-        <div id="barco4" class="barco4-column" (click)="cambiarposicionbarco4()" draggable="true">
-            <div class="game-box-barco4"></div>
-            <div class="game-box-barco4"></div>
-            <div class="game-box-barco4"></div>
-            <div class="game-box-barco4"></div>
-        </div>
-        <br>
-        <div id="barco3" class="barco3-column" (click)="cambiarposicionbarco3()" draggable="true">
-            <div class="game-box-barco4"></div>
-            <div class="game-box-barco4"></div>
-            <div class="game-box-barco4"></div>
-        </div>
-        <br>
-        <div id="barco32" class="barco32-column" (click)="cambiarposicionbarco32()" draggable="true">
-            <div class="game-box-barco4"></div>
-            <div class="game-box-barco4"></div>
-            <div class="game-box-barco4"></div>
-        </div>
-        <br>
-        <div id="barco2" class="barco2-column" (click)="cambiarposicionbarco2()" draggable="true">
-            <div class="game-box-barco4"></div>
-            <div class="game-box-barco4"></div>
-        </div>
-    </div>
-</div>
+}
+
 
 <button (click)="exit()">Abandonar partida</button>
