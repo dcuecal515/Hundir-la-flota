@@ -42,6 +42,19 @@
             </div>
             @if(friendList != null && friendList.length != 0){
                 <div class="friend-list-friends">
+                    <h3>Jugando</h3>
+                    @for(friend of friendList; track friend.nickName){
+                        @if(compare(friend.nickName)){
+                            @if(friend.status == "Jugando"){
+                                <div class="friend-data">
+                                    <img [src]="friend.avatar" alt="" class="avatar">
+                                    <p class="friend-data-nickname">{{friend.nickName}}</p>
+                                    <button>Perfil</button>
+                                    <button (click)="deleteUser(friend.nickName)"><i class="fa-solid fa-trash"></i></button>
+                                </div>
+                            }
+                        }
+                    }
                     <h3>Conectados</h3>
                     @for(friend of friendList; track friend.nickName){
                         @if(compare(friend.nickName)){
@@ -90,6 +103,8 @@
         </div>
         <div class="party-requests">
             <h3>Usuarios conectados: {{conectedUsers}}</h3>
+            <h3>Usuarios jugando: {{playingUsers}}</h3>
+            <h3>Partidas en curso: {{games}}</h3>
         </div>
     </div>
 </div>

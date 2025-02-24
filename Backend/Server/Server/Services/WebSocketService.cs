@@ -510,6 +510,22 @@ namespace Server.Services
                                     User user = await _wsHelper.GetUserById(player.Id);
                                     user.Status = "Jugando";
                                     await _wsHelper.UpdateUserAsync(user);
+                                    foreach (var friend in user.friends)
+                                    {
+                                        foreach (WebSocketHandler handler in handlers)
+                                        {
+                                            if (handler.Id == friend.FriendId)
+                                            {
+                                                DeleteDto outMessage2 = new DeleteDto
+                                                {
+                                                    Message = "Tu amigo esta jugando",
+                                                    NickName = user.NickName
+                                                };
+                                                string messageToSend2 = JsonSerializer.Serialize(outMessage2, JsonSerializerOptions.Web);
+                                                tasks.Add(handler.SendAsync(messageToSend2));
+                                            }
+                                        }
+                                    }
                                     StartGameDto outMessage = new StartGameDto
                                     {
                                         Message = "Partida Aleatoria Encontrada",
@@ -522,6 +538,22 @@ namespace Server.Services
                                     User user = await _wsHelper.GetUserById(player.Id);
                                     user.Status = "Jugando";
                                     await _wsHelper.UpdateUserAsync(user);
+                                    foreach (var friend in user.friends)
+                                    {
+                                        foreach (WebSocketHandler handler in handlers)
+                                        {
+                                            if (handler.Id == friend.FriendId)
+                                            {
+                                                DeleteDto outMessage2 = new DeleteDto
+                                                {
+                                                    Message = "Tu amigo esta jugando",
+                                                    NickName = user.NickName
+                                                };
+                                                string messageToSend2 = JsonSerializer.Serialize(outMessage2, JsonSerializerOptions.Web);
+                                                tasks.Add(handler.SendAsync(messageToSend2));
+                                            }
+                                        }
+                                    }
                                     StartGameDto outMessage = new StartGameDto
                                     {
                                         Message = "Partida Aleatoria Encontrada",
@@ -595,6 +627,22 @@ namespace Server.Services
                     user.Status = "Jugando";
                     _partidasbot.Add(userHandler);
                     await _wsHelper.UpdateUserAsync(user);
+                    foreach (var friend in user.friends)
+                    {
+                        foreach (WebSocketHandler handler in handlers)
+                        {
+                            if (handler.Id == friend.FriendId)
+                            {
+                                DeleteDto outMessage2 = new DeleteDto
+                                {
+                                    Message = "Tu amigo esta jugando",
+                                    NickName = user.NickName
+                                };
+                                string messageToSend2 = JsonSerializer.Serialize(outMessage2, JsonSerializerOptions.Web);
+                                tasks.Add(handler.SendAsync(messageToSend2));
+                            }
+                        }
+                    }
                 }
 
                 StartGameTimer(userHandler.Id, userHandler);
@@ -787,6 +835,40 @@ namespace Server.Services
                         await _wsHelper.UpdateUserAsync(user);
                         await _wsHelper.UpdateUserAsync(user2);
 
+                        foreach (var friend in user.friends)
+                        {
+                            foreach (WebSocketHandler handler in handlers)
+                            {
+                                if (handler.Id == friend.FriendId)
+                                {
+                                    DeleteDto outMessage2 = new DeleteDto
+                                    {
+                                        Message = "Tu amigo esta jugando",
+                                        NickName = user.NickName
+                                    };
+                                    string messageToSend2 = JsonSerializer.Serialize(outMessage2, JsonSerializerOptions.Web);
+                                    tasks.Add(handler.SendAsync(messageToSend2));
+                                }
+                            }
+                        }
+
+                        foreach (var friend in user2.friends)
+                        {
+                            foreach (WebSocketHandler handler in handlers)
+                            {
+                                if (handler.Id == friend.FriendId)
+                                {
+                                    DeleteDto outMessage2 = new DeleteDto
+                                    {
+                                        Message = "Tu amigo esta jugando",
+                                        NickName = user2.NickName
+                                    };
+                                    string messageToSend2 = JsonSerializer.Serialize(outMessage2, JsonSerializerOptions.Web);
+                                    tasks.Add(handler.SendAsync(messageToSend2));
+                                }
+                            }
+                        }
+
                         foreach (WebSocketHandler handler in handlers)
                         {
                             if (handler.Id == user2.Id)
@@ -833,6 +915,38 @@ namespace Server.Services
                         user2.Status = "Conectado";
                         await _wsHelper.UpdateUserAsync(user);
                         await _wsHelper.UpdateUserAsync(user2);
+                        foreach (var friend in user.friends)
+                        {
+                            foreach (WebSocketHandler handler in handlers)
+                            {
+                                if (handler.Id == friend.FriendId)
+                                {
+                                    DeleteDto outMessage2 = new DeleteDto
+                                    {
+                                        Message = "Tu amigo dejo de jugar",
+                                        NickName = user.NickName
+                                    };
+                                    string messageToSend2 = JsonSerializer.Serialize(outMessage2, JsonSerializerOptions.Web);
+                                    tasks.Add(handler.SendAsync(messageToSend2));
+                                }
+                            }
+                        }
+                        foreach (var friend in user2.friends)
+                        {
+                            foreach (WebSocketHandler handler in handlers)
+                            {
+                                if (handler.Id == friend.FriendId)
+                                {
+                                    DeleteDto outMessage2 = new DeleteDto
+                                    {
+                                        Message = "Tu amigo dejo de jugar",
+                                        NickName = user2.NickName
+                                    };
+                                    string messageToSend2 = JsonSerializer.Serialize(outMessage2, JsonSerializerOptions.Web);
+                                    tasks.Add(handler.SendAsync(messageToSend2));
+                                }
+                            }
+                        }
                         StopGameTimer(user2.Id);
 
                         foreach (WebSocketHandler handler in handlers)
@@ -913,6 +1027,39 @@ namespace Server.Services
 
                         if (shooterWins)
                         {
+                            foreach (var friend in user.friends)
+                            {
+                                foreach (WebSocketHandler handler in handlers)
+                                {
+                                    if (handler.Id == friend.FriendId)
+                                    {
+                                        DeleteDto outMessage2 = new DeleteDto
+                                        {
+                                            Message = "Tu amigo dejo de jugar",
+                                            NickName = user.NickName
+                                        };
+                                        string messageToSend2 = JsonSerializer.Serialize(outMessage2, JsonSerializerOptions.Web);
+                                        tasks.Add(handler.SendAsync(messageToSend2));
+                                    }
+                                }
+                            }
+                            foreach (var friend in user2.friends)
+                            {
+                                foreach (WebSocketHandler handler in handlers)
+                                {
+                                    if (handler.Id == friend.FriendId)
+                                    {
+                                        DeleteDto outMessage2 = new DeleteDto
+                                        {
+                                            Message = "Tu amigo dejo de jugar",
+                                            NickName = user2.NickName
+                                        };
+                                        string messageToSend2 = JsonSerializer.Serialize(outMessage2, JsonSerializerOptions.Web);
+                                        tasks.Add(handler.SendAsync(messageToSend2));
+                                    }
+                                }
+                            }
+
                             foreach (WebSocketHandler handler in handlers)
                             {
                                 if (handler.Id == user2.Id)
@@ -963,60 +1110,6 @@ namespace Server.Services
                                     string messageToSend = JsonSerializer.Serialize(outMessage, JsonSerializerOptions.Web);
                                     tasks.Add(handler.SendAsync(messageToSend));
                                 }
-                            }
-                        }
-                    }
-                }
-            }
-
-            if (receivedUser.TypeMessage.Equals("Dado en el blanco"))
-            {
-                string userName = receivedUser.Identifier;
-                using (var scope = _serviceProvider.CreateScope())
-                {
-                    var _wsHelper = scope.ServiceProvider.GetRequiredService<WSHelper>();
-                    User user = await _wsHelper.GetUserById(userHandler.Id);
-                    User user2 = await _wsHelper.GetUserByNickname(userName);
-                    if (user2 != null)
-                    {
-                        foreach (WebSocketHandler handler in handlers)
-                        {
-                            if (handler.Id == user2.Id)
-                            {
-                                ShootSenderDto outMessage = new ShootSenderDto
-                                {
-                                    Message = "Tocado",
-                                    Position = receivedUser.Identifier2
-                                };
-                                string messageToSend = JsonSerializer.Serialize(outMessage, JsonSerializerOptions.Web);
-                                tasks.Add(handler.SendAsync(messageToSend));
-                            }
-                        }
-                    }
-                }
-            }
-
-            if (receivedUser.TypeMessage.Equals("Agua"))
-            {
-                string userName = receivedUser.Identifier;
-                using (var scope = _serviceProvider.CreateScope())
-                {
-                    var _wsHelper = scope.ServiceProvider.GetRequiredService<WSHelper>();
-                    User user = await _wsHelper.GetUserById(userHandler.Id);
-                    User user2 = await _wsHelper.GetUserByNickname(userName);
-                    if (user2 != null)
-                    {
-                        foreach (WebSocketHandler handler in handlers)
-                        {
-                            if (handler.Id == user2.Id)
-                            {
-                                ShootSenderDto outMessage = new ShootSenderDto
-                                {
-                                    Message = "Fallo",
-                                    Position = receivedUser.Identifier2
-                                };
-                                string messageToSend = JsonSerializer.Serialize(outMessage, JsonSerializerOptions.Web);
-                                tasks.Add(handler.SendAsync(messageToSend));
                             }
                         }
                     }
@@ -1241,6 +1334,29 @@ namespace Server.Services
 
                 if (youWin)
                 {
+                    using (var scope = _serviceProvider.CreateScope())
+                    {
+                        var _wsHelper = scope.ServiceProvider.GetRequiredService<WSHelper>();
+                        User user = await _wsHelper.GetUserById(userHandler.Id);
+
+                        foreach (var friend in user.friends)
+                        {
+                            foreach (WebSocketHandler handler in handlers)
+                            {
+                                if (handler.Id == friend.FriendId)
+                                {
+                                    DeleteDto outMessage3 = new DeleteDto
+                                    {
+                                        Message = "Tu amigo dejo de jugar",
+                                        NickName = user.NickName
+                                    };
+                                    string messageToSend2 = JsonSerializer.Serialize(outMessage3, JsonSerializerOptions.Web);
+                                    tasks.Add(handler.SendAsync(messageToSend2));
+                                }
+                            }
+                        }
+                    }
+                    
                     BotResponseDto outMessage2 = new BotResponseDto
                     {
                         Message = "Has ganado al bot",
@@ -1250,6 +1366,28 @@ namespace Server.Services
                     tasks.Add(userHandler.SendAsync(messageToSend));
                 } else if (botWin) 
                 {
+                    using (var scope = _serviceProvider.CreateScope())
+                    {
+                        var _wsHelper = scope.ServiceProvider.GetRequiredService<WSHelper>();
+                        User user = await _wsHelper.GetUserById(userHandler.Id);
+
+                        foreach (var friend in user.friends)
+                        {
+                            foreach (WebSocketHandler handler in handlers)
+                            {
+                                if (handler.Id == friend.FriendId)
+                                {
+                                    DeleteDto outMessage4 = new DeleteDto
+                                    {
+                                        Message = "Tu amigo dejo de jugar",
+                                        NickName = user.NickName
+                                    };
+                                    string messageToSend2 = JsonSerializer.Serialize(outMessage4, JsonSerializerOptions.Web);
+                                    tasks.Add(handler.SendAsync(messageToSend2));
+                                }
+                            }
+                        }
+                    }
                     BotResponseDto outMessage3 = new BotResponseDto
                     {
                         Message = "Te gano el bot",
