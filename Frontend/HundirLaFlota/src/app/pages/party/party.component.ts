@@ -438,6 +438,9 @@ export class PartyComponent implements AfterViewInit {
             }else if(hijos.length==3 && (Idsuelto[0]=="j" || Idsuelto[0]=="i")){
               alert("No puedes colocar el barco aqui no hay espacio suficiente")
               return
+            }else if(hijos.length==2 && Idsuelto[0]=="j" ){
+                alert("No puedes colocar el barco aqui no hay espacio suficiente")
+                return
             }else{
               const letra=Idsuelto[0]
             if(Idsuelto.length<3){
@@ -495,7 +498,13 @@ export class PartyComponent implements AfterViewInit {
           if(this.altura>54 && this.altura<=108){
             console.log("Pongo la posicion dos")
             console.log("Esta seria mi letra"+Idsuelto[0])
-            if(Idsuelto[0]=="a" || Idsuelto[0]=="j" || Idsuelto[0]=="i"){
+            if(hijos.length==4 && (Idsuelto[0]=="a" || Idsuelto[0]=="j" || Idsuelto[0]=="i")){
+              alert("No puedes colocar el barco aqui no hay espacio suficiente")
+              return
+            }else if(hijos.length==3 && (Idsuelto[0]=="a" || Idsuelto[0]=="j")){
+              alert("No puedes colocar el barco aqui no hay espacio suficiente")
+              return
+            }else if(hijos.length==2 && Idsuelto[0]=="a" ){
               alert("No puedes colocar el barco aqui no hay espacio suficiente")
               return
             }else{
@@ -712,7 +721,11 @@ export class PartyComponent implements AfterViewInit {
             }else if(hijos.length==3 && (numero=="10" || numero=="9")){
               alert("No puedes colocar el barco aqui no hay espacio suficiente")
               return
-            }else{
+            }else if(hijos.length==2 && numero=="10"){
+              alert("No puedes colocar el barco aqui no hay espacio suficiente")
+              return
+            }
+            else{
               this.barco = [];
             this.barco.push(Idsuelto)
             let numeroint=parseInt(numero)
@@ -771,6 +784,9 @@ export class PartyComponent implements AfterViewInit {
               alert("No puedes colocar el barco aqui no hay espacio suficiente")
               return
             }else if(hijos.length==3 && (numero=="1"||numero=="10")){
+              alert("No puedes colocar el barco aqui no hay espacio suficiente")
+              return
+            }else if(hijos.length==2 && numero=="1"){
               alert("No puedes colocar el barco aqui no hay espacio suficiente")
               return
             }else{

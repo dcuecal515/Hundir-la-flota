@@ -24,8 +24,8 @@ namespace Server.Services
         // Lista de WebSocketHandler (clase que gestiona cada WebSocket)
         private readonly List<WebSocketHandler> _handlers = new List<WebSocketHandler>();
         private readonly List<WebSocketHandler> _players = new List<WebSocketHandler>();
-        private readonly List<List<WebSocketHandler>> _partidas = new List<List<WebSocketHandler>>();
-        private readonly List<WebSocketHandler> _partidasbot = new List<WebSocketHandler>();
+        private readonly List<Partida> _partidas = new List<Partida>();
+        private readonly List<PartidaBot> _partidasbot = new List<PartidaBot>();
         // Semáforo para controlar el acceso a la lista de WebSocketHandler
         private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1);
         private readonly SemaphoreSlim _semaphoreplayers=new SemaphoreSlim(1);
@@ -38,6 +38,7 @@ namespace Server.Services
         private Dictionary<int, string[][]> _botShips = new Dictionary<int, string[][]>();
         // Disparos guardados por cada bot
         private Dictionary<int, string []> _botShoots = new Dictionary<int, string []>();
+        //Contador de tiempo de partida 
 
         public async Task HandleAsync(WebSocket webSocket, User user)
         {
@@ -68,8 +69,8 @@ namespace Server.Services
             List<Task> tasks = new List<Task>();
             // Guardamos una copia de los WebSocketHandler para evitar problemas de concurrencia
             WebSocketHandler[] handlers = _handlers.ToArray();
-            WebSocketHandler[] partidabot = _partidasbot.ToArray();
-            WebSocketHandler[][] partidas = _partidas.Select(partida => partida.ToArray()).ToArray();
+            PartidaBot[] partidabot = _partidasbot.ToArray();
+            Partida[] partidas = _partidas.ToArray();
             int totalHandlers = handlers.Length;
             int totalpartidabot = partidabot.Length;
             int totalpartidas = partidas.Length;
@@ -157,8 +158,8 @@ namespace Server.Services
             List<Task> tasks = new List<Task>();
             // Guardamos una copia de los WebSocketHandler para evitar problemas de concurrencia
             WebSocketHandler[] handlers = _handlers.ToArray();
-            WebSocketHandler[] partidabot = _partidasbot.ToArray();
-            WebSocketHandler[][] partidas = _partidas.Select(partida => partida.ToArray()).ToArray();
+            PartidaBot[] partidabot = _partidasbot.ToArray();
+            Partida[] partidas = _partidas.ToArray();
 
             /*string message = $"Se ha desconectado el usuario con id {disconnectedHandler.Id}. Ahora hay {handlers.Length} usuarios conectados";*/
             using (var scope = _serviceProvider.CreateScope())
@@ -507,6 +508,7 @@ namespace Server.Services
                             using (var scope = _serviceProvider.CreateScope())
                             {
                                 var _wsHelper = scope.ServiceProvider.GetRequiredService<WSHelper>();
+                                var _gameService = scope.ServiceProvider.GetRequiredService<GameService>();
 
                                 if (userHandler.Id != player.Id)
                                 {
@@ -567,14 +569,13 @@ namespace Server.Services
                                 }
 
                                 StartGameTimer(player.Id, player);
-                            }
-
-                            
+                                Game game = await _gameService.CreateGame(0);
+                                Partida nuevaPartida = new Partida(game.Id, players[0], players[1]);
+                                await _semaphoreplayerdisconnect.WaitAsync();
+                                _partidas.Add(nuevaPartida);
+                                _semaphoreplayerdisconnect.Release();
                         }
-                    await _semaphoreplayerdisconnect.WaitAsync();
-                    _partidas.Add(new List<WebSocketHandler> { players[0], players[1] });
-                    _semaphoreplayerdisconnect.Release();
-                    Console.WriteLine(_partidas.Count);
+                        }
                     _players.Clear();
                     }
 
@@ -647,11 +648,12 @@ namespace Server.Services
                             }
                         }
                     }
+                    PartidaBot nuevapartida = new PartidaBot(1, userHandler);
                     await _Semaphorepalyerbotdesconnect.WaitAsync();
-                    _partidasbot.Add(userHandler);
+                    _partidasbot.Add(nuevapartida);
                     _Semaphorepalyerbotdesconnect.Release();
-                    WebSocketHandler[][] partidas = _partidas.Select(partida => partida.ToArray()).ToArray();
-                    WebSocketHandler[] partidabot = _partidasbot.ToArray();
+                    Partida[] partidas = _partidas.ToArray();
+                    PartidaBot[] partidabot = _partidasbot.ToArray();
                     foreach (WebSocketHandler handler in handlers)
                     {
                         PlayersInGameMessage outMessage4 = new PlayersInGameMessage
@@ -844,6 +846,7 @@ namespace Server.Services
                 using (var scope = _serviceProvider.CreateScope())
                 {
                     var _wsHelper = scope.ServiceProvider.GetRequiredService<WSHelper>();
+                    var _gameService = scope.ServiceProvider.GetRequiredService<GameService>();
                     User user = await _wsHelper.GetUserById(userHandler.Id);
                     User user2 = await _wsHelper.GetUserByNickname(userName);
 
@@ -901,7 +904,7 @@ namespace Server.Services
                                 _jugadores.Add(userHandler);
                                 tasks.Add(handler.SendAsync(messageToSend));
                             }
-                            if(handler.Id == user.Id)
+                            if (handler.Id == user.Id)
                             {
                                 StartGameDto outMessage = new StartGameDto
                                 {
@@ -916,12 +919,14 @@ namespace Server.Services
                             StartGameTimer(handler.Id, handler);
                         }
                     }
+                    Game game = await _gameService.CreateGame(0);
+                    Partida nuevaPartida = new Partida(game.Id, _jugadores[0], _jugadores[1]);
+                    await _semaphoreplayerdisconnect.WaitAsync();
+                    _partidas.Add(nuevaPartida);
+                    _semaphoreplayerdisconnect.Release();
                 }
-                await _semaphoreplayerdisconnect.WaitAsync();
-                _partidas.Add(new List<WebSocketHandler> { _jugadores[0], _jugadores[1] });
-                _semaphoreplayerdisconnect.Release();
-                WebSocketHandler[][] partidas = _partidas.Select(partida => partida.ToArray()).ToArray();
-                WebSocketHandler[] partidabot = _partidasbot.ToArray();
+                Partida[] partidas = _partidas.ToArray();
+                PartidaBot[] partidabot = _partidasbot.ToArray();
                 foreach (WebSocketHandler handler in handlers)
                 {
                     PlayersInGameMessage outMessage3 = new PlayersInGameMessage
@@ -941,6 +946,7 @@ namespace Server.Services
                 using (var scope = _serviceProvider.CreateScope())
                 {
                     var _wsHelper = scope.ServiceProvider.GetRequiredService<WSHelper>();
+                    var _gameService = scope.ServiceProvider.GetRequiredService<GameService>();
                     User user = await _wsHelper.GetUserById(userHandler.Id);
                     User user2 = await _wsHelper.GetUserByNickname(userName);
                     StopGameTimer(user.Id);
@@ -994,6 +1000,15 @@ namespace Server.Services
                                 };
                                 string messageToSend = JsonSerializer.Serialize(outMessage, JsonSerializerOptions.Web);
                                 tasks.Add(handler.SendAsync(messageToSend));
+                                await _semaphoreplayerdisconnect.WaitAsync();
+                                int partidausuario= _partidas.FirstOrDefault(p => p.Player1.Id == userHandler.Id || p.Player2.Id == userHandler.Id).GameId;
+                                _semaphoreplayerdisconnect.Release();
+                                GameInfo gameInfo=new GameInfo();
+                                gameInfo.GameId = partidausuario;
+                                gameInfo.State = "Victoria";
+                                gameInfo.Score = 60;
+                                gameInfo.UserId = user.Id;
+                                await _gameService.createGameInfo(gameInfo);
                             }
                             if (handler.Id == user.Id)
                             {
@@ -1003,14 +1018,23 @@ namespace Server.Services
                                 };
                                 string messageToSend = JsonSerializer.Serialize(outMessage, JsonSerializerOptions.Web);
                                 tasks.Add(handler.SendAsync(messageToSend));
+                                await _semaphoreplayerdisconnect.WaitAsync();
+                                int partidausuario = _partidas.FirstOrDefault(p => p.Player1.Id == userHandler.Id || p.Player2.Id == userHandler.Id).GameId;
+                                _semaphoreplayerdisconnect.Release();
+                                GameInfo gameInfo = new GameInfo();
+                                gameInfo.GameId = partidausuario;
+                                gameInfo.State = "Derrota";
+                                gameInfo.Score = 0;
+                                gameInfo.UserId = user.Id;
+                                await _gameService.createGameInfo(gameInfo);
                             }
                         }
                         await _semaphoreplayerdisconnect.WaitAsync();
-                        var partida = _partidas.FirstOrDefault(p => p.Contains(userHandler));
+                        var partida = _partidas.FirstOrDefault(p => p.Player1.Id == userHandler.Id || p.Player2.Id == userHandler.Id);
                         _partidas.Remove(partida);
                         _semaphoreplayerdisconnect.Release();
-                        WebSocketHandler[][] partidas = _partidas.Select(partida => partida.ToArray()).ToArray();
-                        WebSocketHandler[] partidabot = _partidasbot.ToArray();
+                        Partida[] partidas = _partidas.ToArray();
+                        PartidaBot[] partidabot = _partidasbot.ToArray();
                         foreach (WebSocketHandler handler in handlers)
                         {
                             PlayersInGameMessage outMessage3 = new PlayersInGameMessage
@@ -1026,7 +1050,7 @@ namespace Server.Services
                     else
                     {
                         await _Semaphorepalyerbotdesconnect.WaitAsync();
-                        var partida = _partidasbot.FirstOrDefault(h => h == userHandler);
+                        var partida = _partidasbot.FirstOrDefault(h => h.Player1.Id == userHandler.Id);
                         _partidasbot.Remove(partida);
                         _Semaphorepalyerbotdesconnect.Release();
                         user.Status = "Conectado";
@@ -1047,8 +1071,8 @@ namespace Server.Services
                                 }
                             }
                         }
-                        WebSocketHandler[][] partidas = _partidas.Select(partida => partida.ToArray()).ToArray();
-                        WebSocketHandler[] partidabot = _partidasbot.ToArray();
+                        Partida[] partidas = _partidas.ToArray();
+                        PartidaBot[] partidabot = _partidasbot.ToArray();
                         foreach (WebSocketHandler handler in handlers)
                         {
                             PlayersInGameMessage outMessage4 = new PlayersInGameMessage
@@ -1175,11 +1199,11 @@ namespace Server.Services
                                 }
                             }
                             await _semaphoreplayerdisconnect.WaitAsync();
-                                var partida = _partidas.FirstOrDefault(p => p.Contains(userHandler));
+                                var partida = _partidas.FirstOrDefault(p => p.Player1.Id==userHandler.Id||p.Player2.Id==userHandler.Id);
                                 _partidas.Remove(partida);
                             _semaphoreplayerdisconnect.Release();
-                            WebSocketHandler[][] partidas = _partidas.Select(partida => partida.ToArray()).ToArray();
-                            WebSocketHandler[] partidabot = _partidasbot.ToArray();
+                            Partida[] partidas = _partidas.ToArray();
+                            PartidaBot[] partidabot = _partidasbot.ToArray();
                             foreach (WebSocketHandler handler in handlers)
                             {
                                 PlayersInGameMessage outMessage = new PlayersInGameMessage
@@ -1474,11 +1498,11 @@ namespace Server.Services
                     tasks.Add(userHandler.SendAsync(messageToSend));
 
                     await _Semaphorepalyerbotdesconnect.WaitAsync();
-                    var partida = _partidasbot.FirstOrDefault(h => h==userHandler);
+                    var partida = _partidasbot.FirstOrDefault(h => h.Player1.Id==userHandler.Id);
                     _partidasbot.Remove(partida);
                     _Semaphorepalyerbotdesconnect.Release();
-                    WebSocketHandler[][] partidas = _partidas.Select(partida => partida.ToArray()).ToArray();
-                    WebSocketHandler[] partidabot = _partidasbot.ToArray();
+                    Partida[] partidas = _partidas.ToArray();
+                    PartidaBot[] partidabot = _partidasbot.ToArray();
                     foreach (WebSocketHandler handler in handlers)
                     {
                         PlayersInGameMessage outMessage4 = new PlayersInGameMessage
@@ -1524,11 +1548,11 @@ namespace Server.Services
                     string messageToSend = JsonSerializer.Serialize(outMessage3, JsonSerializerOptions.Web);
                     tasks.Add(userHandler.SendAsync(messageToSend));
                     await _Semaphorepalyerbotdesconnect.WaitAsync();
-                    var partida = _partidasbot.FirstOrDefault(h => h == userHandler);
+                    var partida = _partidasbot.FirstOrDefault(h => h.Player1.Id == userHandler.Id);
                     _partidasbot.Remove(partida);
                     _Semaphorepalyerbotdesconnect.Release();
-                    WebSocketHandler[][] partidas = _partidas.Select(partida => partida.ToArray()).ToArray();
-                    WebSocketHandler[] partidabot = _partidasbot.ToArray();
+                    Partida[] partidas = _partidas.ToArray();
+                    PartidaBot[] partidabot = _partidasbot.ToArray();
                     foreach (WebSocketHandler handler in handlers)
                     {
                         PlayersInGameMessage outMessage5 = new PlayersInGameMessage
