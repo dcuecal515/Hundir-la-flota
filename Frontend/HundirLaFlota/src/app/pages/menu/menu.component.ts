@@ -173,6 +173,11 @@ export class MenuComponent {
           }
         });
       }
+      if(message.message=="Jugadores jugando"){
+        this.playingUsers=message.quantityplayer
+        this.dataService.playersPlaying=message.quantityplayer
+        this.games=message.quantitygame
+        this.dataService.games=message.quantitygame
       if(message.message=="Tu amigo se cambio el nombre"){
         this.friendList.forEach(friend => {
           if(friend.nickName==message.oldNickName){
