@@ -20,7 +20,7 @@
         <!--<input type="file" accept="image/png, image/jpeg, image/jpg" (change)="onFileSelected($event)">
         <button (click)="changeImage()">Cambiar imagen</button>
         <button (click)="takeOffImage()">Quitar imagen</button>-->
-        <p>Cambiar contraseña: </p><input type="text" id="password"><input type="text" id="repeat-password"><button>Cambiar contraseña</button>
+        <p>Cambiar contraseña: </p><input type="password" id="password"><input type="password" id="repeat-password"><button (click)="changePassword()">Cambiar contraseña</button>
         @if(user.gamesPlayed.length != 0){
             @for(game of user.gamesPlayed; track $index){
                 <p>{{game.state}}</p>

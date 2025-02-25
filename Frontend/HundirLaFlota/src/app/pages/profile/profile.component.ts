@@ -198,7 +198,34 @@ export class ProfileComponent {
 
   takeOffImage(){
     // imagen por defecto
-    
+
+  }
+
+  changePassword(){
+    const passwordInput = document.getElementById("password") as HTMLInputElement
+    const repeatPasswordInput = document.getElementById("repeat-password") as HTMLInputElement
+    const password = passwordInput.value
+    const repeatPassword = repeatPasswordInput.value
+    if(password != "" && repeatPassword != ""){
+      if(password==repeatPassword){
+        
+      }else{
+        Swal.fire({
+          title: 'Las contraseñas no son iguales',
+          icon: 'error',
+          timer: 1000, 
+          showConfirmButton: false
+        });
+      }
+    }else{
+      Swal.fire({
+        title: 'No dejes los campos vacios',
+        icon: 'error',
+        timer: 1000, 
+        showConfirmButton: false
+      });
+    }
+
   }
 
 }
