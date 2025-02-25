@@ -56,5 +56,15 @@ namespace Server
         {
             await _friendService.DeleteFrienshipByUsers(user1,user2);
         }
+
+        public async Task<User> GetIfExistUserByNickName(string nickName)
+        {
+            return await _unitOfWork.UserRepository.GetIfExistUserByNickName(nickName);
+        }
+
+        public async Task<User> GetIfExistUserByEmail(string email)
+        {
+            return await _unitOfWork.UserRepository.GetIfExistUserByEmail(email);
+        }
     }
 }

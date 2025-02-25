@@ -27,10 +27,12 @@
                 </div>
             }
         </div>
-        <div class="user-information">
-            <img [src]="url" alt="mi fotito wuapa" class="avatar">
-            <p class="header-name">{{decoded.nickName}}</p>
-        </div>
+        @if(user != null){
+            <div class="user-information" (click)="goToProfile(decoded.id)">
+                <img [src]="user.avatar" alt="mi fotito wuapa" class="avatar">
+                <p class="header-name">{{user.nickName}}</p>
+            </div>
+        }
         
     </div>
     
@@ -49,7 +51,7 @@
                                 <div class="friend-data">
                                     <img [src]="friend.avatar" alt="" class="avatar">
                                     <p class="friend-data-nickname">{{friend.nickName}}</p>
-                                    <button>Perfil</button>
+                                    <button (click)="goToProfile(friend.id)">Perfil</button>
                                     <button (click)="deleteUser(friend.nickName)"><i class="fa-solid fa-trash"></i></button>
                                 </div>
                             }
@@ -62,7 +64,7 @@
                                 <div class="friend-data">
                                     <img [src]="friend.avatar" alt="" class="avatar">
                                     <p class="friend-data-nickname">{{friend.nickName}}</p>
-                                    <button>Perfil</button>
+                                    <button (click)="goToProfile(friend.id)">Perfil</button>
                                     <button (click)="deleteUser(friend.nickName)"><i class="fa-solid fa-trash"></i></button>
                                 </div>
                             }
@@ -75,7 +77,7 @@
                                 <div class="friend-data">
                                     <img [src]="friend.avatar" alt="" class="avatar">
                                     <p class="friend-data-nickname">{{friend.nickName}}</p>
-                                    <button>Perfil</button>
+                                    <button (click)="goToProfile(friend.id)">Perfil</button>
                                     <button (click)="deleteUser(friend.nickName)"><i class="fa-solid fa-trash"></i></button>
                                 </div>
                             }

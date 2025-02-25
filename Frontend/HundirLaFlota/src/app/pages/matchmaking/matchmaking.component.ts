@@ -74,7 +74,22 @@ export class MatchmakingComponent {
               friend.status="Conectado"
             }
           });
-          this.conectedUsers=message.quantity
+          this.dataService.players=message.quantity
+          this.dataService.playersPlaying=message.quantityplayer
+          this.dataService.games=message.quantitygame
+        }
+        if(message.message=="usuarios conectados"){
+          console.log("La cantidad de usuarios que ahi ahora conectados son: "+message.quantity)
+          this.dataService.players=message.quantity
+          this.dataService.playersPlaying=message.quantityplayer
+          this.dataService.games=message.quantitygame
+        }
+        if(message.message=="usuarios desconectados"){
+          console.log("HOLAAAA")
+          console.log("Se ha desconectado un usuario ahora quedan:"+message.quantity)
+          this.dataService.players=message.quantity
+          this.dataService.playersPlaying=message.quantityplayer
+          this.dataService.games=message.quantitygame
         }
         if(message.message=="amigo desconectado"){
           console.log("Ahora tu amigo se ha desconectado:"+message.friendId)
@@ -83,7 +98,7 @@ export class MatchmakingComponent {
               friend.status="Desconectado"
             }
           });
-          this.conectedUsers=message.quantity
+          this.dataService.players=message.quantity
         }
         if(message.message=="Has recibido una solicitud de partida"){
           console.log("Solicitud de partida de "+message.nickName)
@@ -195,7 +210,13 @@ export class MatchmakingComponent {
           console.log(jsonData)
           this.webSocketService.sendRxjs(jsonData)
         }
-
+        if(message.message=="Tu amigo se cambio el nombre"){
+          this.friendList.forEach(friend => {
+            if(friend.nickName==message.oldNickName){
+              friend.nickName=message.newNickName
+            }
+          });
+        }
         if(message.message=="Partida Encontrada"){
           this.router.navigateByUrl("game");
         }
