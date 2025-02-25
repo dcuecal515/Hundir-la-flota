@@ -52,6 +52,30 @@ export class PartyComponent implements AfterViewInit {
 
   ngOnInit(): void {
     this.messageReceived$ = this.webSocketService.messageReceived.subscribe(async message => {
+      if(message.message=="amigo conectado"){
+        console.log("HOLAAAA")
+        console.log("Ahora tu amigo se ha conectado:"+message.friendId)
+        this.dataService.players=message.quantity
+        this.dataService.playersPlaying=message.quantityplayer
+        this.dataService.games=message.quantitygame
+      }
+      if(message.message=="usuarios conectados"){
+        console.log("La cantidad de usuarios que ahi ahora conectados son: "+message.quantity)
+        this.dataService.players=message.quantity
+        this.dataService.playersPlaying=message.quantityplayer
+        this.dataService.games=message.quantitygame
+      }
+      if(message.message=="usuarios desconectados"){
+        console.log("HOLAAAA")
+        console.log("Se ha desconectado un usuario ahora quedan:"+message.quantity)
+        this.dataService.players=message.quantity
+        this.dataService.playersPlaying=message.quantityplayer
+        this.dataService.games=message.quantitygame
+      }
+      if(message.message=="amigo desconectado"){
+        console.log("Ahora tu amigo se ha desconectado:"+message.friendId)
+        this.dataService.players=message.quantity
+      }
       if(message.message == "Datos iniciales"){
         console.log("Te enfrentas a "+message.nickName)
         this.opponentName = message.nickName

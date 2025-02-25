@@ -1,0 +1,32 @@
+<p>profile works!</p>
+@if(user!=null){
+    @if(!isMyProfile)
+    { <!-- Perfil de otro usuario -->
+        <p>Apodo: {{user.nickName}}</p>
+        <p>Email: {{user.email}}</p>
+        <p>Avatar: <img [src]="user.avatar"></p>
+        @if(user.gamesPlayed.length != 0){
+            @for(game of user.gamesPlayed; track $index){
+                <p>{{game.state}}</p>
+                <p>{{game.opponentId}}</p>
+            }
+        }
+    }
+    @else
+    { <!-- Mi perfil -->
+        <p>Apodo: {{user.nickName}}</p><input type="text" id="nickName"><button (click)="changeNickName()">Cambiar Apodo</button>
+        <p>Email: {{user.email}}</p><input type="text" id="email"><button (click)="changeEmail()">Cambiar email</button>
+        <p>Avatar: <img [src]="user.avatar"></p><button (click)="changeOrTakeOffImage()">Cambiar o quitar avatar</button>
+        <!--<input type="file" accept="image/png, image/jpeg, image/jpg" (change)="onFileSelected($event)">
+        <button (click)="changeImage()">Cambiar imagen</button>
+        <button (click)="takeOffImage()">Quitar imagen</button>-->
+        <p>Cambiar contraseña: </p><input type="password" id="password"><input type="password" id="repeat-password"><button (click)="changePassword()">Cambiar contraseña</button>
+        @if(user.gamesPlayed.length != 0){
+            @for(game of user.gamesPlayed; track $index){
+                <p>{{game.state}}</p>
+                <p>{{game.opponentId}}</p>
+            }
+        }
+    }
+}
+

@@ -15,6 +15,8 @@ import { RequestService } from '../../services/request.service';
 import { RouterLink } from '@angular/router';
 import Swal from 'sweetalert2';
 import { DataService } from '../../services/data.service';
+import { AuthserviceService } from '../../services/authservice.service';
+import { UserReceived } from '../../models/UserReceived';
 
 
 
@@ -26,7 +28,7 @@ import { DataService } from '../../services/data.service';
   styleUrl: './menu.component.css'
 })
 export class MenuComponent {
-  constructor(private apiService:ApiService,private router:Router,private webSocketService:WebsocketService,private searchServiceService:SearchserviceService, private requestService:RequestService,private dataService:DataService){
+  constructor(private apiService:ApiService,private router:Router,private webSocketService:WebsocketService,private searchServiceService:SearchserviceService, private requestService:RequestService,private dataService:DataService, private authService:AuthserviceService){
     if(localStorage.getItem("token")){
       this.decoded=jwtDecode(localStorage.getItem("token"));
     }else if(sessionStorage.getItem("token")){
@@ -43,6 +45,7 @@ export class MenuComponent {
     this.playingUsers=dataService.playersPlaying
     this.games=dataService.games
   }
+  user:UserReceived
   type:'rxjs'
   serverResponse: string = '';
   isConnected: boolean = false;
@@ -60,7 +63,8 @@ export class MenuComponent {
   games:number=0
   isOpen:boolean = false
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
+    this.user = await this.authService.getUserById(this.decoded.id)
     this.messageReceived$ = this.webSocketService.messageReceived.subscribe(async message => {
       if(message.message=="Has recibido una solicitud de amistad"){
         console.log("amistad")
@@ -174,6 +178,12 @@ export class MenuComponent {
         this.dataService.playersPlaying=message.quantityplayer
         this.games=message.quantitygame
         this.dataService.games=message.quantitygame
+      if(message.message=="Tu amigo se cambio el nombre"){
+        this.friendList.forEach(friend => {
+          if(friend.nickName==message.oldNickName){
+            friend.nickName=message.newNickName
+          }
+        });
       }
       this.serverResponse = message
     });
@@ -193,6 +203,12 @@ export class MenuComponent {
     this.webSocketService.disconnectRxjs();
     this.router.navigateByUrl("login");
   }
+
+  goToProfile(id:number){
+    const route: string = `profile/${id}`;
+    this.router.navigateByUrl(route);
+  }
+
   search(){
     const input = document.getElementById("search") as HTMLInputElement
     this.searchQuery = input.value
@@ -320,7 +336,7 @@ export class MenuComponent {
       }
   }
 
-  openAlert(){
+  openAlert() {
     Swal.fire({
       title: 'Ingresa el nombre del usuario',
       input: 'text',
@@ -330,34 +346,46 @@ export class MenuComponent {
       cancelButtonText: 'Cancelar',
     }).then(async (result) => {
       if (result.isConfirmed && result.value) {
-        this.name = result.value
-        await this.searchUser()
+        this.name = result.value;
+        await this.searchUser();
+        
         if (!this.userList || this.userList.length == 0) {
           Swal.fire('No existe este usuario');
           return;
         }
-      
+  
         let userHtml = '<div>';
         this.userList.forEach((user, index) => {
           userHtml += `<p>${user.nickName} `;
           if (user.message == 'no') {
             userHtml += `<button id="requestUserBtn${index}" class="swal2-confirm swal2-styled">Enviar solicitud</button>`;
           }
-          userHtml += '<button class="swal2-confirm swal2-styled">Perfil</button></p>';
+          userHtml += `<button id="profileBtn${index}" class="swal2-confirm swal2-styled">Perfil</button></p>`;
         });
         userHtml += '</div>';
-      
+  
         Swal.fire({
           title: 'Lista de Usuarios',
           html: userHtml,
           showCloseButton: true,
           showConfirmButton: false,
           didOpen: () => {
-            // Asignar evento click manualmente a cada botón
             this.userList.forEach((user, index) => {
-              const button = document.getElementById(`requestUserBtn${index}`);
-              if (button) {
-                button.addEventListener('click', () => {this.requestUser(user.nickName); Swal.close()});
+              const requestBtn = document.getElementById(`requestUserBtn${index}`);
+              const profileBtn = document.getElementById(`profileBtn${index}`);
+  
+              if (requestBtn) {
+                requestBtn.addEventListener('click', () => {
+                  this.requestUser(user.nickName);
+                  Swal.close();
+                });
+              }
+  
+              if (profileBtn) {
+                profileBtn.addEventListener('click', () => {
+                  this.goToProfile(user.id);
+                  Swal.close();
+                });
               }
             });
           }

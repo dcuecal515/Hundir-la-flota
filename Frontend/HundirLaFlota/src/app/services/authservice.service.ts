@@ -4,6 +4,8 @@ import { SignUp } from '../models/SignUp';
 import { Token } from '../models/token';
 import { Result } from '../models/result';
 import { ApiService } from './api.service';
+import { UserReceived } from '../models/UserReceived';
+import { environment } from '../../environments/environment.development';
 
 
 @Injectable({
@@ -29,6 +31,13 @@ export class AuthserviceService {
       alert("Hubo un problema")
     }
     return result
+  }
+
+  async getUserById(id:number):Promise<UserReceived>{
+    const path = "User/" + id
+    const result = await this.api.get<UserReceived>(path,{},'json')
+    result.data.avatar = environment.images+result.data.avatar;
+    return result.data
   }
 
   createForm(signup:SignUp,avatar:File) : FormData{

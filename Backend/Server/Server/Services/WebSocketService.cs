@@ -9,6 +9,7 @@ using System.Numerics;
 using System.Timers;
 using Timer = System.Timers.Timer;
 using System;
+using System.Text.RegularExpressions;
 
 namespace Server.Services
 {
@@ -233,12 +234,14 @@ namespace Server.Services
 
             /*string messageToMe = $"Tú: {message}";
             string messageToOthers = $"Usuario {userHandler.Id}: {message}";*/
-            //Console.WriteLine(message);
+            Console.WriteLine(message);
             message = message.Substring(1, message.Length - 2); //Arreglos por recibir mal
+            message = message.Replace("@", "&_&_&_&"); // Para los verdaderos emails
             message = message.Replace("\\\\", "@"); // Para los arrays de barcos
             message = message.Replace("\\", "");
             message = message.Replace("@", "\\");
-            //Console.WriteLine(message);
+            message = message.Replace("&_&_&_&", "@");
+            Console.WriteLine(message);
 
             // ReceivedUserDto ejemplo = new ReceivedUserDto { TypeMessage = "Mis barcos contra bot", Identifier = "[[\"a1\", \"a2\"], [\"b1\", \"b2\", \"b3\"]]" };
 
@@ -1578,6 +1581,96 @@ namespace Server.Services
                     tasks.Add(userHandler.SendAsync(messageToSend));
                     StartGameTimer(userHandler.Id, userHandler);
                 }
+            }
+
+            if(receivedUser.TypeMessage.Equals("Solicitud cambio de nombre"))
+            {
+                string newNickName = receivedUser.Identifier;
+                using(var scope = _serviceProvider.CreateScope())
+                {
+                    var _wsHelper = scope.ServiceProvider.GetRequiredService<WSHelper>();
+                    User existingUser = await _wsHelper.GetIfExistUserByNickName(newNickName);
+                    User user = await _wsHelper.GetUserById(userHandler.Id);
+                    if (existingUser == null && !newNickName.Contains("@")) {
+                        string oldNickName = user.NickName;
+                        user.NickName = newNickName;
+                        await _wsHelper.UpdateUserAsync(user);
+                        DeleteDto outMessage = new DeleteDto
+                        {
+                            Message = "Cambiado el nombre con exito",
+                            NickName = newNickName
+                        };
+                        string messageToSend = JsonSerializer.Serialize(outMessage, JsonSerializerOptions.Web);
+                        tasks.Add(userHandler.SendAsync(messageToSend));
+                        foreach (var friend in user.friends)
+                        {
+                            foreach (var handler in handlers)
+                            {
+                                if (handler.Id == friend.FriendId)
+                                {
+                                    InfoToFriendsDto outMessage2 = new InfoToFriendsDto
+                                    {
+                                        Message="Tu amigo se cambio el nombre",
+                                        OldNickName=oldNickName,
+                                        NewNickName=newNickName
+                                    };
+                                    string messageToSend2 = JsonSerializer.Serialize(outMessage2, JsonSerializerOptions.Web);
+                                    tasks.Add(handler.SendAsync(messageToSend2));
+                                }
+                            }
+                        }
+                    } else
+                    {
+                        WebsocketMessageDto outMessage = new WebsocketMessageDto
+                        {
+                            Message = "No te puedes poner ese nombre"
+                        };
+                        string messageToSend = JsonSerializer.Serialize(outMessage, JsonSerializerOptions.Web);
+                        tasks.Add(userHandler.SendAsync(messageToSend));
+                    }
+                }
+            }
+
+            if(receivedUser.TypeMessage.Equals("Solicitud cambio de email"))
+            {
+                string newEmail = receivedUser.Identifier;
+                using (var scope = _serviceProvider.CreateScope())
+                {
+                    var _wsHelper = scope.ServiceProvider.GetRequiredService<WSHelper>();
+                    User existingUser = await _wsHelper.GetIfExistUserByEmail(newEmail);
+                    User user = await _wsHelper.GetUserById(userHandler.Id);
+                    bool isEmail = Regex.IsMatch(newEmail, "^[a-z0-9.]+@[a-z0-9]+\\.[a-z]+(\\.[a-z]+)?$", RegexOptions.IgnoreCase);
+                    if (existingUser == null && isEmail) {
+                        string oldEmail = user.Email;
+                        user.Email = newEmail;
+                        await _wsHelper.UpdateUserAsync(user);
+                        DeleteDto outMessage = new DeleteDto
+                        {
+                            Message = "Cambiado el email con exito",
+                            NickName = newEmail
+                        };
+                        string messageToSend = JsonSerializer.Serialize(outMessage, JsonSerializerOptions.Web);
+                        tasks.Add(userHandler.SendAsync(messageToSend));
+                    } else
+                    {
+                        WebsocketMessageDto outMessage = new WebsocketMessageDto
+                        {
+                            Message = "No te puedes poner ese email"
+                        };
+                        string messageToSend = JsonSerializer.Serialize(outMessage, JsonSerializerOptions.Web);
+                        tasks.Add(userHandler.SendAsync(messageToSend));
+                    }
+                }
+            }
+
+            if (receivedUser.TypeMessage.Equals("Cambio de avatar"))
+            {
+
+            }
+
+            if (receivedUser.TypeMessage.Equals("Cambio de avatar por defecto"))
+            {
+
             }
 
             await Task.WhenAll(tasks);
