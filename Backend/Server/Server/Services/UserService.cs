@@ -116,6 +116,9 @@ namespace Server.Services
         {
             return await _unitOfWork.UserRepository.GetUserByIdAsync(id);
         }
-
+        public async Task<FullUserDataDto> GetFullUserById(int id)
+        {
+            return await _unitOfWork.UserRepository.GetFullUserById(id);
+        }
     }
 }

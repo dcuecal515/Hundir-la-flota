@@ -1,7 +1,8 @@
 import { Game } from "./Game"
 
-export interface UserReceived{
+export interface FullUserReceived{
     nickName:string
     email:string
     avatar:string
+    games:Game[]
 }

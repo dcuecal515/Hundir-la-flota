@@ -66,6 +66,15 @@ namespace Server.Controllers
 
             // Pilla el usuario de la base de datos
             return await _userService.GetUserFromDbByStringId(idString);
+
+        }
+
+        [Authorize]
+        [HttpGet("full/{id}")]
+        public async Task<FullUserDataDto> GetFullUserById(int id)
+        {
+            FullUserDataDto fullUserDataDto = await _userService.GetFullUserById(id);
+            return fullUserDataDto;
         }
     }
 }

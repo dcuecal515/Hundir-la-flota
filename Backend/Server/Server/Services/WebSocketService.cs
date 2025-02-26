@@ -39,7 +39,8 @@ namespace Server.Services
         private Dictionary<int, string[][]> _botShips = new Dictionary<int, string[][]>();
         // Disparos guardados por cada bot
         private Dictionary<int, string []> _botShoots = new Dictionary<int, string []>();
-        //Contador de tiempo de partida 
+        //Contadores de tiempo de partida 
+        private Dictionary<int, DateTime> _startedTime = new Dictionary<int, DateTime>();
 
         public async Task HandleAsync(WebSocket webSocket, User user)
         {
@@ -234,14 +235,14 @@ namespace Server.Services
 
             /*string messageToMe = $"Tú: {message}";
             string messageToOthers = $"Usuario {userHandler.Id}: {message}";*/
-            Console.WriteLine(message);
+            // Console.WriteLine(message);
             message = message.Substring(1, message.Length - 2); //Arreglos por recibir mal
             message = message.Replace("@", "&_&_&_&"); // Para los verdaderos emails
             message = message.Replace("\\\\", "@"); // Para los arrays de barcos
             message = message.Replace("\\", "");
             message = message.Replace("@", "\\");
             message = message.Replace("&_&_&_&", "@");
-            Console.WriteLine(message);
+            // Console.WriteLine(message);
 
             // ReceivedUserDto ejemplo = new ReceivedUserDto { TypeMessage = "Mis barcos contra bot", Identifier = "[[\"a1\", \"a2\"], [\"b1\", \"b2\", \"b3\"]]" };
 
@@ -632,6 +633,7 @@ namespace Server.Services
                 using (var scope = _serviceProvider.CreateScope())
                 {
                     var _wsHelper = scope.ServiceProvider.GetRequiredService<WSHelper>();
+                    var _gameService = scope.ServiceProvider.GetRequiredService<GameService>();
                     User user = await _wsHelper.GetUserById(userHandler.Id);
                     user.Status = "Jugando";
                     await _wsHelper.UpdateUserAsync(user);
@@ -651,9 +653,11 @@ namespace Server.Services
                             }
                         }
                     }
-                    PartidaBot nuevapartida = new PartidaBot(1, userHandler);
+                    Game game = await _gameService.CreateGame(0);
+                    PartidaBot nuevapartida = new PartidaBot(game.Id, userHandler);
                     await _Semaphorepalyerbotdesconnect.WaitAsync();
                     _partidasbot.Add(nuevapartida);
+                    _startedTime[game.Id] = DateTime.Now;
                     _Semaphorepalyerbotdesconnect.Release();
                     Partida[] partidas = _partidas.ToArray();
                     PartidaBot[] partidabot = _partidasbot.ToArray();
@@ -926,6 +930,7 @@ namespace Server.Services
                     Partida nuevaPartida = new Partida(game.Id, _jugadores[0], _jugadores[1]);
                     await _semaphoreplayerdisconnect.WaitAsync();
                     _partidas.Add(nuevaPartida);
+                    _startedTime[game.Id] = DateTime.Now;
                     _semaphoreplayerdisconnect.Release();
                 }
                 Partida[] partidas = _partidas.ToArray();
@@ -992,6 +997,33 @@ namespace Server.Services
                             }
                         }
                         StopGameTimer(user2.Id);
+                        int partidausuario = _partidas.FirstOrDefault(p => p.Player1.Id == user.Id || p.Player2.Id == user.Id).GameId;
+                        TimeSpan timeSpan = DateTime.Now - _startedTime [partidausuario];
+                        double timeFinished =  timeSpan.TotalSeconds;
+                        Game game = await _gameService.GetGameById (partidausuario);
+                        game.Time = timeFinished;
+                        await _gameService.UpdateGameAsync(game);
+                        _startedTime.Remove(partidausuario);
+
+                        // Usuario ganador
+                        GameInfo gameInfo = new GameInfo();
+                        gameInfo.GameId = partidausuario;
+                        gameInfo.State = "Victoria";
+                        gameInfo.Score = 60;
+                        gameInfo.UserId = user2.Id;
+                        await _gameService.createGameInfo(gameInfo);
+                        user2.gameInfos.Add(gameInfo);
+                        await _wsHelper.UpdateUserAsync(user2);
+
+                        // Usuario perdedor
+                        GameInfo gameInfo2 = new GameInfo();
+                        gameInfo2.GameId = partidausuario;
+                        gameInfo2.State = "Derrota";
+                        gameInfo2.Score = 0;
+                        gameInfo2.UserId = user.Id;
+                        await _gameService.createGameInfo(gameInfo2);
+                        user.gameInfos.Add(gameInfo2);
+                        await _wsHelper.UpdateUserAsync(user);
 
                         foreach (WebSocketHandler handler in handlers)
                         {
@@ -1004,14 +1036,6 @@ namespace Server.Services
                                 string messageToSend = JsonSerializer.Serialize(outMessage, JsonSerializerOptions.Web);
                                 tasks.Add(handler.SendAsync(messageToSend));
                                 await _semaphoreplayerdisconnect.WaitAsync();
-                                int partidausuario= _partidas.FirstOrDefault(p => p.Player1.Id == userHandler.Id || p.Player2.Id == userHandler.Id).GameId;
-                                _semaphoreplayerdisconnect.Release();
-                                GameInfo gameInfo=new GameInfo();
-                                gameInfo.GameId = partidausuario;
-                                gameInfo.State = "Victoria";
-                                gameInfo.Score = 60;
-                                gameInfo.UserId = user.Id;
-                                await _gameService.createGameInfo(gameInfo);
                             }
                             if (handler.Id == user.Id)
                             {
@@ -1021,15 +1045,6 @@ namespace Server.Services
                                 };
                                 string messageToSend = JsonSerializer.Serialize(outMessage, JsonSerializerOptions.Web);
                                 tasks.Add(handler.SendAsync(messageToSend));
-                                await _semaphoreplayerdisconnect.WaitAsync();
-                                int partidausuario = _partidas.FirstOrDefault(p => p.Player1.Id == userHandler.Id || p.Player2.Id == userHandler.Id).GameId;
-                                _semaphoreplayerdisconnect.Release();
-                                GameInfo gameInfo = new GameInfo();
-                                gameInfo.GameId = partidausuario;
-                                gameInfo.State = "Derrota";
-                                gameInfo.Score = 0;
-                                gameInfo.UserId = user.Id;
-                                await _gameService.createGameInfo(gameInfo);
                             }
                         }
                         await _semaphoreplayerdisconnect.WaitAsync();
@@ -1052,6 +1067,25 @@ namespace Server.Services
                     }
                     else
                     {
+                        StopGameTimer(user.Id);
+                        int partidausuario = _partidasbot.FirstOrDefault(p => p.Player1.Id == user.Id).GameId;
+                        TimeSpan timeSpan = DateTime.Now - _startedTime [partidausuario];
+                        double timeFinished = timeSpan.TotalSeconds;
+                        Game game = await _gameService.GetGameById(partidausuario);
+                        game.Time = timeFinished;
+                        await _gameService.UpdateGameAsync(game);
+                        _startedTime.Remove(partidausuario);
+
+                        // Usuario perdedor
+                        GameInfo gameInfo = new GameInfo();
+                        gameInfo.GameId = partidausuario;
+                        gameInfo.State = "Derrota";
+                        gameInfo.Score = 0;
+                        gameInfo.UserId = user.Id;
+                        await _gameService.createGameInfo(gameInfo);
+                        user.gameInfos.Add(gameInfo);
+                        await _wsHelper.UpdateUserAsync(user);
+
                         await _Semaphorepalyerbotdesconnect.WaitAsync();
                         var partida = _partidasbot.FirstOrDefault(h => h.Player1.Id == userHandler.Id);
                         _partidasbot.Remove(partida);
@@ -1099,6 +1133,7 @@ namespace Server.Services
                 using (var scope = _serviceProvider.CreateScope())
                 {
                     var _wsHelper = scope.ServiceProvider.GetRequiredService<WSHelper>();
+                    var _gameService = scope.ServiceProvider.GetRequiredService<GameService>();
                     User user = await _wsHelper.GetUserById(userHandler.Id);
                     User user2 = await _wsHelper.GetUserByNickname(userName);
                     if (user2 != null)
@@ -1201,10 +1236,45 @@ namespace Server.Services
                                     tasks.Add(handler.SendAsync(messageToSend));
                                 }
                             }
+                            int partidausuario = _partidas.FirstOrDefault(p => p.Player1.Id == user.Id || p.Player2.Id == user.Id).GameId;
+                            TimeSpan timeSpan = DateTime.Now - _startedTime [partidausuario];
+                            double timeFinished = timeSpan.TotalSeconds;
+                            Game game = await _gameService.GetGameById(partidausuario);
+                            game.Time = timeFinished;
+                            await _gameService.UpdateGameAsync(game);
+                            _startedTime.Remove(partidausuario);
+
+                            // Usuario ganador
+                            GameInfo gameInfo = new GameInfo();
+                            gameInfo.GameId = partidausuario;
+                            gameInfo.State = "Victoria";
+                            gameInfo.Score = 60;
+                            gameInfo.UserId = user.Id;
+                            await _gameService.createGameInfo(gameInfo);
+                            user.gameInfos.Add(gameInfo);
+                            await _wsHelper.UpdateUserAsync(user);
+
+                            // Usuario perdedor
+                            GameInfo gameInfo2 = new GameInfo();
+                            gameInfo2.GameId = partidausuario;
+                            gameInfo2.State = "Derrota";
+                            int cont = 0;
+                            foreach (var ship in _ships [user.Id])
+                            {
+                                cont += ship.Length;
+                            }
+                            int score = 60 - (cont * 5);
+                            gameInfo2.Score = score;
+                            gameInfo2.UserId = user2.Id;
+                            await _gameService.createGameInfo(gameInfo2);
+                            user2.gameInfos.Add(gameInfo2);
+                            await _wsHelper.UpdateUserAsync(user2);
+
                             await _semaphoreplayerdisconnect.WaitAsync();
                                 var partida = _partidas.FirstOrDefault(p => p.Player1.Id==userHandler.Id||p.Player2.Id==userHandler.Id);
                                 _partidas.Remove(partida);
                             _semaphoreplayerdisconnect.Release();
+
                             Partida[] partidas = _partidas.ToArray();
                             PartidaBot[] partidabot = _partidasbot.ToArray();
                             foreach (WebSocketHandler handler in handlers)
@@ -1469,10 +1539,30 @@ namespace Server.Services
 
                 if (youWin)
                 {
+                    StopGameTimer(userHandler.Id);
+                    
                     using (var scope = _serviceProvider.CreateScope())
                     {
                         var _wsHelper = scope.ServiceProvider.GetRequiredService<WSHelper>();
+                        var _gameService = scope.ServiceProvider.GetRequiredService<GameService>();
                         User user = await _wsHelper.GetUserById(userHandler.Id);
+
+                        int partidausuario = _partidasbot.FirstOrDefault(p => p.Player1.Id == user.Id).GameId;
+                        TimeSpan timeSpan = DateTime.Now - _startedTime [partidausuario];
+                        double timeFinished = timeSpan.TotalSeconds;
+                        Game game = await _gameService.GetGameById(partidausuario);
+                        game.Time = timeFinished;
+                        await _gameService.UpdateGameAsync(game);
+                        _startedTime.Remove(partidausuario);
+
+                        GameInfo gameInfo = new GameInfo();
+                        gameInfo.GameId = partidausuario;
+                        gameInfo.State = "Victoria";
+                        gameInfo.Score = 60;
+                        gameInfo.UserId = user.Id;
+                        await _gameService.createGameInfo(gameInfo);
+                        user.gameInfos.Add(gameInfo);
+                        await _wsHelper.UpdateUserAsync(user);
 
                         foreach (var friend in user.friends)
                         {
@@ -1519,10 +1609,35 @@ namespace Server.Services
                     }
                 } else if (botWin) 
                 {
+                    StopGameTimer(userHandler.Id);
                     using (var scope = _serviceProvider.CreateScope())
                     {
                         var _wsHelper = scope.ServiceProvider.GetRequiredService<WSHelper>();
+                        var _gameService = scope.ServiceProvider.GetRequiredService<GameService>();
                         User user = await _wsHelper.GetUserById(userHandler.Id);
+
+                        int partidausuario = _partidas.FirstOrDefault(p => p.Player1.Id == user.Id || p.Player2.Id == user.Id).GameId;
+                        TimeSpan timeSpan = DateTime.Now - _startedTime [partidausuario];
+                        double timeFinished = timeSpan.TotalSeconds;
+                        Game game = await _gameService.GetGameById(partidausuario);
+                        game.Time = timeFinished;
+                        await _gameService.UpdateGameAsync(game);
+                        _startedTime.Remove(partidausuario);
+
+                        GameInfo gameInfo = new GameInfo();
+                        gameInfo.GameId = partidausuario;
+                        gameInfo.State = "Derrota";
+                        int cont = 0;
+                        foreach (var ship in _ships [user.Id])
+                        {
+                            cont += ship.Length;
+                        }
+                        int score = 60 - (cont * 5);
+                        gameInfo.Score = score;
+                        gameInfo.UserId = user.Id;
+                        await _gameService.createGameInfo(gameInfo);
+                        user.gameInfos.Add(gameInfo);
+                        await _wsHelper.UpdateUserAsync(user);
 
                         foreach (var friend in user.friends)
                         {
@@ -1661,16 +1776,6 @@ namespace Server.Services
                         tasks.Add(userHandler.SendAsync(messageToSend));
                     }
                 }
-            }
-
-            if (receivedUser.TypeMessage.Equals("Cambio de avatar"))
-            {
-
-            }
-
-            if (receivedUser.TypeMessage.Equals("Cambio de avatar por defecto"))
-            {
-
             }
 
             await Task.WhenAll(tasks);

@@ -8,6 +8,7 @@ import { UserReceived } from '../models/UserReceived';
 import { environment } from '../../environments/environment.development';
 import { Image } from '../models/image';
 import { Password } from '../models/password';
+import { FullUserReceived } from '../models/FullUserReceived';
 
 
 @Injectable({
@@ -52,6 +53,12 @@ export class AuthserviceService {
     const contrasena:Password={password:pass}
     const result=await this.api.post('User/password',contrasena)
     return result
+  }
+  async getFullUserById(id:number):Promise<FullUserReceived>{
+    const path = "User/full/"+ id
+    const result = await this.api.get<FullUserReceived>(path,{},'json')
+    result.data.avatar = environment.images+result.data.avatar;
+    return result.data
   }
 
   createForm(signup:SignUp,avatar:File) : FormData{

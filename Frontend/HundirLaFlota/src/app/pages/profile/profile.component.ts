@@ -12,6 +12,7 @@ import { DataService } from '../../services/data.service';
 import { FriendRequest } from '../../models/FriendRequest';
 import Swal from 'sweetalert2';
 import { environment } from '../../../environments/environment.development';
+import { FullUserReceived } from '../../models/FullUserReceived';
 
 @Component({
   selector: 'app-profile',
@@ -33,10 +34,10 @@ export class ProfileComponent {
 
   decoded:User
   routeParamMap$: Subscription | null = null;
-  user:UserReceived | null = null;
+  user:FullUserReceived | null = null;
   messageReceived$:Subscription;
   isMyProfile:boolean = false;
-  newImage:File | null = null
+  newImage:File | null = null;
 
   ngOnInit(): void {
     console.log(this.decoded.nickName)
@@ -103,7 +104,7 @@ export class ProfileComponent {
         console.log("Mi perfil")
         this.isMyProfile=true
       }
-      const result = await this.authService.getUserById(id)
+      const result = await this.authService.getFullUserById(id)
       if (result != null) {
         console.log("entro")
         this.user = result
