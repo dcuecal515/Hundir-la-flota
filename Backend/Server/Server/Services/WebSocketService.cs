@@ -25,11 +25,13 @@ namespace Server.Services
         // Lista de WebSocketHandler (clase que gestiona cada WebSocket)
         private readonly List<WebSocketHandler> _handlers = new List<WebSocketHandler>();
         private readonly List<WebSocketHandler> _players = new List<WebSocketHandler>();
-        private readonly List<List<WebSocketHandler>> _partidas = new List<List<WebSocketHandler>>();
-        private readonly List<WebSocketHandler> _partidasbot = new List<WebSocketHandler>();
+        private readonly List<Partida> _partidas = new List<Partida>();
+        private readonly List<PartidaBot> _partidasbot = new List<PartidaBot>();
         // Semáforo para controlar el acceso a la lista de WebSocketHandler
         private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1);
         private readonly SemaphoreSlim _semaphoreplayers=new SemaphoreSlim(1);
+        private readonly SemaphoreSlim _semaphoreplayerdisconnect = new SemaphoreSlim(1);
+        private readonly SemaphoreSlim _Semaphorepalyerbotdesconnect = new SemaphoreSlim(1);
         // Temporizadores de partidas
         private Dictionary<int, Timer> _timers = new Dictionary<int, Timer>();
         // Barcos de jugadores
@@ -37,6 +39,7 @@ namespace Server.Services
         private Dictionary<int, string[][]> _botShips = new Dictionary<int, string[][]>();
         // Disparos guardados por cada bot
         private Dictionary<int, string []> _botShoots = new Dictionary<int, string []>();
+        //Contador de tiempo de partida 
 
         public async Task HandleAsync(WebSocket webSocket, User user)
         {
@@ -67,8 +70,8 @@ namespace Server.Services
             List<Task> tasks = new List<Task>();
             // Guardamos una copia de los WebSocketHandler para evitar problemas de concurrencia
             WebSocketHandler[] handlers = _handlers.ToArray();
-            WebSocketHandler[] partidabot = _partidasbot.ToArray();
-            WebSocketHandler[][] partidas = _partidas.Select(partida => partida.ToArray()).ToArray();
+            PartidaBot[] partidabot = _partidasbot.ToArray();
+            Partida[] partidas = _partidas.ToArray();
             int totalHandlers = handlers.Length;
             int totalpartidabot = partidabot.Length;
             int totalpartidas = partidas.Length;
@@ -156,8 +159,8 @@ namespace Server.Services
             List<Task> tasks = new List<Task>();
             // Guardamos una copia de los WebSocketHandler para evitar problemas de concurrencia
             WebSocketHandler[] handlers = _handlers.ToArray();
-            WebSocketHandler[] partidabot = _partidasbot.ToArray();
-            WebSocketHandler[][] partidas = _partidas.Select(partida => partida.ToArray()).ToArray();
+            PartidaBot[] partidabot = _partidasbot.ToArray();
+            Partida[] partidas = _partidas.ToArray();
 
             /*string message = $"Se ha desconectado el usuario con id {disconnectedHandler.Id}. Ahora hay {handlers.Length} usuarios conectados";*/
             using (var scope = _serviceProvider.CreateScope())
@@ -227,6 +230,7 @@ namespace Server.Services
             List<Task> tasks = new List<Task>();
             // Guardamos una copia de los WebSocketHandler para evitar problemas de concurrencia
             WebSocketHandler[] handlers = _handlers.ToArray();
+            
 
             /*string messageToMe = $"Tú: {message}";
             string messageToOthers = $"Usuario {userHandler.Id}: {message}";*/
@@ -507,6 +511,7 @@ namespace Server.Services
                             using (var scope = _serviceProvider.CreateScope())
                             {
                                 var _wsHelper = scope.ServiceProvider.GetRequiredService<WSHelper>();
+                                var _gameService = scope.ServiceProvider.GetRequiredService<GameService>();
 
                                 if (userHandler.Id != player.Id)
                                 {
@@ -567,12 +572,13 @@ namespace Server.Services
                                 }
 
                                 StartGameTimer(player.Id, player);
-                            }
-
-                            
+                                Game game = await _gameService.CreateGame(0);
+                                Partida nuevaPartida = new Partida(game.Id, players[0], players[1]);
+                                await _semaphoreplayerdisconnect.WaitAsync();
+                                _partidas.Add(nuevaPartida);
+                                _semaphoreplayerdisconnect.Release();
                         }
-                    _partidas.Add(new List<WebSocketHandler> { players[0], players[1] });
-                    Console.WriteLine(_partidas.Count);
+                        }
                     _players.Clear();
                     }
 
@@ -628,7 +634,6 @@ namespace Server.Services
                     var _wsHelper = scope.ServiceProvider.GetRequiredService<WSHelper>();
                     User user = await _wsHelper.GetUserById(userHandler.Id);
                     user.Status = "Jugando";
-                    _partidasbot.Add(userHandler);
                     await _wsHelper.UpdateUserAsync(user);
                     foreach (var friend in user.friends)
                     {
@@ -646,8 +651,24 @@ namespace Server.Services
                             }
                         }
                     }
+                    PartidaBot nuevapartida = new PartidaBot(1, userHandler);
+                    await _Semaphorepalyerbotdesconnect.WaitAsync();
+                    _partidasbot.Add(nuevapartida);
+                    _Semaphorepalyerbotdesconnect.Release();
+                    Partida[] partidas = _partidas.ToArray();
+                    PartidaBot[] partidabot = _partidasbot.ToArray();
+                    foreach (WebSocketHandler handler in handlers)
+                    {
+                        PlayersInGameMessage outMessage4 = new PlayersInGameMessage
+                        {
+                            Message = "Jugadores jugando",
+                            quantitygame = partidabot.Length + partidas.Length,
+                            quantityplayer = partidabot.Length + (partidas.Length * 2)
+                        };
+                        string messageToSend3 = JsonSerializer.Serialize(outMessage4, JsonSerializerOptions.Web);
+                        tasks.Add(handler.SendAsync(messageToSend3));
+                    }
                 }
-
                 StartGameTimer(userHandler.Id, userHandler);
 
                 WebsocketMessageDto outMessage = new WebsocketMessageDto
@@ -828,6 +849,7 @@ namespace Server.Services
                 using (var scope = _serviceProvider.CreateScope())
                 {
                     var _wsHelper = scope.ServiceProvider.GetRequiredService<WSHelper>();
+                    var _gameService = scope.ServiceProvider.GetRequiredService<GameService>();
                     User user = await _wsHelper.GetUserById(userHandler.Id);
                     User user2 = await _wsHelper.GetUserByNickname(userName);
 
@@ -885,7 +907,7 @@ namespace Server.Services
                                 _jugadores.Add(userHandler);
                                 tasks.Add(handler.SendAsync(messageToSend));
                             }
-                            if(handler.Id == user.Id)
+                            if (handler.Id == user.Id)
                             {
                                 StartGameDto outMessage = new StartGameDto
                                 {
@@ -900,8 +922,26 @@ namespace Server.Services
                             StartGameTimer(handler.Id, handler);
                         }
                     }
+                    Game game = await _gameService.CreateGame(0);
+                    Partida nuevaPartida = new Partida(game.Id, _jugadores[0], _jugadores[1]);
+                    await _semaphoreplayerdisconnect.WaitAsync();
+                    _partidas.Add(nuevaPartida);
+                    _semaphoreplayerdisconnect.Release();
                 }
-                _partidas.Add(new List<WebSocketHandler> { _jugadores[0], _jugadores[1] });
+                Partida[] partidas = _partidas.ToArray();
+                PartidaBot[] partidabot = _partidasbot.ToArray();
+                foreach (WebSocketHandler handler in handlers)
+                {
+                    PlayersInGameMessage outMessage3 = new PlayersInGameMessage
+                    {
+                        Message = "Jugadores jugando",
+                        quantitygame = partidabot.Length + partidas.Length,
+                        quantityplayer = partidabot.Length + (partidas.Length * 2)
+                    };
+                    string messageToSend3 = JsonSerializer.Serialize(outMessage3, JsonSerializerOptions.Web);
+                    tasks.Add(handler.SendAsync(messageToSend3));
+                }
+                
             }
             if (receivedUser.TypeMessage.Equals("Abandono de partida"))
             {
@@ -909,6 +949,7 @@ namespace Server.Services
                 using (var scope = _serviceProvider.CreateScope())
                 {
                     var _wsHelper = scope.ServiceProvider.GetRequiredService<WSHelper>();
+                    var _gameService = scope.ServiceProvider.GetRequiredService<GameService>();
                     User user = await _wsHelper.GetUserById(userHandler.Id);
                     User user2 = await _wsHelper.GetUserByNickname(userName);
                     StopGameTimer(user.Id);
@@ -962,6 +1003,15 @@ namespace Server.Services
                                 };
                                 string messageToSend = JsonSerializer.Serialize(outMessage, JsonSerializerOptions.Web);
                                 tasks.Add(handler.SendAsync(messageToSend));
+                                await _semaphoreplayerdisconnect.WaitAsync();
+                                int partidausuario= _partidas.FirstOrDefault(p => p.Player1.Id == userHandler.Id || p.Player2.Id == userHandler.Id).GameId;
+                                _semaphoreplayerdisconnect.Release();
+                                GameInfo gameInfo=new GameInfo();
+                                gameInfo.GameId = partidausuario;
+                                gameInfo.State = "Victoria";
+                                gameInfo.Score = 60;
+                                gameInfo.UserId = user.Id;
+                                await _gameService.createGameInfo(gameInfo);
                             }
                             if (handler.Id == user.Id)
                             {
@@ -971,11 +1021,76 @@ namespace Server.Services
                                 };
                                 string messageToSend = JsonSerializer.Serialize(outMessage, JsonSerializerOptions.Web);
                                 tasks.Add(handler.SendAsync(messageToSend));
+                                await _semaphoreplayerdisconnect.WaitAsync();
+                                int partidausuario = _partidas.FirstOrDefault(p => p.Player1.Id == userHandler.Id || p.Player2.Id == userHandler.Id).GameId;
+                                _semaphoreplayerdisconnect.Release();
+                                GameInfo gameInfo = new GameInfo();
+                                gameInfo.GameId = partidausuario;
+                                gameInfo.State = "Derrota";
+                                gameInfo.Score = 0;
+                                gameInfo.UserId = user.Id;
+                                await _gameService.createGameInfo(gameInfo);
                             }
+                        }
+                        await _semaphoreplayerdisconnect.WaitAsync();
+                        var partida = _partidas.FirstOrDefault(p => p.Player1.Id == userHandler.Id || p.Player2.Id == userHandler.Id);
+                        _partidas.Remove(partida);
+                        _semaphoreplayerdisconnect.Release();
+                        Partida[] partidas = _partidas.ToArray();
+                        PartidaBot[] partidabot = _partidasbot.ToArray();
+                        foreach (WebSocketHandler handler in handlers)
+                        {
+                            PlayersInGameMessage outMessage3 = new PlayersInGameMessage
+                            {
+                                Message = "Jugadores jugando",
+                                quantitygame = partidabot.Length + partidas.Length,
+                                quantityplayer = partidabot.Length + (partidas.Length * 2)
+                            };
+                            string messageToSend3 = JsonSerializer.Serialize(outMessage3, JsonSerializerOptions.Web);
+                            tasks.Add(handler.SendAsync(messageToSend3));
+                        }
+                    }
+                    else
+                    {
+                        await _Semaphorepalyerbotdesconnect.WaitAsync();
+                        var partida = _partidasbot.FirstOrDefault(h => h.Player1.Id == userHandler.Id);
+                        _partidasbot.Remove(partida);
+                        _Semaphorepalyerbotdesconnect.Release();
+                        user.Status = "Conectado";
+                        await _wsHelper.UpdateUserAsync(user);
+                        foreach (var friend in user.friends)
+                        {
+                            foreach (WebSocketHandler handler in handlers)
+                            {
+                                if (handler.Id == friend.FriendId)
+                                {
+                                    DeleteDto outMessage2 = new DeleteDto
+                                    {
+                                        Message = "Tu amigo dejo de jugar",
+                                        NickName = user.NickName
+                                    };
+                                    string messageToSend2 = JsonSerializer.Serialize(outMessage2, JsonSerializerOptions.Web);
+                                    tasks.Add(handler.SendAsync(messageToSend2));
+                                }
+                            }
+                        }
+                        Partida[] partidas = _partidas.ToArray();
+                        PartidaBot[] partidabot = _partidasbot.ToArray();
+                        foreach (WebSocketHandler handler in handlers)
+                        {
+                            PlayersInGameMessage outMessage4 = new PlayersInGameMessage
+                            {
+                                Message = "Jugadores jugando",
+                                quantitygame = partidabot.Length + partidas.Length,
+                                quantityplayer = partidabot.Length + (partidas.Length * 2)
+                            };
+                            string messageToSend3 = JsonSerializer.Serialize(outMessage4, JsonSerializerOptions.Web);
+                            tasks.Add(handler.SendAsync(messageToSend3));
                         }
                     }
                 }
             }
+            
 
             if (receivedUser.TypeMessage.Equals("Disparo"))
             {
@@ -1085,6 +1200,23 @@ namespace Server.Services
                                     string messageToSend = JsonSerializer.Serialize(outMessage, JsonSerializerOptions.Web);
                                     tasks.Add(handler.SendAsync(messageToSend));
                                 }
+                            }
+                            await _semaphoreplayerdisconnect.WaitAsync();
+                                var partida = _partidas.FirstOrDefault(p => p.Player1.Id==userHandler.Id||p.Player2.Id==userHandler.Id);
+                                _partidas.Remove(partida);
+                            _semaphoreplayerdisconnect.Release();
+                            Partida[] partidas = _partidas.ToArray();
+                            PartidaBot[] partidabot = _partidasbot.ToArray();
+                            foreach (WebSocketHandler handler in handlers)
+                            {
+                                PlayersInGameMessage outMessage = new PlayersInGameMessage
+                                {
+                                    Message = "Jugadores jugando",
+                                    quantitygame = partidabot.Length + partidas.Length,
+                                    quantityplayer = partidabot.Length + (partidas.Length * 2)
+                                };
+                                string messageToSend = JsonSerializer.Serialize(outMessage, JsonSerializerOptions.Web);
+                                tasks.Add(handler.SendAsync(messageToSend));
                             }
                         } else
                         {
@@ -1367,6 +1499,24 @@ namespace Server.Services
                     };
                     string messageToSend = JsonSerializer.Serialize(outMessage2, JsonSerializerOptions.Web);
                     tasks.Add(userHandler.SendAsync(messageToSend));
+
+                    await _Semaphorepalyerbotdesconnect.WaitAsync();
+                    var partida = _partidasbot.FirstOrDefault(h => h.Player1.Id==userHandler.Id);
+                    _partidasbot.Remove(partida);
+                    _Semaphorepalyerbotdesconnect.Release();
+                    Partida[] partidas = _partidas.ToArray();
+                    PartidaBot[] partidabot = _partidasbot.ToArray();
+                    foreach (WebSocketHandler handler in handlers)
+                    {
+                        PlayersInGameMessage outMessage4 = new PlayersInGameMessage
+                        {
+                            Message = "Jugadores jugando",
+                            quantitygame = partidabot.Length + partidas.Length,
+                            quantityplayer = partidabot.Length + (partidas.Length * 2)
+                        };
+                        string messageToSend3 = JsonSerializer.Serialize(outMessage4, JsonSerializerOptions.Web);
+                        tasks.Add(handler.SendAsync(messageToSend3));
+                    }
                 } else if (botWin) 
                 {
                     using (var scope = _serviceProvider.CreateScope())
@@ -1400,6 +1550,23 @@ namespace Server.Services
                     };
                     string messageToSend = JsonSerializer.Serialize(outMessage3, JsonSerializerOptions.Web);
                     tasks.Add(userHandler.SendAsync(messageToSend));
+                    await _Semaphorepalyerbotdesconnect.WaitAsync();
+                    var partida = _partidasbot.FirstOrDefault(h => h.Player1.Id == userHandler.Id);
+                    _partidasbot.Remove(partida);
+                    _Semaphorepalyerbotdesconnect.Release();
+                    Partida[] partidas = _partidas.ToArray();
+                    PartidaBot[] partidabot = _partidasbot.ToArray();
+                    foreach (WebSocketHandler handler in handlers)
+                    {
+                        PlayersInGameMessage outMessage5 = new PlayersInGameMessage
+                        {
+                            Message = "Jugadores jugando",
+                            quantitygame = partidabot.Length + partidas.Length,
+                            quantityplayer = partidabot.Length + (partidas.Length * 2)
+                        };
+                        string messageToSend3 = JsonSerializer.Serialize(outMessage5, JsonSerializerOptions.Web);
+                        tasks.Add(handler.SendAsync(messageToSend3));
+                    }
                 } else
                 {
                     BotResponseDto outMessage = new BotResponseDto

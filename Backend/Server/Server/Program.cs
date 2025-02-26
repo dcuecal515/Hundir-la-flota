@@ -40,6 +40,7 @@ builder.Services.AddScoped<ImageService>();
 builder.Services.AddScoped<RequestService>();
 builder.Services.AddScoped<FriendService>();
 builder.Services.AddScoped<FriendMapper>();
+builder.Services.AddScoped<GameService>();
 builder.Services.AddSingleton<WebSocketService>();
 builder.Services.AddScoped<WSHelper>();
 

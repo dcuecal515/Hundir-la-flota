@@ -22,6 +22,6 @@ namespace Server.Models
 
         public ICollection<Friend> friends { get; set; }=new List<Friend>();
 
-        public ICollection<Game> games { get; set; } =new List<Game>();
+        public ICollection<GameInfo> gameInfos { get; set; } =new List<GameInfo>();
     }
 }

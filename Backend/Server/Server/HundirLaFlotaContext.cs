@@ -16,6 +16,9 @@ namespace Server
         // Hay que añadir los nuevos modelos cuando los tengamos
         public DbSet<User> Users { get; set; }
         public DbSet<Request> Requests { get; set; }
+        public DbSet<Friend> Friends { get; set; }
+        public DbSet<Game> Games { get; set; }
+        public DbSet<GameInfo> GameInfo { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
