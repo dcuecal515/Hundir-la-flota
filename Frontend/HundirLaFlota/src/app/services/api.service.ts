@@ -15,7 +15,7 @@ export class ApiService {
   constructor(private http: HttpClient) {
     let token: string | null="";
     if(sessionStorage.getItem("token")){
-       token = sessionStorage.getItem("token")
+      token = sessionStorage.getItem("token")
     }else{
       token = localStorage.getItem("token")
     }
@@ -68,6 +68,15 @@ export class ApiService {
       observe: 'response'
     });
 
+    return this.sendRequest<T>(request$);
+  }
+
+  async putWithImage<T = void>(path: string, body: Object = {}, contentType = null): Promise<Result<T>> {
+    const url = `${this.BASE_URL}${path}`;
+    const request$ = this.http.put(url, body, {
+      headers: this.getHeader(contentType, ""),
+      observe: 'response'
+    });
     return this.sendRequest<T>(request$);
   }
 

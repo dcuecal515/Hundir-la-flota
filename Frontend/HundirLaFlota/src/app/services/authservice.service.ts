@@ -6,6 +6,8 @@ import { Result } from '../models/result';
 import { ApiService } from './api.service';
 import { UserReceived } from '../models/UserReceived';
 import { environment } from '../../environments/environment.development';
+import { Image } from '../models/image';
+import { Password } from '../models/password';
 import { FullUserReceived } from '../models/FullUserReceived';
 
 
@@ -41,6 +43,17 @@ export class AuthserviceService {
     return result.data
   }
 
+  async changeImageservice(image:File):Promise<Result<Image>>{
+    console.log(image)
+    const result=await this.api.putWithImage<Image>('User/image',this.createFormImage(image))
+    return result
+  }
+
+  async changepassword(pass:string){
+    const contrasena:Password={password:pass}
+    const result=await this.api.post('User/password',contrasena)
+    return result
+  }
   async getFullUserById(id:number):Promise<FullUserReceived>{
     const path = "User/full/"+ id
     const result = await this.api.get<FullUserReceived>(path,{},'json')
@@ -59,5 +72,11 @@ export class AuthserviceService {
     }
     console.log(formdata)
     return formdata;
+  }
+  createFormImage(image:File):FormData{
+    console.log(image)
+    const formdata = new FormData()
+    formdata.append("image",image)
+    return formdata
   }
 }

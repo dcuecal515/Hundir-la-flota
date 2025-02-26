@@ -11,6 +11,7 @@ import { User } from '../../models/user';
 import { DataService } from '../../services/data.service';
 import { FriendRequest } from '../../models/FriendRequest';
 import Swal from 'sweetalert2';
+import { environment } from '../../../environments/environment.development';
 import { FullUserReceived } from '../../models/FullUserReceived';
 
 @Component({
@@ -21,7 +22,7 @@ import { FullUserReceived } from '../../models/FullUserReceived';
   styleUrl: './profile.component.css'
 })
 export class ProfileComponent {
-  constructor(private authService:AuthserviceService,private router:Router,private webSocketService:WebsocketService,private activatedRoute: ActivatedRoute, private dataService: DataService){
+  constructor(private authService:AuthserviceService,private router:Router,private webSocketService:WebsocketService,private activatedRoute: ActivatedRoute, private dataService: DataService,private apiService:ApiService){
     if(localStorage.getItem("token")){
             this.decoded=jwtDecode(localStorage.getItem("token"));
           }else if(sessionStorage.getItem("token")){
@@ -187,29 +188,32 @@ export class ProfileComponent {
     }
   }
 
-  changeImage(){
-    if(this.newImage==null){
-      // imagen por defecto
-
-    }else{
-      // imagen normal
-
-    }
+  async changeImage(){
+    const result = await this.authService.changeImageservice(this.newImage)
+    this.user.avatar=environment.images+result.data.image
   }
 
-  takeOffImage(){
-    // imagen por defecto
-
+  async takeOffImage(){
+    this.newImage==null
+    const result = await this.authService.changeImageservice(this.newImage)
+    this.user.avatar=environment.images+result.data.image
   }
 
-  changePassword(){
+
+
+  async changePassword(){
     const passwordInput = document.getElementById("password") as HTMLInputElement
     const repeatPasswordInput = document.getElementById("repeat-password") as HTMLInputElement
     const password = passwordInput.value
     const repeatPassword = repeatPasswordInput.value
     if(password != "" && repeatPassword != ""){
       if(password==repeatPassword){
-        
+        const result=await this.authService.changepassword(password)
+        if(result.success){
+          this.apiService.deleteToken();
+          this.webSocketService.disconnectRxjs();
+          this.router.navigateByUrl("login");
+        }
       }else{
         Swal.fire({
           title: 'Las contraseñas no son iguales',
