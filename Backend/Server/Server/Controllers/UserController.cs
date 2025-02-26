@@ -40,6 +40,24 @@ namespace Server.Controllers
             await _userService.UpdateUser(user);
             return new ImageSendDto{Image = user.Avatar};
         }
+        [Authorize]
+        [HttpPost("password")]
+        public async Task changepassword([FromBody] PasswordDto passwordDto)
+        {
+            string password=passwordDto.Password;
+            User user = await GetCurrentUser();
+            PasswordService passwordService = new PasswordService();
+            
+            if (password != null)
+            {
+                user.Password = passwordService.Hash(password);
+            }
+            else
+            {
+                return;
+            }
+            await _userService.UpdateUser(user);
+        }
         private async Task<User> GetCurrentUser()
         {
             // Pilla el usuario autenticado según ASP

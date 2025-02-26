@@ -7,6 +7,7 @@ import { ApiService } from './api.service';
 import { UserReceived } from '../models/UserReceived';
 import { environment } from '../../environments/environment.development';
 import { Image } from '../models/image';
+import { Password } from '../models/password';
 
 
 @Injectable({
@@ -44,6 +45,12 @@ export class AuthserviceService {
   async changeImageservice(image:File):Promise<Result<Image>>{
     console.log(image)
     const result=await this.api.putWithImage<Image>('User/image',this.createFormImage(image))
+    return result
+  }
+
+  async changepassword(pass:string){
+    const contrasena:Password={password:pass}
+    const result=await this.api.post('User/password',contrasena)
     return result
   }
 

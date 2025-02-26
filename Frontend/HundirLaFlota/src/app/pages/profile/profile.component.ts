@@ -21,7 +21,7 @@ import { environment } from '../../../environments/environment.development';
   styleUrl: './profile.component.css'
 })
 export class ProfileComponent {
-  constructor(private authService:AuthserviceService,private router:Router,private webSocketService:WebsocketService,private activatedRoute: ActivatedRoute, private dataService: DataService){
+  constructor(private authService:AuthserviceService,private router:Router,private webSocketService:WebsocketService,private activatedRoute: ActivatedRoute, private dataService: DataService,private apiService:ApiService){
     if(localStorage.getItem("token")){
             this.decoded=jwtDecode(localStorage.getItem("token"));
           }else if(sessionStorage.getItem("token")){
@@ -200,14 +200,19 @@ export class ProfileComponent {
 
 
 
-  changePassword(){
+  async changePassword(){
     const passwordInput = document.getElementById("password") as HTMLInputElement
     const repeatPasswordInput = document.getElementById("repeat-password") as HTMLInputElement
     const password = passwordInput.value
     const repeatPassword = repeatPasswordInput.value
     if(password != "" && repeatPassword != ""){
       if(password==repeatPassword){
-        
+        const result=await this.authService.changepassword(password)
+        if(result.success){
+          this.apiService.deleteToken();
+          this.webSocketService.disconnectRxjs();
+          this.router.navigateByUrl("login");
+        }
       }else{
         Swal.fire({
           title: 'Las contraseñas no son iguales',
