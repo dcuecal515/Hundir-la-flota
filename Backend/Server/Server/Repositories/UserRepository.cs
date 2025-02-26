@@ -38,7 +38,7 @@ namespace Server.Repositories
         }
         public async Task<UserProfileDataDto> GetUserByIdAsync(int id)
         {
-            User user = await GetQueryable().Include(user => user.games).FirstOrDefaultAsync(user=>user.Id== id);
+            User user = await GetQueryable().FirstOrDefaultAsync(user=>user.Id== id);
             if (user == null)
             {
                 
@@ -52,7 +52,7 @@ namespace Server.Repositories
                     NickName = user.NickName,
                     Avatar = user.Avatar,
                     Email = user.Email,
-                    GamesPlayed = user.games
+                    /*GamesPlayed = user.games*/
                 };
             }
             

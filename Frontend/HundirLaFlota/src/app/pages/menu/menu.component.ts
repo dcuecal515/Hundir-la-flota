@@ -58,14 +58,15 @@ export class MenuComponent {
   requestList:Request[] = []
   userList:Friend[]
   friendList:Friend[] = []
-  conectedUsers:number = 0
-  playingUsers:number= 0
+  conectedUsers:number
+  playingUsers:number
   games:number=0
   isOpen:boolean = false
 
-  async ngOnInit(): Promise<void> {
-    this.user = await this.authService.getUserById(this.decoded.id)
+  ngOnInit(){
+    this.obtainuser()
     this.messageReceived$ = this.webSocketService.messageReceived.subscribe(async message => {
+      console.log("Mensaje recibido:", message);
       if(message.message=="Has recibido una solicitud de amistad"){
         console.log("amistad")
         this.requestList.push(message)
@@ -92,7 +93,7 @@ export class MenuComponent {
           }
         });
         this.conectedUsers=message.quantity
-        this.dataService.players=message.quantity
+        this.dataService.players=this.conectedUsers
         this.playingUsers=message.quantityplayer
         this.dataService.playersPlaying=message.quantityplayer
         this.games=message.quantitygame
@@ -102,7 +103,7 @@ export class MenuComponent {
       if(message.message=="usuarios conectados"){
         console.log("La cantidad de usuarios que ahi ahora conectados son: "+message.quantity)
         this.conectedUsers=message.quantity
-        this.dataService.players=message.quantity
+        this.dataService.players=this.conectedUsers
         this.playingUsers=message.quantityplayer
         this.dataService.playersPlaying=message.quantityplayer
         this.games=message.quantitygame
@@ -112,7 +113,7 @@ export class MenuComponent {
         console.log("HOLAAAA")
         console.log("Se ha desconectado un usuario ahora quedan:"+message.quantity)
         this.conectedUsers=message.quantity
-        this.dataService.players=message.quantity
+        this.dataService.players=this.conectedUsers
         this.playingUsers=message.quantityplayer
         this.dataService.playersPlaying=message.quantityplayer
         this.games=message.quantitygame
@@ -125,7 +126,7 @@ export class MenuComponent {
             friend.status="Desconectado"
           }
         });
-        this.conectedUsers=message.quantity
+        this.conectedUsers=this.conectedUsers
         this.dataService.players=message.quantity
       }
       if(message.message=="Has recibido una solicitud de partida"){
@@ -178,6 +179,7 @@ export class MenuComponent {
         this.dataService.playersPlaying=message.quantityplayer
         this.games=message.quantitygame
         this.dataService.games=message.quantitygame
+      }
       if(message.message=="Tu amigo se cambio el nombre"){
         this.friendList.forEach(friend => {
           if(friend.nickName==message.oldNickName){
@@ -204,6 +206,9 @@ export class MenuComponent {
     this.router.navigateByUrl("login");
   }
 
+  async obtainuser(){
+    this.user = await this.authService.getUserById(this.decoded.id)
+  }
   goToProfile(id:number){
     const route: string = `profile/${id}`;
     this.router.navigateByUrl(route);

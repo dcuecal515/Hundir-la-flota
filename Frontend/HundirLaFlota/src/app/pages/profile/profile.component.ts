@@ -11,6 +11,7 @@ import { User } from '../../models/user';
 import { DataService } from '../../services/data.service';
 import { FriendRequest } from '../../models/FriendRequest';
 import Swal from 'sweetalert2';
+import { environment } from '../../../environments/environment.development';
 
 @Component({
   selector: 'app-profile',
@@ -186,20 +187,18 @@ export class ProfileComponent {
     }
   }
 
-  changeImage(){
-    if(this.newImage==null){
-      // imagen por defecto
-
-    }else{
-      // imagen normal
-
-    }
+  async changeImage(){
+    const result = await this.authService.changeImageservice(this.newImage)
+    this.user.avatar=environment.images+result.data.image
   }
 
-  takeOffImage(){
-    // imagen por defecto
-
+  async takeOffImage(){
+    this.newImage==null
+    const result = await this.authService.changeImageservice(this.newImage)
+    this.user.avatar=environment.images+result.data.image
   }
+
+
 
   changePassword(){
     const passwordInput = document.getElementById("password") as HTMLInputElement
