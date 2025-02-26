@@ -32,9 +32,9 @@
         }
     }
 }
-@if(!timeStoped){
+
     <div class="body-colocar-barcos">
-        @if(turn == false){
+        @if(turn == false || opponentName == "Bot1"){
             <div class="tablero">
                 @for (letra of letras; track $index) {
                     <div class="rows">
@@ -73,7 +73,6 @@
             </div>
         }
     </div>
-}
 
 
 <button (click)="exit()">Abandonar partida</button>

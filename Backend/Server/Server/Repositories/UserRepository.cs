@@ -38,7 +38,8 @@ namespace Server.Repositories
         }
         public async Task<UserProfileDataDto> GetUserByIdAsync(int id)
         {
-            User user = await GetQueryable().Include(user => user.games).FirstOrDefaultAsync(user=>user.Id== id);
+            User user = await GetQueryable()
+                .FirstOrDefaultAsync(user=>user.Id== id);
             if (user == null)
             {
                 
@@ -51,8 +52,7 @@ namespace Server.Repositories
                 {
                     NickName = user.NickName,
                     Avatar = user.Avatar,
-                    Email = user.Email,
-                    GamesPlayed = user.games
+                    Email = user.Email
                 };
             }
             
@@ -65,6 +65,34 @@ namespace Server.Repositories
         public async Task<User> GetIfExistUserByEmail(string email)
         {
             return await GetQueryable().FirstOrDefaultAsync(user => user.Email == email);
+        }
+        public async Task<FullUserDataDto> GetFullUserById(int id)
+        {
+            User user = await GetQueryable()
+                                .Include(user=>user.gameInfos)
+                                    .ThenInclude(g=>g.Game)
+                                .FirstOrDefaultAsync (user=>user.Id==id);
+            FullUserDataDto fullUserData = new FullUserDataDto
+            {
+                NickName = user.NickName,
+                Email = user.Email,
+                Avatar=user.Avatar,
+                Games = new List<GameInfoDto>()
+            };
+            foreach (var gameInfo in user.gameInfos)
+            {
+                var opponent = gameInfo.Game.gameInfos.FirstOrDefault(g => g.UserId != user.Id);
+                string opponentNickName = opponent?.User?.NickName ?? "Bot1";
+                GameInfoDto gameInfoDto = new GameInfoDto
+                {
+                    Score = gameInfo.Score,
+                    State=gameInfo.State,
+                    TimeSeconds=gameInfo.Game.Time,
+                    OpponentNickName=opponentNickName
+                };
+                fullUserData.Games.Add(gameInfoDto);
+            }
+            return fullUserData;
         }
     }
 }

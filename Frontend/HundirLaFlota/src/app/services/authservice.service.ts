@@ -6,6 +6,7 @@ import { Result } from '../models/result';
 import { ApiService } from './api.service';
 import { UserReceived } from '../models/UserReceived';
 import { environment } from '../../environments/environment.development';
+import { FullUserReceived } from '../models/FullUserReceived';
 
 
 @Injectable({
@@ -36,6 +37,13 @@ export class AuthserviceService {
   async getUserById(id:number):Promise<UserReceived>{
     const path = "User/" + id
     const result = await this.api.get<UserReceived>(path,{},'json')
+    result.data.avatar = environment.images+result.data.avatar;
+    return result.data
+  }
+
+  async getFullUserById(id:number):Promise<FullUserReceived>{
+    const path = "User/full/"+ id
+    const result = await this.api.get<FullUserReceived>(path,{},'json')
     result.data.avatar = environment.images+result.data.avatar;
     return result.data
   }
