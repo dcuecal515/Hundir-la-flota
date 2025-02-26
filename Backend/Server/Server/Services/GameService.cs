@@ -29,5 +29,14 @@ namespace Server.Services
             await _unitOfWork.SaveAsync();
             return newGame;
         }
+        public async Task<Game> GetGameById(int id)
+        {
+            return await _unitOfWork.GameRepository.GetByIdAsync(id);
+        }
+        public async Task UpdateGameAsync(Game game)
+        {
+            _unitOfWork.GameRepository.Update(game);
+            await _unitOfWork.SaveAsync();
+        }
     }
 }
