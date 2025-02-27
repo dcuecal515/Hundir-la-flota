@@ -222,13 +222,56 @@ export class PartyComponent implements AfterViewInit {
         myPosition.style.backgroundColor='green'
         const alertDefeat = await Swal.fire({
           title: 'Derrota',
-          text: 'Has perdido contra nuestro bot',
+          text: 'Has perdido contra nuestro bot, quieres revancha?',
           icon: 'error',
-          showConfirmButton: true
+          confirmButtonText:"Aceptar",
+          cancelButtonText:"Cancelar",
+          showConfirmButton: true,
+          showCancelButton:true
         });
-        if(alertDefeat.isConfirmed){
+        if(alertDefeat.isDismissed){
           this.router.navigateByUrl("menu")
         }
+        if(alertDefeat.isConfirmed){
+          // Volver al principio
+          const opponentsPositionsGreen = Array.from(document.getElementsByClassName("game-box-touched"))
+          const opponentsPositionsRed = Array.from(document.getElementsByClassName("game-box-miss"))
+          
+          //Cambia los estilos del mapa al que tienes que disparar
+          opponentsPositionsGreen.forEach(element => {
+            element.classList.replace("game-box-touched", "game-box");
+          });
+        
+          opponentsPositionsRed.forEach(element => {
+            element.classList.replace("game-box-miss", "game-box");
+          });
+
+          document.querySelectorAll(".game-box").forEach(element => { // Cambia los estilos de tu mapa
+            const box = element as HTMLElement;
+            const bgColor = window.getComputedStyle(box).backgroundColor;
+        
+            if (bgColor !== "rgb(0, 255, 255)") {
+                box.style.backgroundColor = "aqua";
+            }
+          });
+          
+          this.barcos = []
+          this.opponentName = "Bot1"
+          this.shoots = []
+          this.barcosoponente = false 
+          this.barcosBot = false
+          this.turn = false
+          this.impacted = false
+          this.timeStoped = false
+          this.startTimer()
+
+          const message:FriendRequest={TypeMessage:"solicitud de partida contra bot"}
+          const jsonData = JSON.stringify(message)
+          console.log(jsonData)
+          this.webSocketService.sendRxjs(jsonData)
+        
+        }
+
         
       }
     });
