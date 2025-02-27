@@ -75,6 +75,7 @@ namespace Server.Repositories
                                 .FirstOrDefaultAsync (user=>user.Id==id);
             FullUserDataDto fullUserData = new FullUserDataDto
             {
+                Id = id,
                 NickName = user.NickName,
                 Email = user.Email,
                 Avatar=user.Avatar,
