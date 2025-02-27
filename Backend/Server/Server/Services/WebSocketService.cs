@@ -1540,7 +1540,8 @@ namespace Server.Services
                 if (youWin)
                 {
                     StopGameTimer(userHandler.Id);
-                    
+                    _botShoots.Remove(userHandler.Id);
+
                     using (var scope = _serviceProvider.CreateScope())
                     {
                         var _wsHelper = scope.ServiceProvider.GetRequiredService<WSHelper>();
@@ -1610,6 +1611,7 @@ namespace Server.Services
                 } else if (botWin) 
                 {
                     StopGameTimer(userHandler.Id);
+                    _botShoots.Remove(userHandler.Id);
                     using (var scope = _serviceProvider.CreateScope())
                     {
                         var _wsHelper = scope.ServiceProvider.GetRequiredService<WSHelper>();

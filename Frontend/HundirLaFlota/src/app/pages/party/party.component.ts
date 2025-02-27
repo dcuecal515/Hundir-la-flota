@@ -199,12 +199,23 @@ export class PartyComponent implements AfterViewInit {
         opponentPosition.classList.add("game-box-touched")
         const alertWin = await Swal.fire({
           title: 'Victoria',
-          text: 'Has ganado a nuestro bot enhorabuena',
+          text: 'Has ganado a nuestro bot enhorabuena, quieres revancha?',
           icon: 'success',
-          showConfirmButton: true
+          confirmButtonText:"Aceptar",
+          cancelButtonText:"Cancelar",
+          showConfirmButton: true,
+          showCancelButton:true
         });
-        if(alertWin.isConfirmed){
+        if(alertWin.isDismissed){
           this.router.navigateByUrl("menu")
+        }
+        if(alertWin.isConfirmed){
+          // Volver al principio
+          this.router.navigateByUrl("matchmaking")
+          const message:FriendRequest={TypeMessage:"solicitud de partida contra bot"}
+          const jsonData = JSON.stringify(message)
+          console.log(jsonData)
+          this.webSocketService.sendRxjs(jsonData)
         }
         
       }
@@ -233,43 +244,11 @@ export class PartyComponent implements AfterViewInit {
           this.router.navigateByUrl("menu")
         }
         if(alertDefeat.isConfirmed){
-          // Volver al principio
-          const opponentsPositionsGreen = Array.from(document.getElementsByClassName("game-box-touched"))
-          const opponentsPositionsRed = Array.from(document.getElementsByClassName("game-box-miss"))
-          
-          //Cambia los estilos del mapa al que tienes que disparar
-          opponentsPositionsGreen.forEach(element => {
-            element.classList.replace("game-box-touched", "game-box");
-          });
-        
-          opponentsPositionsRed.forEach(element => {
-            element.classList.replace("game-box-miss", "game-box");
-          });
-
-          document.querySelectorAll(".game-box").forEach(element => { // Cambia los estilos de tu mapa
-            const box = element as HTMLElement;
-            const bgColor = window.getComputedStyle(box).backgroundColor;
-        
-            if (bgColor !== "rgb(0, 255, 255)") {
-                box.style.backgroundColor = "aqua";
-            }
-          });
-          
-          this.barcos = []
-          this.opponentName = "Bot1"
-          this.shoots = []
-          this.barcosoponente = false 
-          this.barcosBot = false
-          this.turn = false
-          this.impacted = false
-          this.timeStoped = false
-          this.startTimer()
-
+          this.router.navigateByUrl("matchmaking")
           const message:FriendRequest={TypeMessage:"solicitud de partida contra bot"}
           const jsonData = JSON.stringify(message)
           console.log(jsonData)
           this.webSocketService.sendRxjs(jsonData)
-        
         }
 
         

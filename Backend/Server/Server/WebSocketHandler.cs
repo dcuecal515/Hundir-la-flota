@@ -41,6 +41,7 @@ namespace Server
                     }
                 } catch (WebSocketException e)
                 {
+                    Console.WriteLine(e.ToString());
                     Dispose();
                 }
             }
