@@ -10,4 +10,5 @@ export class DataService {
   players:number=0
   playersPlaying:number=0
   games:number=0
+  opponentName:string=""
 }

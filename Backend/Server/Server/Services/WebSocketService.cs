@@ -577,6 +577,7 @@ namespace Server.Services
                                 Partida nuevaPartida = new Partida(game.Id, players[0], players[1]);
                                 await _semaphoreplayerdisconnect.WaitAsync();
                                 _partidas.Add(nuevaPartida);
+                                _startedTime [game.Id] = DateTime.Now;
                                 _semaphoreplayerdisconnect.Release();
                         }
                         }
@@ -1778,6 +1779,97 @@ namespace Server.Services
                         tasks.Add(userHandler.SendAsync(messageToSend));
                     }
                 }
+            }
+
+            if (receivedUser.TypeMessage.Equals("No quiere revancha"))
+            {
+                string userName = receivedUser.Identifier;
+
+                using (var scope = _serviceProvider.CreateScope())
+                {
+                    var _wsHelper = scope.ServiceProvider.GetRequiredService<WSHelper>();
+                    User user2 = await _wsHelper.GetUserByNickname(userName);
+                    if (user2 != null)
+                    {
+                        foreach (WebSocketHandler handler in handlers)
+                        {
+                            if (handler.Id == user2.Id)
+                            {
+                                WebsocketMessageDto outMessage = new WebsocketMessageDto
+                                {
+                                    Message = "Tu oponente rechazo la revancha"
+                                };
+                                string messageToSend = JsonSerializer.Serialize(outMessage, JsonSerializerOptions.Web);
+                                tasks.Add(handler.SendAsync(messageToSend));
+                            }
+                        }
+                    }
+                }
+            }
+
+            if(receivedUser.TypeMessage.Equals("Quiere revancha primero"))
+            {
+                string userName = receivedUser.Identifier;
+
+                using (var scope = _serviceProvider.CreateScope())
+                {
+                    var _wsHelper = scope.ServiceProvider.GetRequiredService<WSHelper>();
+                    User user2 = await _wsHelper.GetUserByNickname(userName);
+                    if (user2 != null)
+                    {
+                        foreach (WebSocketHandler handler in handlers)
+                        {
+                            if (handler.Id == user2.Id)
+                            {
+                                WebsocketMessageDto outMessage = new WebsocketMessageDto
+                                {
+                                    Message = "Tu oponente quiere revancha"
+                                };
+                                string messageToSend = JsonSerializer.Serialize(outMessage, JsonSerializerOptions.Web);
+                                tasks.Add(handler.SendAsync(messageToSend));
+                            }
+                        }
+                    }
+                }
+            }
+
+            if(receivedUser.TypeMessage.Equals("Acepta la revancha"))
+            {
+                string userName = receivedUser.Identifier;
+
+                using (var scope = _serviceProvider.CreateScope())
+                {
+                    var _wsHelper = scope.ServiceProvider.GetRequiredService<WSHelper>();
+                    User user2 = await _wsHelper.GetUserByNickname(userName);
+                    if (user2 != null)
+                    {
+                        foreach (WebSocketHandler handler in handlers)
+                        {
+                            if (handler.Id == user2.Id)
+                            {
+                                WebsocketMessageDto outMessage = new WebsocketMessageDto
+                                {
+                                    Message = "Tu oponente aceptó la revancha"
+                                };
+                                string messageToSend = JsonSerializer.Serialize(outMessage, JsonSerializerOptions.Web);
+                                tasks.Add(handler.SendAsync(messageToSend));
+                            }
+                        }
+                    }
+                }
+            }
+
+            if(receivedUser.TypeMessage.Equals("ir a revancha"))
+            {
+                string userName = receivedUser.Identifier;
+
+                DeleteDto outMessage = new DeleteDto
+                {
+                    Message = "Ir a revancha con opotente anterior",
+                    NickName = userName
+                };
+                string messageToSend = JsonSerializer.Serialize(outMessage, JsonSerializerOptions.Web);
+                tasks.Add(userHandler.SendAsync(messageToSend));
             }
 
             await Task.WhenAll(tasks);
