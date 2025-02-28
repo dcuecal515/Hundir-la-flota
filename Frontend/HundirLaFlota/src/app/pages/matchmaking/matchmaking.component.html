@@ -1,5 +1,7 @@
 <div class="the-father">
-    <button (click)="backToTheMenu()">Volver al menu</button>
+    @if(partyGuest == null){
+        <button (click)="backToTheMenu()">Volver al menu</button>
+    }
     <div class="title">
         <h1>Zarpar a los mares</h1>
     </div>
@@ -72,6 +74,5 @@
         </div>
         <button (click)="exitGuest()">Salir</button>
     }
-    <button (click)="playgame()">Jugar partida</button>
 }
 </div>

@@ -245,10 +245,6 @@ export class PartyComponent implements AfterViewInit {
         this.startTimer()
       }
       if(message.message=="Has ganado al bot"){
-        console.log(message.yourShoot)
-        const opponentPosition = document.getElementById(message.yourShoot+"enemigo")
-        opponentPosition.classList.remove("game-box")
-        opponentPosition.classList.add("game-box-touched")
         const alertWin = await Swal.fire({
           title: 'Victoria',
           text: 'Has ganado a nuestro bot enhorabuena, quieres revancha? \nPuntuaciones:\nTu: '+message.yourScore+"\nBot1: "+message.opponentScore,
@@ -260,6 +256,10 @@ export class PartyComponent implements AfterViewInit {
         });
         if(alertWin.isDismissed){
           this.router.navigateByUrl("menu")
+          const message:FriendRequest={TypeMessage:"termino la parida contra bot"}
+          const jsonData = JSON.stringify(message)
+          console.log(jsonData)
+          this.webSocketService.sendRxjs(jsonData)
         }
         if(alertWin.isConfirmed){
           // Volver al principio
@@ -285,6 +285,10 @@ export class PartyComponent implements AfterViewInit {
         });
         if(alertDefeat.isDismissed){
           this.router.navigateByUrl("menu")
+          const message:FriendRequest={TypeMessage:"termino la parida contra bot"}
+          const jsonData = JSON.stringify(message)
+          console.log(jsonData)
+          this.webSocketService.sendRxjs(jsonData)
         }
         if(alertDefeat.isConfirmed){
           this.router.navigateByUrl("matchmaking")
