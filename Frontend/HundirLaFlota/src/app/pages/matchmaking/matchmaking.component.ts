@@ -2,7 +2,7 @@ import { Component,ViewChild,ElementRef } from '@angular/core';
 import { WebsocketService } from '../../services/websocket.service';
 import { Subscription } from 'rxjs';
 import { Friend } from '../../models/Friend';
-import { environment } from '../../../environments/environment.development';
+import { environment } from '../../../environments/environment';
 import { Request } from '../../models/Request';
 import { RequestService } from '../../services/request.service';
 import { User } from '../../models/user';

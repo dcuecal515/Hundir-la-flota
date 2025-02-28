@@ -5,7 +5,7 @@ import { Token } from '../models/token';
 import { Result } from '../models/result';
 import { ApiService } from './api.service';
 import { UserReceived } from '../models/UserReceived';
-import { environment } from '../../environments/environment.development';
+import { environment } from '../../environments/environment';
 import { Image } from '../models/image';
 import { Password } from '../models/password';
 import { FullUserReceived } from '../models/FullUserReceived';

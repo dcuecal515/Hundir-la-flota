@@ -11,7 +11,7 @@ import { User } from '../../models/user';
 import { DataService } from '../../services/data.service';
 import { FriendRequest } from '../../models/FriendRequest';
 import Swal from 'sweetalert2';
-import { environment } from '../../../environments/environment.development';
+import { environment } from '../../../environments/environment';
 import { FullUserReceived } from '../../models/FullUserReceived';
 import { Request } from '../../models/Request';
 import { Friend } from '../../models/Friend';

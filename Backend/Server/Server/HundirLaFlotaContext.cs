@@ -25,10 +25,10 @@ namespace Server
             #if DEBUG
                 string baseDir = AppDomain.CurrentDomain.BaseDirectory;
                 optionsBuilder.UseSqlite($"DataSource={baseDir}{DATABASE_PATH}");
-#else
+            #else
                 string connection = "Server=db14338.databaseasp.net; Database=db14338; Uid=db14338; Pwd=4b=BA2w?6#Wm;";
-                optionsBuilder.UseMysql(connection,ServerVersion.AutoDetect(connection));
-#endif
+                optionsBuilder.UseMySql(connection,ServerVersion.AutoDetect(connection));
+            #endif
         }
 
     }
