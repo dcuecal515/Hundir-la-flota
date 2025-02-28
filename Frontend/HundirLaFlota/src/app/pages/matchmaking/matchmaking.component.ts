@@ -184,10 +184,22 @@ export class MatchmakingComponent {
 
         if(message.message=="Se salieron de tu lobby"){
           console.log("Se salió "+message.nickName)
+          Swal.fire({
+                    title: 'Se salió '+message.nickName+" de tu sala",
+                    icon: 'info',
+                    timer: 1000, 
+                    showConfirmButton: false
+                  });
           this.partyGuest = null
         }
         if(message.message=="Te volviste anfitrion"){
           console.log("Se salió "+message.nickName)
+          Swal.fire({
+            title: 'Se salió '+message.nickName+" ahora esta es tu sala",
+            icon: 'info',
+            timer: 1000, 
+            showConfirmButton: false
+          });
           this.partyGuest = null
           this.partyHost = {
             id:this.decoded.id,
