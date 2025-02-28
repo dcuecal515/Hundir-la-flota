@@ -6,7 +6,7 @@ import { Subscription } from 'rxjs';
 import { jwtDecode } from "jwt-decode";
 import { User } from '../../models/user';
 import { Friend } from '../../models/Friend';
-import { environment } from '../../../environments/environment.development';
+import { environment } from '../../../environments/environment';
 import { FormsModule } from '@angular/forms';
 import { SearchserviceService } from '../../services/searchservice.service';
 import { FriendRequest } from '../../models/FriendRequest';

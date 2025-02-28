@@ -85,10 +85,6 @@ app.UseAuthentication();
 
 app.UseAuthorization();
 
-
-
-
-
 app.MapControllers();
 PasswordService passwordService = new PasswordService();
 
