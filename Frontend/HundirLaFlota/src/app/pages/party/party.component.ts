@@ -245,6 +245,7 @@ export class PartyComponent implements AfterViewInit {
         this.startTimer()
       }
       if(message.message=="Has ganado al bot"){
+        console.log(message.yourShoot)
         const opponentPosition = document.getElementById(message.yourShoot+"enemigo")
         opponentPosition.classList.remove("game-box")
         opponentPosition.classList.add("game-box-touched")
