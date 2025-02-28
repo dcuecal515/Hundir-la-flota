@@ -11,7 +11,7 @@ import { User } from '../../models/user';
 import { DataService } from '../../services/data.service';
 import { FriendRequest } from '../../models/FriendRequest';
 import Swal from 'sweetalert2';
-import { environment } from '../../../environments/environment.development';
+import { environment } from '../../../environments/environment';
 import { FullUserReceived } from '../../models/FullUserReceived';
 import { Request } from '../../models/Request';
 import { Friend } from '../../models/Friend';
@@ -170,7 +170,8 @@ export class ProfileComponent {
       });
       if (wantToDelete.isConfirmed) {
         Swal.fire("Confirmado", nickName+" ya no es tu amigo", "success");
-        this.activateButtonFriend=true;
+        this.activateButtonFriend=false;
+        this.activateButtonRequest=false
         const message:FriendRequest={TypeMessage:"eliminar",Identifier:nickName}
         const jsonData = JSON.stringify(message)
         console.log(jsonData)
