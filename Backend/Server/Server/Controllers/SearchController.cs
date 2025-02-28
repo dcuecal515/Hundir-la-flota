@@ -4,8 +4,8 @@ using Server.DTOs;
 using Server.Mappers;
 using Server.Models;
 using Server.Services;
-using System.Text;
 using System.Globalization;
+using System.Text;
 
 namespace Server.Controllers
 {
@@ -18,7 +18,7 @@ namespace Server.Controllers
         private readonly WSHelper _wshelper;
         private readonly FriendService _friendService;
 
-        public SearchController(UserService userService,UserMapper userMapper, WSHelper wshelper, FriendService friendService)
+        public SearchController(UserService userService, UserMapper userMapper, WSHelper wshelper, FriendService friendService)
         {
             _userService = userService;
             _userMapper = userMapper;
@@ -29,7 +29,7 @@ namespace Server.Controllers
         [HttpGet]
         public async Task<IEnumerable<UserDateDto>> Search([FromQuery] string name)
         {
-            
+
             string separatename = name.Normalize(NormalizationForm.FormD);
 
             StringBuilder newname = new StringBuilder();
@@ -40,12 +40,11 @@ namespace Server.Controllers
                     newname.Append(c);
                 }
             }
-            string searchname= newname.ToString().Normalize(NormalizationForm.FormC);
+            string searchname = newname.ToString().Normalize(NormalizationForm.FormC);
             User usersesion = await GetCurrentUser();
             IEnumerable<User> users = await _userService.getAllUser();
-            List<UserDateDto> result=new List<UserDateDto>();
-            List<UserDateDto> resultfinal=new List<UserDateDto>();
-            IEnumerable<FriendDto> friends = await _friendService.GetAllFriend(usersesion.Id);
+            List<UserDateDto> result = new List<UserDateDto>();
+            List<UserDateDto> resultfinal = new List<UserDateDto>();
             foreach (User user in users)
             {
                 string separatenamedatabase = user.NickName.Normalize(NormalizationForm.FormD);
@@ -62,7 +61,7 @@ namespace Server.Controllers
 
                 if (searchnamedatabase.ToLower().Contains(searchname.ToLower()) && !user.NickName.ToLower().Equals(usersesion.NickName.ToLower()))
                 {
-                    
+
                     UserDateDto userDateDto = _userMapper.toDto(user);
                     result.Add(userDateDto);
                 }
@@ -79,33 +78,25 @@ namespace Server.Controllers
             {
                 return null;
             }
-            /*En desarrollo*/
-            foreach(UserDateDto userDateDto in result)
+            /*Arreglado*/
+            foreach (UserDateDto userDateDto in result)
             {
-                Request request = await _wshelper.GetRequestByUsersId(usersesion.Id,userDateDto.Id);
+                Request request = await _wshelper.GetRequestByUsersId(usersesion.Id, userDateDto.Id);
                 if (request == null)
                 {
-                    if (friends.Count()>0)
+                    User user = await _wshelper.GetUserById(usersesion.Id);
+                    User user2 = await _wshelper.GetUserById(userDateDto.Id);
+                    bool isFriend = _wshelper.GetIfUsersAreFriends(user, user2);
+                    if (isFriend)
                     {
-                        foreach (FriendDto friend in friends)
-                        {
-                            if (friend.Id == userDateDto.Id)
-                            {
-                                userDateDto.Message = "si";
-                                resultfinal.Add(userDateDto);
-                            } else
-                            {
-                                userDateDto.Message = "no";
-                                resultfinal.Add(userDateDto);
-                            }
-                        }
+                        userDateDto.Message = "si";
+                        resultfinal.Add(userDateDto);
                     } else
                     {
                         userDateDto.Message = "no";
                         resultfinal.Add(userDateDto);
                     }
-                }
-                else
+                } else
                 {
                     userDateDto.Message = "si";
                     resultfinal.Add(userDateDto);

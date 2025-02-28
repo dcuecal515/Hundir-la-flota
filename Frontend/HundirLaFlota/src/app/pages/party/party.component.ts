@@ -126,7 +126,7 @@ export class PartyComponent implements AfterViewInit {
 
         const alertWin = await Swal.fire({
           title: 'Victoria',
-          text: 'Has ganado la partida, quieres revancha?',
+          text: 'Has ganado la partida, quieres revancha? \nPuntuaciones:\nTu: '+message.yourScore+"\n"+this.opponentName+": "+message.opponentScore,
           icon: 'success',
           confirmButtonText:"Aceptar",
           cancelButtonText:"Cancelar",
@@ -165,7 +165,7 @@ export class PartyComponent implements AfterViewInit {
 
         const alertWin = await Swal.fire({
           title: 'Derrota',
-          text: 'Has perdido la partida, quieres revancha?',
+          text: 'Has perdido la partida, quieres revancha? \nPuntuaciones:\nTu: '+message.yourScore+"\n"+this.opponentName+": "+message.opponentScore,
           icon: 'error',
           confirmButtonText:"Aceptar",
           cancelButtonText:"Cancelar",
@@ -250,7 +250,7 @@ export class PartyComponent implements AfterViewInit {
         opponentPosition.classList.add("game-box-touched")
         const alertWin = await Swal.fire({
           title: 'Victoria',
-          text: 'Has ganado a nuestro bot enhorabuena, quieres revancha?',
+          text: 'Has ganado a nuestro bot enhorabuena, quieres revancha? \nPuntuaciones:\nTu: '+message.yourScore+"\nBot1: "+message.opponentScore,
           icon: 'success',
           confirmButtonText:"Aceptar",
           cancelButtonText:"Cancelar",
@@ -272,19 +272,10 @@ export class PartyComponent implements AfterViewInit {
       }
       if(message.message=="Te gano el bot"){
         console.log("Estoy aqui")
-        const opponentPosition = document.getElementById(message.yourShoot+"enemigo")
-        const myPosition = document.getElementById(message.botAtack)
-        if(message.yourImpacted){
-          opponentPosition.classList.remove("game-box")
-          opponentPosition.classList.add("game-box-touched")
-        }else{
-          opponentPosition.classList.remove("game-box")
-          opponentPosition.classList.add("game-box-miss")
-        }
-        myPosition.style.backgroundColor='green'
+        
         const alertDefeat = await Swal.fire({
           title: 'Derrota',
-          text: 'Has perdido contra nuestro bot, quieres revancha?',
+          text: 'Has perdido contra nuestro bot, quieres revancha? \nPuntuaciones:\nTu: '+message.yourScore+"\nBot1: "+message.opponentScore,
           icon: 'error',
           confirmButtonText:"Aceptar",
           cancelButtonText:"Cancelar",

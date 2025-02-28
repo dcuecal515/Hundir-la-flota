@@ -1003,7 +1003,6 @@ namespace Server.Services
                         double timeFinished =  timeSpan.TotalSeconds;
                         Game game = await _gameService.GetGameById (partidausuario);
                         game.Time = timeFinished;
-                        await _gameService.UpdateGameAsync(game);
                         _startedTime.Remove(partidausuario);
 
                         // Usuario ganador
@@ -1025,6 +1024,10 @@ namespace Server.Services
                         await _gameService.createGameInfo(gameInfo2);
                         user.gameInfos.Add(gameInfo2);
                         await _wsHelper.UpdateUserAsync(user);
+
+                        game.gameInfos.Add(gameInfo);
+                        game.gameInfos.Add(gameInfo2);
+                        await _gameService.UpdateGameAsync(game);
 
                         foreach (WebSocketHandler handler in handlers)
                         {
@@ -1074,7 +1077,6 @@ namespace Server.Services
                         double timeFinished = timeSpan.TotalSeconds;
                         Game game = await _gameService.GetGameById(partidausuario);
                         game.Time = timeFinished;
-                        await _gameService.UpdateGameAsync(game);
                         _startedTime.Remove(partidausuario);
 
                         // Usuario perdedor
@@ -1093,6 +1095,10 @@ namespace Server.Services
                         _Semaphorepalyerbotdesconnect.Release();
                         user.Status = "Conectado";
                         await _wsHelper.UpdateUserAsync(user);
+
+                        game.gameInfos.Add(gameInfo);
+                        await _gameService.UpdateGameAsync(game);
+
                         foreach (var friend in user.friends)
                         {
                             foreach (WebSocketHandler handler in handlers)
@@ -1214,35 +1220,11 @@ namespace Server.Services
                                 }
                             }
 
-                            foreach (WebSocketHandler handler in handlers)
-                            {
-                                if (handler.Id == user2.Id)
-                                {
-                                    ShootSenderDto outMessage = new ShootSenderDto
-                                    {
-                                        Message = "Has perdido la partida",
-                                        Position = receivedUser.Identifier2
-                                    };
-                                    string messageToSend = JsonSerializer.Serialize(outMessage, JsonSerializerOptions.Web);
-                                    tasks.Add(handler.SendAsync(messageToSend));
-                                }
-                                if(handler.Id == user.Id)
-                                {
-                                    ShootSenderDto outMessage = new ShootSenderDto
-                                    {
-                                        Message = "Has ganado la parida",
-                                        Position = receivedUser.Identifier2
-                                    };
-                                    string messageToSend = JsonSerializer.Serialize(outMessage, JsonSerializerOptions.Web);
-                                    tasks.Add(handler.SendAsync(messageToSend));
-                                }
-                            }
                             int partidausuario = _partidas.FirstOrDefault(p => p.Player1.Id == user.Id || p.Player2.Id == user.Id).GameId;
                             TimeSpan timeSpan = DateTime.Now - _startedTime [partidausuario];
                             double timeFinished = timeSpan.TotalSeconds;
                             Game game = await _gameService.GetGameById(partidausuario);
                             game.Time = timeFinished;
-                            await _gameService.UpdateGameAsync(game);
                             _startedTime.Remove(partidausuario);
 
                             // Usuario ganador
@@ -1271,12 +1253,44 @@ namespace Server.Services
                             user2.gameInfos.Add(gameInfo2);
                             await _wsHelper.UpdateUserAsync(user2);
 
+                            game.gameInfos.Add(gameInfo);
+                            game.gameInfos.Add(gameInfo2);
+                            await _gameService.UpdateGameAsync(game);
+
                             await _semaphoreplayerdisconnect.WaitAsync();
                                 var partida = _partidas.FirstOrDefault(p => p.Player1.Id==userHandler.Id||p.Player2.Id==userHandler.Id);
                                 _partidas.Remove(partida);
                             _semaphoreplayerdisconnect.Release();
 
-                            Partida[] partidas = _partidas.ToArray();
+                            foreach (WebSocketHandler handler in handlers)
+                            {
+                                if (handler.Id == user2.Id)
+                                {
+                                    FinishGameMessageDto outMessage = new FinishGameMessageDto
+                                    {
+                                        Message = "Has perdido la partida",
+                                        YourScore = score,
+                                        OpponentScore = 60,
+                                        Position = receivedUser.Identifier2
+                                    };
+                                    string messageToSend = JsonSerializer.Serialize(outMessage, JsonSerializerOptions.Web);
+                                    tasks.Add(handler.SendAsync(messageToSend));
+                                }
+                                if (handler.Id == user.Id)
+                                {
+                                    FinishGameMessageDto outMessage = new FinishGameMessageDto
+                                    {
+                                        Message = "Has ganado la parida",
+                                        YourScore = 60,
+                                        OpponentScore = score,
+                                        Position = receivedUser.Identifier2
+                                    };
+                                    string messageToSend = JsonSerializer.Serialize(outMessage, JsonSerializerOptions.Web);
+                                    tasks.Add(handler.SendAsync(messageToSend));
+                                }
+                            }
+
+                            Partida [] partidas = _partidas.ToArray();
                             PartidaBot[] partidabot = _partidasbot.ToArray();
                             foreach (WebSocketHandler handler in handlers)
                             {
@@ -1554,7 +1568,6 @@ namespace Server.Services
                         double timeFinished = timeSpan.TotalSeconds;
                         Game game = await _gameService.GetGameById(partidausuario);
                         game.Time = timeFinished;
-                        await _gameService.UpdateGameAsync(game);
                         _startedTime.Remove(partidausuario);
 
                         GameInfo gameInfo = new GameInfo();
@@ -1565,6 +1578,9 @@ namespace Server.Services
                         await _gameService.createGameInfo(gameInfo);
                         user.gameInfos.Add(gameInfo);
                         await _wsHelper.UpdateUserAsync(user);
+
+                        game.gameInfos.Add(gameInfo);
+                        await _gameService.UpdateGameAsync(game);
 
                         foreach (var friend in user.friends)
                         {
@@ -1583,11 +1599,19 @@ namespace Server.Services
                             }
                         }
                     }
-                    
-                    BotResponseDto outMessage2 = new BotResponseDto
+                    int cont = 0;
+                    foreach (var ship in _ships [userHandler.Id])
+                    {
+                        cont += ship.Length;
+                    }
+                    int botScore = 60 - (cont * 5);
+
+                    FinishGameMessageDto outMessage2 = new FinishGameMessageDto
                     {
                         Message = "Has ganado al bot",
-                        YourShoot = receivedUser.Identifier
+                        YourScore = 60,
+                        OpponentScore = botScore,
+                        Position = receivedUser.Identifier
                     };
                     string messageToSend = JsonSerializer.Serialize(outMessage2, JsonSerializerOptions.Web);
                     tasks.Add(userHandler.SendAsync(messageToSend));
@@ -1624,23 +1648,25 @@ namespace Server.Services
                         double timeFinished = timeSpan.TotalSeconds;
                         Game game = await _gameService.GetGameById(partidausuario);
                         game.Time = timeFinished;
-                        await _gameService.UpdateGameAsync(game);
                         _startedTime.Remove(partidausuario);
 
                         GameInfo gameInfo = new GameInfo();
                         gameInfo.GameId = partidausuario;
                         gameInfo.State = "Derrota";
-                        int cont = 0;
-                        foreach (var ship in _ships [user.Id])
+                        int cont2 = 0;
+                        foreach (var ship in _botShips [user.Id])
                         {
-                            cont += ship.Length;
+                            cont2 += ship.Length;
                         }
-                        int score = 60 - (cont * 5);
-                        gameInfo.Score = score;
+                        int score2 = 60 - (cont2 * 5);
+                        gameInfo.Score = score2;
                         gameInfo.UserId = user.Id;
                         await _gameService.createGameInfo(gameInfo);
                         user.gameInfos.Add(gameInfo);
                         await _wsHelper.UpdateUserAsync(user);
+
+                        game.gameInfos.Add(gameInfo);
+                        await _gameService.UpdateGameAsync(game);
 
                         foreach (var friend in user.friends)
                         {
@@ -1659,12 +1685,17 @@ namespace Server.Services
                             }
                         }
                     }
-                    BotResponseDto outMessage3 = new BotResponseDto
+                    int cont = 0;
+                    foreach (var ship in _botShips [userHandler.Id])
+                    {
+                        cont += ship.Length;
+                    }
+                    int score = 60 - (cont * 5);
+                    FinishGameMessageDto outMessage3 = new FinishGameMessageDto
                     {
                         Message = "Te gano el bot",
-                        YourImpacted=yourImpacted,
-                        YourShoot=receivedUser.Identifier,
-                        BotAtack = botAtack
+                        YourScore = score,
+                        OpponentScore = 60
                     };
                     string messageToSend = JsonSerializer.Serialize(outMessage3, JsonSerializerOptions.Web);
                     tasks.Add(userHandler.SendAsync(messageToSend));
