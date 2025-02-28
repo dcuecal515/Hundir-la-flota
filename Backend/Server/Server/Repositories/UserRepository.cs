@@ -38,6 +38,7 @@ namespace Server.Repositories
         }
         public async Task<UserProfileDataDto> GetUserByIdAsync(int id)
         {
+
             User user = await GetQueryable()
                 .FirstOrDefaultAsync(user=>user.Id== id);
             if (user == null)
@@ -52,7 +53,7 @@ namespace Server.Repositories
                 {
                     NickName = user.NickName,
                     Avatar = user.Avatar,
-                    Email = user.Email
+                    Email = user.Email,
                 };
             }
             
@@ -88,6 +89,7 @@ namespace Server.Repositories
 
             FullUserDataDto fullUserData = new FullUserDataDto
             {
+                Id = id,
                 NickName = user.NickName,
                 Email = user.Email,
                 Avatar = user.Avatar,

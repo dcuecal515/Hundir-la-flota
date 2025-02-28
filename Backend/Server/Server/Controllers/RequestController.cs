@@ -31,6 +31,19 @@ namespace Server.Controllers
             return await _requestService.GetAllRequestsAsync(user.Id);
         }
 
+        [Authorize]
+        [HttpGet("Send")]
+        public async Task<IEnumerable<UserDateDto>> GetAllRequestsSendAsync()
+        {
+            User user = await GetCurrentUser();
+
+            if (user == null)
+            {
+                return null;
+            }
+            return await _requestService.GetAllRequestsSendAsync(user.Id);
+        }
+
         private async Task<User> GetCurrentUser()
         {
             // Pilla el usuario autenticado según ASP

@@ -5,6 +5,16 @@
         <p>Apodo: {{user.nickName}}</p>
         <p>Email: {{user.email}}</p>
         <p>Avatar: <img [src]="user.avatar"></p>
+        
+            @if(!activateButtonFriend && !activateButtonRequest){
+                <button (click)="requestUser(user.nickName)">Ser amigos</button>
+            }
+            @if(activateButtonRequest){
+                <button class="button-information" disabled>Ser amigos</button><p>Se ha enviado ya una solicitud</p>
+            }
+            @if(activateButtonFriend){
+                <button (click)="deleteUser(user.nickName)">Dejar de ser amigos</button>
+            }
         <!--@if(user.gamesPlayed.length != 0){
             @for(game of user.gamesPlayed; track $index){
                 <p>{{game.state}}</p>

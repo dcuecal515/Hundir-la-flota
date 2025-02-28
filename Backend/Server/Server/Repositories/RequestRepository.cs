@@ -24,5 +24,11 @@ namespace Server.Repositories
                 .Where(request => request.ReceivingUserId.Equals(userId))
                 .ToListAsync();
         }
+        public async Task<IEnumerable<Request>> GetAllRequestSendByUserId(int userId)
+        {
+            return await GetQueryable()
+                .Where(request => request.SenderUserId.Equals(userId))
+                .ToListAsync();
+        }
     }
 }
