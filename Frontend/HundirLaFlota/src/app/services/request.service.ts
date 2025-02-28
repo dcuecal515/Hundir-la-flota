@@ -17,4 +17,8 @@ export class RequestService {
   async receiveFriend():Promise<Result<Friend[]>>{
     return this.api.get<Friend[]>("Friend")
   }
+
+  async sendRequest():Promise<Result<Request[]>>{
+    return this.api.get<Request[]>("Request/Send")
+  }
 }

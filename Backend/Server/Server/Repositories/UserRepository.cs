@@ -89,6 +89,7 @@ namespace Server.Repositories
 
             FullUserDataDto fullUserData = new FullUserDataDto
             {
+                Id = id,
                 NickName = user.NickName,
                 Email = user.Email,
                 Avatar = user.Avatar,

@@ -36,5 +36,27 @@ namespace Server.Services
             return null;
             
         }
+        public async Task<IEnumerable<UserDateDto>> GetAllRequestsSendAsync(int userId)
+        {
+            IEnumerable<Request> requests = await _unitOfWork.RequestRepository.GetAllRequestSendByUserId(userId);
+
+            List<UserDateDto> requestsDtos = new List<UserDateDto>();
+
+            if (requests != null)
+            {
+                foreach (var request in requests)
+                {
+                    User user = await _unitOfWork.UserRepository.GetByIdAsync(request.ReceivingUserId);
+                    UserDateDto dto = _userMapper.toDto(user);
+                    requestsDtos.Add(dto);
+                }
+            }
+            if (requestsDtos != null)
+            {
+                return requestsDtos;
+            }
+            return null;
+
+        }
     }
 }

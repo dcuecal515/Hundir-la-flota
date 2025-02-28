@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Request } from '../models/Request';
+import { Friend } from '../models/Friend';
 
 @Injectable({
   providedIn: 'root'

@@ -97,11 +97,7 @@ export class LoginComponent {
     }else if(this.registerForm.valid){
       const User:SignUp={nickname: this.nickname.trim(), email: this.email.trim(), password: this.password.trim()}
       console.log("Estado de mi jwt: "+this.apiService.jwt);
-      if(this.avatar!=null){
         await this.authservice.register(User,this.avatar)
-      }else{
-        alert("PON UNA IMAGEN");
-      }
       console.log("Estado de mi jwt despues de registro fallido: "+this.apiService.jwt);
       if(this.apiService.jwt){
         console.log("he entrado pro que si xD");
@@ -125,7 +121,7 @@ export class LoginComponent {
     }
     else
     {
-      console.log("NO HAY IMAGEN")
+      this.avatar=null;
     }
   }
 
