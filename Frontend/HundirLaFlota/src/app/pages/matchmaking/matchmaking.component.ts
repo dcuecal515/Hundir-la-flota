@@ -223,6 +223,16 @@ export class MatchmakingComponent {
         if(message.message=="Estas ya en la lista de busqueda"){
           console.log("No busques otra vez bobo");
         }
+
+        if(message.message=="Ir a revancha con opotente anterior"){
+          this.dataService.opponentName=message.nickName
+          this.router.navigateByUrl("game")
+        }
+
+        if(message.message == "Datos iniciales"){
+          console.log("Te enfrentas a "+message.nickName)
+          this.dataService.opponentName = message.nickName
+        }
         
         this.serverResponse = message
       });

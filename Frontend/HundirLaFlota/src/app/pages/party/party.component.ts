@@ -49,6 +49,7 @@ export class PartyComponent implements AfterViewInit {
   ancho:number
   quitar:boolean=false
   timerInterval:any
+  isRequestedRematch:boolean = false
 
   ngOnInit(): void {
     this.messageReceived$ = this.webSocketService.messageReceived.subscribe(async message => {
@@ -125,12 +126,37 @@ export class PartyComponent implements AfterViewInit {
 
         const alertWin = await Swal.fire({
           title: 'Victoria',
-          text: 'Has ganado la partida',
+          text: 'Has ganado la partida, quieres revancha? \nPuntuaciones:\nTu: '+message.yourScore+"\n"+this.opponentName+": "+message.opponentScore,
           icon: 'success',
-          showConfirmButton: true
+          confirmButtonText:"Aceptar",
+          cancelButtonText:"Cancelar",
+          showConfirmButton: true,
+          showCancelButton:true
         });
         if(alertWin.isConfirmed){
+          if(!this.isRequestedRematch){
+            const messageToSend:FriendRequest={TypeMessage:"Quiere revancha primero",Identifier:this.opponentName}
+            const jsonData = JSON.stringify(messageToSend)
+            console.log(jsonData)
+            this.webSocketService.sendRxjs(jsonData)
+          }else{
+            const messageToSend:FriendRequest={TypeMessage:"Acepta la revancha",Identifier:this.opponentName}
+            const jsonData = JSON.stringify(messageToSend)
+            console.log(jsonData)
+            this.webSocketService.sendRxjs(jsonData)
+            this.router.navigateByUrl("matchmaking")
+            const message:FriendRequest={TypeMessage:"ir a revancha",Identifier:this.opponentName}
+            const jsonData2 = JSON.stringify(message)
+            console.log(jsonData2)
+            this.webSocketService.sendRxjs(jsonData2)
+          }
+        }
+        if(alertWin.isDismissed){
           this.router.navigateByUrl("menu")
+          const messageToSend:FriendRequest={TypeMessage:"No quiere revancha",Identifier:this.opponentName}
+          const jsonData = JSON.stringify(messageToSend)
+          console.log(jsonData)
+          this.webSocketService.sendRxjs(jsonData)
         }
       }
       if(message.message=="Has perdido la partida"){
@@ -139,12 +165,37 @@ export class PartyComponent implements AfterViewInit {
 
         const alertWin = await Swal.fire({
           title: 'Derrota',
-          text: 'Has perdido la partida',
+          text: 'Has perdido la partida, quieres revancha? \nPuntuaciones:\nTu: '+message.yourScore+"\n"+this.opponentName+": "+message.opponentScore,
           icon: 'error',
-          showConfirmButton: true
+          confirmButtonText:"Aceptar",
+          cancelButtonText:"Cancelar",
+          showConfirmButton: true,
+          showCancelButton:true
         });
         if(alertWin.isConfirmed){
+          if(!this.isRequestedRematch){
+            const messageToSend:FriendRequest={TypeMessage:"Quiere revancha primero",Identifier:this.opponentName}
+            const jsonData = JSON.stringify(messageToSend)
+            console.log(jsonData)
+            this.webSocketService.sendRxjs(jsonData)
+          }else{
+            const messageToSend:FriendRequest={TypeMessage:"Acepta la revancha",Identifier:this.opponentName}
+            const jsonData = JSON.stringify(messageToSend)
+            console.log(jsonData)
+            this.webSocketService.sendRxjs(jsonData)
+            this.router.navigateByUrl("matchmaking")
+            const message:FriendRequest={TypeMessage:"ir a revancha",Identifier:this.opponentName}
+            const jsonData2 = JSON.stringify(message)
+            console.log(jsonData2)
+            this.webSocketService.sendRxjs(jsonData2)
+          }
+        }
+        if(alertWin.isDismissed){
           this.router.navigateByUrl("menu")
+          const messageToSend:FriendRequest={TypeMessage:"No quiere revancha",Identifier:this.opponentName}
+          const jsonData = JSON.stringify(messageToSend)
+          console.log(jsonData)
+          this.webSocketService.sendRxjs(jsonData)
         }
       }
       if(message.message=="Se te acabo el tiempo"){
@@ -199,41 +250,76 @@ export class PartyComponent implements AfterViewInit {
         opponentPosition.classList.add("game-box-touched")
         const alertWin = await Swal.fire({
           title: 'Victoria',
-          text: 'Has ganado a nuestro bot enhorabuena',
+          text: 'Has ganado a nuestro bot enhorabuena, quieres revancha? \nPuntuaciones:\nTu: '+message.yourScore+"\nBot1: "+message.opponentScore,
           icon: 'success',
-          showConfirmButton: true
+          confirmButtonText:"Aceptar",
+          cancelButtonText:"Cancelar",
+          showConfirmButton: true,
+          showCancelButton:true
         });
-        if(alertWin.isConfirmed){
+        if(alertWin.isDismissed){
           this.router.navigateByUrl("menu")
+        }
+        if(alertWin.isConfirmed){
+          // Volver al principio
+          this.router.navigateByUrl("matchmaking")
+          const message:FriendRequest={TypeMessage:"solicitud de partida contra bot"}
+          const jsonData = JSON.stringify(message)
+          console.log(jsonData)
+          this.webSocketService.sendRxjs(jsonData)
         }
         
       }
       if(message.message=="Te gano el bot"){
         console.log("Estoy aqui")
-        const opponentPosition = document.getElementById(message.yourShoot+"enemigo")
-        const myPosition = document.getElementById(message.botAtack)
-        if(message.yourImpacted){
-          opponentPosition.classList.remove("game-box")
-          opponentPosition.classList.add("game-box-touched")
-        }else{
-          opponentPosition.classList.remove("game-box")
-          opponentPosition.classList.add("game-box-miss")
-        }
-        myPosition.style.backgroundColor='green'
+        
         const alertDefeat = await Swal.fire({
           title: 'Derrota',
-          text: 'Has perdido contra nuestro bot',
+          text: 'Has perdido contra nuestro bot, quieres revancha? \nPuntuaciones:\nTu: '+message.yourScore+"\nBot1: "+message.opponentScore,
           icon: 'error',
-          showConfirmButton: true
+          confirmButtonText:"Aceptar",
+          cancelButtonText:"Cancelar",
+          showConfirmButton: true,
+          showCancelButton:true
         });
-        if(alertDefeat.isConfirmed){
+        if(alertDefeat.isDismissed){
           this.router.navigateByUrl("menu")
         }
-        
+        if(alertDefeat.isConfirmed){
+          this.router.navigateByUrl("matchmaking")
+          const message:FriendRequest={TypeMessage:"solicitud de partida contra bot"}
+          const jsonData = JSON.stringify(message)
+          console.log(jsonData)
+          this.webSocketService.sendRxjs(jsonData)
+        }
+      }
+      if(message.message=="Tu oponente rechazo la revancha"){
+        Swal.fire({
+          title: 'Partida terminada',
+          text: 'Tu opponente no quiere revancha',
+          icon: 'error',
+          timer: 1000,
+          showConfirmButton: false
+        });
+        this.router.navigateByUrl("menu")
+      }
+      if(message.message=="Tu oponente quiere revancha"){
+        this.isRequestedRematch=true
+      }
+      if(message.message=="Tu oponente aceptó la revancha"){
+        this.router.navigateByUrl("matchmaking")
+        const message:FriendRequest={TypeMessage:"ir a revancha",Identifier:this.opponentName}
+        const jsonData = JSON.stringify(message)
+        console.log(jsonData)
+        this.webSocketService.sendRxjs(jsonData)
       }
     });
     this.disconnected$ = this.webSocketService.disconnected.subscribe(() => this.isConnected = false);
     this.startTimer()
+    if(this.dataService.opponentName != ""){
+      this.opponentName=this.dataService.opponentName
+      this.dataService.opponentName=""
+    }
   }
 
   guardarposicion(letra:string,item:number){
@@ -334,6 +420,7 @@ export class PartyComponent implements AfterViewInit {
   }
 
   stopTimerfuction(){
+    console.log(this.opponentName)
     if(this.barcos.length == 4){
       this.timeStoped = true
       clearInterval(this.timerInterval);
