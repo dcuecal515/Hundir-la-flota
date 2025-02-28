@@ -9,7 +9,7 @@
             @if(!activateButtonFriend && !activateButtonRequest){
                 <button (click)="requestUser(user.nickName)">Ser amigos</button>
             }
-            @if(activateButtonRequest){
+            @if(activateButtonRequest && !activateButtonFriend){
                 <button class="button-information" disabled>Ser amigos</button><p>Se ha enviado ya una solicitud</p>
             }
             @if(activateButtonFriend){
@@ -21,6 +21,14 @@
                 <p>{{game.opponentId}}</p>
             }
         }-->
+        @if(user.games.length != 0){
+            @for(game of user.games; track $index){
+                <p>{{game.state}}</p>
+                <p>Contra: {{game.opponentNickName}}</p>
+                <p>En {{game.timeSeconds}} segundos</p>
+                <p>Con una puntuación de: {{game.score}}</p>
+            }
+        }
     }
     @else
     { <!-- Mi perfil -->

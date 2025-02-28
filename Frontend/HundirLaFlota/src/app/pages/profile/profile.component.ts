@@ -170,7 +170,8 @@ export class ProfileComponent {
       });
       if (wantToDelete.isConfirmed) {
         Swal.fire("Confirmado", nickName+" ya no es tu amigo", "success");
-        this.activateButtonFriend=true;
+        this.activateButtonFriend=false;
+        this.activateButtonRequest=false
         const message:FriendRequest={TypeMessage:"eliminar",Identifier:nickName}
         const jsonData = JSON.stringify(message)
         console.log(jsonData)

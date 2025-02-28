@@ -96,7 +96,7 @@ namespace Server.Services
             User user = _userMapper.toEntity(receivedUser);
             PasswordService passwordService = new PasswordService();
             user.Password = passwordService.Hash(receivedUser.Password);
-            if (user.Avatar != null)
+            if (receivedUser.Avatar != null)
             {
                 user.Avatar = "/" + await _imageService.InsertAsync(receivedUser.Avatar);
             }
