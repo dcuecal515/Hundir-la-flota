@@ -23,6 +23,14 @@ namespace Server
 
         public FriendRepository FriendRepository => _friendRepository ??= new FriendRepository(_context);
 
+        private GameRepository _gameRepository;
+
+        public GameRepository GameRepository => _gameRepository ??= new GameRepository(_context);
+
+        private GameInfoRepository _gameinfoRepository;
+
+        public GameInfoRepository GameInfoRepository => _gameinfoRepository ??= new GameInfoRepository(_context);
+
         public HundirLaFlotaContext Context => _context;
 
         public async Task<bool> SaveAsync()

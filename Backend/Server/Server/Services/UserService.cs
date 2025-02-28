@@ -96,7 +96,15 @@ namespace Server.Services
             User user = _userMapper.toEntity(receivedUser);
             PasswordService passwordService = new PasswordService();
             user.Password = passwordService.Hash(receivedUser.Password);
-            user.Avatar = "/" + await _imageService.InsertAsync(receivedUser.Avatar);
+            if (receivedUser.Avatar != null)
+            {
+                user.Avatar = "/" + await _imageService.InsertAsync(receivedUser.Avatar);
+            }
+            else
+            {
+                user.Avatar = "/images/capitan.jpg";
+            }
+            
             user.Role = "User";
 
             User newUser = await InsertUserAsync(user);
@@ -112,7 +120,13 @@ namespace Server.Services
         {
             return await _unitOfWork.UserRepository.GetAllAsync();
         }
-
-
+        public async Task<UserProfileDataDto> getUserByIdAsync(int id)
+        {
+            return await _unitOfWork.UserRepository.GetUserByIdAsync(id);
+        }
+        public async Task<FullUserDataDto> GetFullUserById(int id)
+        {
+            return await _unitOfWork.UserRepository.GetFullUserById(id);
+        }
     }
 }

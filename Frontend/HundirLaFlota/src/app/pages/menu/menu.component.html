@@ -1,56 +1,113 @@
-<div class="header">
-    <button (click)="deleteToken()" class="header-logOut"><i class="fa-solid fa-right-from-bracket"></i></button>
-    <h1 class="header title">Hundir la flota</h1>
-    <!--Deplegable con solicitudes de amistad-->
-    @if(requestList != null && requestList != []){
-        <div>
-            @for(request of requestList; track request.nickName){
-                <p><b>{{request.nickName}}</b> te a solicitado ser tu amigo<button (click)="addUser(request.nickName)">Aceptar solicitud</button><button (click)="rejectUser(request.nickName)">Rechazar Solicitud</button></p>
+<div class="the-father">
+<div class="allContent">
+    <div class="header">
+        <button (click)="deleteToken()" class="header-logOut"><i class="fa-solid fa-right-from-bracket"></i></button>
+        <h1 class="header-title">Hundir la flota</h1>
+        <!--Deplegable con solicitudes de amistad-->
+        <div class="header-dropdown">
+            <div (click)="open_close_dropdown()">
+                <i class="fa-regular fa-envelope" id="request-box"></i>
+                <div class="request-count">{{requestList.length}}</div>
+            </div>
+            @if(requestList != null && requestList.length != 0){
+                <div class="header-requests-closed" id="header-requests">
+                    @for(request of requestList; track request.nickName){
+                        <div class="header-request">
+                            <p><b>{{request.nickName}}</b> te a solicitado ser tu amigo</p>
+                            <button (click)="addUser(request.nickName)"><i class="fa-solid fa-check"></i></button>
+                            <button (click)="rejectUser(request.nickName)"><i class="fa-solid fa-xmark"></i></button>
+                        </div>
+                    }
+                </div>
+            }@else{
+                <div class="header-requests-closed" id="header-requests">
+                    <div class="header-request">
+                        <p>No tienes solicitudes de amistad</p>
+                    </div>
+                </div>
             }
         </div>
-    }
-    <div>
-        <img [src]="url" alt="mi fotito wuapa" class="avatar">
-        <p class="header-name">{{decoded.nickName}}</p>
+        @if(user != null){
+            <div class="user-information" (click)="goToProfile(decoded.id)">
+                <img [src]="user.avatar" alt="mi fotito wuapa" class="avatar">
+                <p class="header-name">{{user.nickName}}</p>
+            </div>
+        }
+        
     </div>
     
-</div>
-
-<div class="body">
-    <div class="friend-list">
-        <input type="text" id="search">
-        <button (click)="search()">Buscar</button>
-        @if(friendList != null){
-            <div>
-                @for(friend of friendList; track friend.nickName){
-                    @if(compare(friend.nickName)){
-                        <img [src]="friend.avatar" alt="" class="avatar">
-                        <p>{{friend.nickName}} Estado: {{friend.status}} <button>Perfil</button><button (click)="deleteUser(friend.nickName)">Eliminar amigo</button></p>
+    <div class="body">
+        <div class="friend-list">
+            <div class="friend-list-searchBar">
+                <input type="text" id="search">
+                <button (click)="search()"><i class="fa-solid fa-magnifying-glass"></i></button>
+            </div>
+            @if(friendList != null && friendList.length != 0){
+                <div class="friend-list-friends">
+                    <h3>Jugando</h3>
+                    @for(friend of friendList; track friend.nickName){
+                        @if(compare(friend.nickName)){
+                            @if(friend.status == "Jugando"){
+                                <div class="friend-data">
+                                    <img [src]="friend.avatar" alt="" class="avatar">
+                                    <p class="friend-data-nickname">{{friend.nickName}}</p>
+                                    <button (click)="goToProfile(friend.id)">Perfil</button>
+                                    <button (click)="deleteUser(friend.nickName)"><i class="fa-solid fa-trash"></i></button>
+                                </div>
+                            }
+                        }
                     }
-                }
-            </div>
-        }
+                    <h3>Conectados</h3>
+                    @for(friend of friendList; track friend.nickName){
+                        @if(compare(friend.nickName)){
+                            @if(friend.status == "Conectado"){
+                                <div class="friend-data">
+                                    <img [src]="friend.avatar" alt="" class="avatar">
+                                    <p class="friend-data-nickname">{{friend.nickName}}</p>
+                                    <button (click)="goToProfile(friend.id)">Perfil</button>
+                                    <button (click)="deleteUser(friend.nickName)"><i class="fa-solid fa-trash"></i></button>
+                                </div>
+                            }
+                        }
+                    }
+                    <h3>Desconectados</h3>
+                    @for(friend of friendList; track friend.nickName){
+                        @if(compare(friend.nickName)){
+                            @if(friend.status == "Desconectado"){
+                                <div class="friend-data">
+                                    <img [src]="friend.avatar" alt="" class="avatar">
+                                    <p class="friend-data-nickname">{{friend.nickName}}</p>
+                                    <button (click)="goToProfile(friend.id)">Perfil</button>
+                                    <button (click)="deleteUser(friend.nickName)"><i class="fa-solid fa-trash"></i></button>
+                                </div>
+                            }
+                        }
+                    }
+                </div>
+            }@else {
+                <h3>No tienes amigos :(</h3>
+            }
+        </div>
+        <div class="main-buttons">
+            <button [routerLink]="'/matchmaking'">Jugar</button>
+            <button (click)="openAlert()">Buscar usuario</button>
+            <!--<form (ngSubmit)="searchUser()">-->
+                <!--<input type="text" [(ngModel)]="name" [ngModelOptions]="{standalone: true}">
+                <button (click)="openAlert()">Buscar usuario</button>-->
+            <!--</form>-->
+            <!--@if(userList != null){
+                <div>
+                    @for(user of userList; track user.id){
+                        <p>{{user.nickName}} @if(user.message == "no"){<button (click)="requestUser(user.nickName)">Enviar solicitud</button>}</p>
+                    }
+                </div>
+            }-->
+        </div>
+        <div class="party-requests">
+            <h3>Usuarios conectados: {{conectedUsers}}</h3>
+            <h3>Usuarios jugando: {{playingUsers}}</h3>
+            <h3>Partidas en curso: {{games}}</h3>
+        </div>
     </div>
-    <div class="main-buttons">
-        <button>Jugar</button>
-        <form (ngSubmit)="searchUser()">
-            <input type="text" [(ngModel)]="name" [ngModelOptions]="{standalone: true}">
-            <button>Buscar</button>
-        </form>
-        @if(userList != null){
-            <div>
-                @for(user of userList; track user.id){
-                    <p>{{user.nickName}} @if(user.message == "no"){<button (click)="requestUser(user.nickName)">Enviar solicitud</button>}</p>
-                }
-            </div>
-        }
-    </div>
-    <h2>Usuarios conectados: {{conectedUsers}}</h2>
 </div>
-
-
-
-
-
-
-
+</div>

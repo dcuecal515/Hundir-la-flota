@@ -1,0 +1,49 @@
+<p>profile works!</p>
+@if(user!=null){
+    @if(!isMyProfile)
+    { <!-- Perfil de otro usuario -->
+        <p>Apodo: {{user.nickName}}</p>
+        <p>Email: {{user.email}}</p>
+        <p>Avatar: <img [src]="user.avatar"></p>
+        
+            @if(!activateButtonFriend && !activateButtonRequest){
+                <button (click)="requestUser(user.nickName)">Ser amigos</button>
+            }
+            @if(activateButtonRequest && !activateButtonFriend){
+                <button class="button-information" disabled>Ser amigos</button><p>Se ha enviado ya una solicitud</p>
+            }
+            @if(activateButtonFriend){
+                <button (click)="deleteUser(user.nickName)">Dejar de ser amigos</button>
+            }
+        <!--@if(user.gamesPlayed.length != 0){
+            @for(game of user.gamesPlayed; track $index){
+                <p>{{game.state}}</p>
+                <p>{{game.opponentId}}</p>
+            }
+        }-->
+        @if(user.games.length != 0){
+            @for(game of user.games; track $index){
+                <p>{{game.state}}</p>
+                <p>Contra: {{game.opponentNickName}}</p>
+                <p>En {{game.timeSeconds}} segundos</p>
+                <p>Con una puntuación de: {{game.score}}</p>
+            }
+        }
+    }
+    @else
+    { <!-- Mi perfil -->
+        <p>Apodo: {{user.nickName}}</p><input type="text" id="nickName"><button (click)="changeNickName()">Cambiar Apodo</button>
+        <p>Email: {{user.email}}</p><input type="text" id="email"><button (click)="changeEmail()">Cambiar email</button>
+        <p>Avatar: <img [src]="user.avatar"></p><button (click)="changeOrTakeOffImage()">Cambiar o quitar avatar</button>
+        <p>Cambiar contraseña: </p><input type="password" id="password"><input type="password" id="repeat-password"><button (click)="changePassword()">Cambiar contraseña</button>
+        @if(user.games.length != 0){
+            @for(game of user.games; track $index){
+                <p>{{game.state}}</p>
+                <p>Contra: {{game.opponentNickName}}</p>
+                <p>En {{game.timeSeconds}} segundos</p>
+                <p>Con una puntuación de: {{game.score}}</p>
+            }
+        }
+    }
+}
+

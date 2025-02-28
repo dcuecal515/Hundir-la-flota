@@ -16,6 +16,9 @@ namespace Server
         // Hay que añadir los nuevos modelos cuando los tengamos
         public DbSet<User> Users { get; set; }
         public DbSet<Request> Requests { get; set; }
+        public DbSet<Friend> Friends { get; set; }
+        public DbSet<Game> Games { get; set; }
+        public DbSet<GameInfo> GameInfo { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -23,7 +26,8 @@ namespace Server
                 string baseDir = AppDomain.CurrentDomain.BaseDirectory;
                 optionsBuilder.UseSqlite($"DataSource={baseDir}{DATABASE_PATH}");
             #else
-                optionsBuilder.UseMySql(_settings.DatabaseConnection, ServerVersion.AutoDetect(_settings.DatabaseConnection));
+                string connection = "Server=db14338.databaseasp.net; Database=db14338; Uid=db14338; Pwd=4b=BA2w?6#Wm;";
+                optionsBuilder.UseMySql(connection,ServerVersion.AutoDetect(connection));
             #endif
         }
 

@@ -1,0 +1,78 @@
+<div class="the-father">
+    @if(partyGuest == null){
+        <button (click)="backToTheMenu()">Volver al menu</button>
+    }
+    <div class="title">
+        <h1>Zarpar a los mares</h1>
+    </div>
+@if(partyGuest == null){
+    <div id="body" class="body">
+    <div id="buttons" class="buttons">
+        <button id="button-design" class="button-design" (click)="gameBot()">Jugar con bot</button>
+        <button id="button-design2" class="button-design" (click)="gameFriend()">Jugar con amigo</button>
+        <button id="button-design3" class="button-design" (click)="gameRamdon()">Jugar aleatorio</button>
+    </div>
+    <div  class="player">
+        @if(gamemode=="partywithbot"){
+          <div class="player-content">
+          <div class="players-information">
+            <img class="image-players" [src]="url" alt="PLAYER">
+            <p>{{decoded.nickName}}</p>
+          </div>
+          <h1>VS</h1>
+          <div class="players-information">
+            <img class="image-players" src="assets/robot.png" alt="ROBOT">
+            <p>Robot</p>
+          </div>
+          </div>
+          
+        }
+        @if(gamemode=="partywithfriend"){
+            <p>Jugando con amigos</p>
+            @if(friendList!=null && friendList.length>0){
+                @for (friend of friendList; track friend.id) {
+                    <p>{{friend.nickName}}</p>
+                    <button (click)="sendInvite(friend.nickName)">Invitar a partida</button>
+                }
+            }
+        }
+        @if(gamemode=="partywithrandom"){
+          <p>Partida aleatoria</p>
+          <button (click)="playGameRamdon()">Jugar partida</button>
+          <button id="cancel" class="cancel" (click)="cancelSearch()">Cancelar busqueda</button>
+        }
+    </div>
+    </div>
+    @if(gamemode=="partywithbot"){
+        <div class="button-div">
+            <button class="button-play" (click)="playgame()">Jugar partida</button>
+        </div>
+    }
+}@else {
+    <p>Host: {{partyHost.nickName}}</p>
+    @if(partyHost.nickName == decoded.nickName){
+        <div class="host-data">
+            <img [src]="partyHost.avatar">
+            <h2>{{partyHost.nickName}}</h2>
+        </div>
+        <h1>VS</h1>
+        <div class="guest-data">
+            <img [src]="partyGuest.avatar">
+            <h2>{{partyGuest.nickName}}</h2>
+        </div>
+        <button (click)="exitHost()">Salir</button>
+        <button (click)="startGame()">Empezar partida</button>
+    }@else {
+        <div class="guest-data">
+            <img [src]="partyGuest.avatar">
+            <h2>{{partyGuest.nickName}}</h2>
+        </div>
+        <h1>VS</h1>
+        <div class="host-data">
+            <img [src]="partyHost.avatar">
+            <h2>{{partyHost.nickName}}</h2>
+        </div>
+        <button (click)="exitGuest()">Salir</button>
+    }
+}
+</div>

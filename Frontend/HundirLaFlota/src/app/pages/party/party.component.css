@@ -1,0 +1,111 @@
+.body-colocar-barcos{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+.rows{
+    display: flex;
+    flex-direction: row;
+}
+.tablero{
+    display: flex;
+    flex-direction: column;
+    width: 50%;
+    align-items: center;
+}
+.game-box{
+    background-color: aqua;
+    height: 50px;
+    width: 50px;
+    border: 2px solid black;
+    text-align: center;
+    cursor: pointer;
+}
+.game-box-barco4{
+    height: 50px;
+    width: 50px;
+    border: 2px solid grey;
+    text-align: center;
+    cursor: pointer;
+}
+.barcos{
+    width: 50%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+.barco4-column{
+    display: flex;
+    flex-direction: column;
+    width: 54px;
+    height: 220px;
+}
+.barco4-row{
+    display: flex;
+    flex-direction: row;
+    width: 220px;
+    height: 54px;
+}
+.barco3-column{
+        display: flex;
+        flex-direction: column;
+        width: 54px;
+        height: 162px;
+}
+.barco3-row{
+    display: flex;
+    flex-direction: row;
+    width: 162px;
+    height: 54px;
+}
+.barco32-column{
+    display: flex;
+    flex-direction: column;
+    width: 54px;
+    height: 162px;
+}
+.barco32-row{
+    display: flex;
+    flex-direction: row;
+    width: 162px;
+    height: 54px;
+}
+.barco2-column{
+    display: flex;
+    flex-direction: column;
+    width: 54px;
+    height: 108px;
+}
+.barco2-row{
+    display: flex;
+    flex-direction: row;
+    width: 108px;
+    height: 54px;
+}
+
+.game-box-view{
+    background-color: black;
+    height: 50px;
+    width: 50px;
+    border: 2px solid black;
+    text-align: center;
+    cursor: pointer;
+}
+
+.game-box-touched{
+    background-color: green;
+    height: 50px;
+    width: 50px;
+    border: 2px solid black;
+    text-align: center;
+    cursor: pointer;
+}
+
+.game-box-miss{
+    background-color: red;
+    height: 50px;
+    width: 50px;
+    border: 2px solid black;
+    text-align: center;
+    cursor: pointer;
+}
