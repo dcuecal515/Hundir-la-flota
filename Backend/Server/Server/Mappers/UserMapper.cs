@@ -36,6 +36,20 @@ namespace Server.Mappers
                 Message = "Añadido a lista de amigos"
             };
         }
+        public UserInformation toUserDateFullDto(User user)
+        {
+            return new UserInformation
+            {
+                Id= user.Id,
+                Nickname = user.NickName,
+                Avatar = user.Avatar,
+                Role = user.Role
+            };
+        }
+        public IEnumerable<UserInformation> toUserList(IEnumerable<User> users)
+        {
+            return users.Select(toUserDateFullDto);
+        }
 
     }
 }

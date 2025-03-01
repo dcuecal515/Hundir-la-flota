@@ -9,6 +9,7 @@ import { environment } from '../../environments/environment';
 import { Image } from '../models/image';
 import { Password } from '../models/password';
 import { FullUserReceived } from '../models/FullUserReceived';
+import { Userinformation } from '../models/userinformation';
 
 
 @Injectable({
@@ -59,6 +60,16 @@ export class AuthserviceService {
     const result = await this.api.get<FullUserReceived>(path,{},'json')
     result.data.avatar = environment.images+result.data.avatar;
     return result.data
+  }
+
+  async getallusers():Promise<Userinformation[]|null>{
+    const path="User"
+    const result = await this.api.get<Userinformation[]|null>(path,{},'json')
+    if (result.data){
+      const users=result.data
+      return users
+    }
+    return null
   }
 
   createForm(signup:SignUp,avatar:File) : FormData{

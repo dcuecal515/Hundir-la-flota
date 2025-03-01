@@ -128,5 +128,13 @@ namespace Server.Services
         {
             return await _unitOfWork.UserRepository.GetFullUserById(id);
         }
+        public async Task<ICollection<User>> getAllUserExceptId(int id)
+        {
+            return await _unitOfWork.UserRepository.getAllUserExceptId(id);
+        }
+        public IEnumerable<UserInformation> ToDto(IEnumerable<User> users)
+        {
+            return _userMapper.toUserList(users);
+        }
     }
 }
