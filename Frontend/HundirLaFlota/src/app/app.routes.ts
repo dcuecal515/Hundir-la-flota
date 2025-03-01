@@ -6,6 +6,7 @@ import { MatchmakingComponent } from './pages/matchmaking/matchmaking.component'
 import { PartyComponent } from './pages/party/party.component';
 import { ProfileComponent } from './pages/profile/profile.component';
 import { AdministrationComponent } from './pages/administration/administration.component';
+import { ErrorComponent } from './pages/error/error.component';
 
 export const routes: Routes = [
     {path:'',component:HomeComponent},
@@ -14,5 +15,6 @@ export const routes: Routes = [
     {path:'matchmaking',component:MatchmakingComponent},
     {path:'game',component:PartyComponent},
     {path:'profile/:id',component:ProfileComponent},
-    {path:'administration',component:AdministrationComponent}
+    {path:'administration',component:AdministrationComponent},
+    {path:'**',component:ErrorComponent}
 ];

@@ -20,6 +20,8 @@ namespace Server.Models
 
         public string Status { get; set; }
 
+        public string Ban { get; set; }
+
         public ICollection<Friend> friends { get; set; }=new List<Friend>();
 
         public ICollection<GameInfo> gameInfos { get; set; } =new List<GameInfo>();

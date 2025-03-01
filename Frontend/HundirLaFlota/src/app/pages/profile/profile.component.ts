@@ -113,7 +113,9 @@ export class ProfileComponent {
       if(message.message=="Has sido eliminado de amigos"){
         console.log("Te eliminaron")
         if(message.nickName==this.user.nickName){
-          this.activateButtonFriend=true;
+          console.log("Entre")
+          this.activateButtonFriend=false;
+          this.activateButtonRequest=false;
         }
       }
       if(message.message=="Has recibido una solicitud de amistad"){
@@ -124,6 +126,11 @@ export class ProfileComponent {
       }
       if(message.message=="Se envió correctamente la solicitud"){
         this.activateButtonRequest=true;
+      }
+      if(message.message=="Has sido baneado"){
+        this.apiService.deleteToken();
+        this.webSocketService.disconnectRxjs();
+        this.router.navigateByUrl("/login");
       }
     });
     this.disconnected$ = this.webSocketService.disconnected.subscribe(() => this.isConnected = false);

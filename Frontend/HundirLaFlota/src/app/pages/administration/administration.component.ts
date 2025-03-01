@@ -10,6 +10,9 @@ import { jwtDecode } from 'jwt-decode';
 import { Subscription } from 'rxjs';
 import Swal from 'sweetalert2';
 import { Userinformation } from '../../models/userinformation';
+import { environment } from '../../../environments/environment';
+import { Userchangerole } from '../../models/userchangerole';
+import { FriendRequest } from '../../models/FriendRequest';
 
 @Component({
   selector: 'app-administration',
@@ -26,8 +29,12 @@ export class AdministrationComponent {
             }else if(sessionStorage.getItem("token")){
               this.decoded=jwtDecode(sessionStorage.getItem("token"));
             }else{
+              router.navigateByUrl("/login")
               this.decoded=null
             }
+      if(this.decoded.role!="Admin"){
+        router.navigateByUrl("/not-found")
+      }
       this.getallusers()
   }
   decoded:User
@@ -36,6 +43,7 @@ export class AdministrationComponent {
   disconnected$: Subscription;
   isConnected: boolean = false;
   usersarray:Userinformation[]=[]
+  isRedirecting: boolean = false;
 
   ngOnInit(): void {
       console.log(this.decoded.nickName)
@@ -69,10 +77,61 @@ export class AdministrationComponent {
     }
     async getallusers(){
       const users=await this.authService.getallusers()
+      users.forEach(user => {
+        user.avatar=environment.images+user.avatar
+      });
       this.usersarray=users
       console.log("Hola:",this.usersarray);
     }
-
+    async changeRol(iduser:number,roleuser:string){
+      if(roleuser=="User"){
+        const UserChange:Userchangerole={id:iduser,role:"Admin"}
+        const result=await this.authService.changerole(UserChange)
+        if(result.success){
+          console.log("Hola")
+          this.usersarray.forEach(user => {
+            if(user.id==iduser){
+              user.role="Admin"
+            }
+          });
+        }
+      }
+      if(roleuser=="Admin"){
+        const UserChange:Userchangerole={id:iduser,role:"User"}
+        const result=await this.authService.changerole(UserChange)
+        if(result.success){
+          this.usersarray.forEach(user => {
+            if(user.id==iduser){
+              user.role="User"
+            }
+          });
+        }
+      }
+    }
+    banUser(id:number){
+        if (id != null) {
+          const User:FriendRequest={TypeMessage:"Baneando jugador" ,Identifier: id.toString(),Identifier2:null}
+          // Convertir el objeto a JSON
+          const jsonData = JSON.stringify(User);
+          console.log(JSON.stringify(User));
+          this.webSocketService.sendRxjs(jsonData);
+          this.usersarray.forEach(user => {
+            if(user.id==id){
+              user.ban="Si"
+            }
+          });
+        }
+      }
+    async quitBanUser(id:number){
+      const result=await this.authService.quitBan(id)
+      if(result.success){
+        this.usersarray.forEach(user => {
+          if(user.id==id){
+            user.ban="No"
+          }
+        });
+      }
+    }
     ngOnDestroy(): void {
       this.messageReceived$.unsubscribe();
       this.disconnected$.unsubscribe();

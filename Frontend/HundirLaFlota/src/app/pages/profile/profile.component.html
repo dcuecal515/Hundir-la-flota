@@ -43,7 +43,7 @@
         </select>
         @for(game of user.games; track $index){
             <p>{{game.state}}</p>
-            <p>Contra: {{game.opponentNickName}}</p>
+            <p>{{user.nickName}} vs {{game.opponentNickName}}</p>
             <p>En {{game.timeSeconds}} segundos</p>
             <p>Con una puntuación de: {{game.score}}</p>
 

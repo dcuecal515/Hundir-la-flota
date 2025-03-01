@@ -21,6 +21,10 @@ namespace Server.Controllers
         public async Task<LoginResultDto> RegisterUser([FromForm] SignUpDto signUpDto)
         {
             string token = await _userService.RegisterUser(signUpDto);
+            if (token == null)
+            {
+                return null;
+            }
             LoginResultDto loginResultDto = new LoginResultDto { accessToken = token};
             return loginResultDto;
         }
@@ -31,8 +35,15 @@ namespace Server.Controllers
             User user = await _userService.GetUserByIdentifierAndPassword(loginDto.Identifier, loginDto.Password);
             if (user != null)
             {
+                if (user.Ban == "No")
+                {
                 string token = _userService.ObtainToken(user);
                 return Ok(new LoginResultDto { accessToken = token });
+                }
+                else
+                {
+                    return Unauthorized();
+                }
             } else
             {
                 return Unauthorized();

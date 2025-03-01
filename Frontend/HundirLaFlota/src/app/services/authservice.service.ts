@@ -11,6 +11,7 @@ import { Password } from '../models/password';
 import { FullUserReceived } from '../models/FullUserReceived';
 import { Userinformation } from '../models/userinformation';
 import { QueryPaged } from '../models/QueryPaged';
+import { Userchangerole } from '../models/userchangerole';
 
 
 @Injectable({
@@ -74,6 +75,17 @@ export class AuthserviceService {
       return users
     }
     return null
+  }
+
+  async changerole(change:Userchangerole){
+    console.log("CamBIANDO")
+    const result=await this.api.put('User/role',change)
+    return result
+  }
+
+  async quitBan(id:number){
+    const result=await this.api.put('User/quitban',id)
+    return result
   }
 
   createForm(signup:SignUp,avatar:File) : FormData{

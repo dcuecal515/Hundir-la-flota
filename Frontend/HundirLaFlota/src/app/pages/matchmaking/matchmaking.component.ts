@@ -11,6 +11,7 @@ import { Router } from '@angular/router';
 import { DataService } from '../../services/data.service';
 import { FriendRequest } from '../../models/FriendRequest';
 import Swal from 'sweetalert2';
+import { ApiService } from '../../services/api.service';
 
 @Component({
   selector: 'app-matchmaking',
@@ -20,7 +21,7 @@ import Swal from 'sweetalert2';
   styleUrl: './matchmaking.component.css'
 })
 export class MatchmakingComponent {
-  constructor(private webSocketService:WebsocketService,private requestService:RequestService,private router:Router,private dataService:DataService){
+  constructor(private webSocketService:WebsocketService,private requestService:RequestService,private router:Router,private dataService:DataService,private apiService:ApiService){
     if(localStorage.getItem("token")){
           this.decoded=jwtDecode(localStorage.getItem("token"));
         }else if(sessionStorage.getItem("token")){
@@ -44,6 +45,7 @@ export class MatchmakingComponent {
   partyRequestSended:string[] = []
   partyHost:Request = null
   partyGuest:Request = null
+  isPlayingRamdon:boolean=false;
 
   ngOnInit(): void {
     window.addEventListener('beforeunload', () => {
@@ -245,6 +247,31 @@ export class MatchmakingComponent {
           console.log("Te enfrentas a "+message.nickName)
           this.dataService.opponentName = message.nickName
         }
+        if(message.message=="Has sido baneado"){
+          if(this.isPlayingRamdon=true){
+            const message:FriendRequest={TypeMessage:"Cancelar busqueda de partida"}
+            this.isPlayingRamdon=false
+            const jsonData = JSON.stringify(message)
+            console.log(jsonData)
+            this.webSocketService.sendRxjs(jsonData)
+          }
+          if(this.partyGuest!=null){
+            if(this.partyGuest.id==this.decoded.id){
+              const message:FriendRequest={TypeMessage:"Abandono invitado",Identifier:this.partyHost.nickName}
+              const jsonData = JSON.stringify(message)
+              console.log(jsonData)
+              this.webSocketService.sendRxjs(jsonData)
+            }else{
+              const message:FriendRequest={TypeMessage:"Abandono anfitrion",Identifier:this.partyGuest.nickName}
+              const jsonData = JSON.stringify(message)
+              console.log(jsonData)
+              this.webSocketService.sendRxjs(jsonData)
+            }
+          }
+          this.apiService.deleteToken();
+          this.webSocketService.disconnectRxjs();
+          this.router.navigateByUrl("/login");
+        }
         
         this.serverResponse = message
       });
@@ -342,6 +369,7 @@ export class MatchmakingComponent {
 
     playGameRamdon(){
       const message:FriendRequest={TypeMessage:"Buscando Partida"}
+      this.isPlayingRamdon=true
       const jsonData = JSON.stringify(message)
       console.log(jsonData)
       this.webSocketService.sendRxjs(jsonData)
@@ -351,6 +379,7 @@ export class MatchmakingComponent {
     }
     cancelSearch(){
       const message:FriendRequest={TypeMessage:"Cancelar busqueda de partida"}
+      this.isPlayingRamdon=false
       const jsonData = JSON.stringify(message)
       console.log(jsonData)
       this.webSocketService.sendRxjs(jsonData)

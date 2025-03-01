@@ -93,7 +93,7 @@ using (IServiceScope scope = app.Services.CreateScope())
     HundirLaFlotaContext dbContext = scope.ServiceProvider.GetService<HundirLaFlotaContext>();
     if (dbContext.Database.EnsureCreated())
     {
-        var user1=new User { NickName = "Manuel", Email = "example@gmail.com", Password = passwordService.Hash("123456"), Avatar = "/images/capitan.jpg", Role = "Admin", Status = "Desconectado" };
+        var user1=new User { NickName = "Manuel", Email = "example@gmail.com", Password = passwordService.Hash("123456"), Avatar = "/images/capitan.jpg", Role = "Admin", Status = "Desconectado",Ban="No" };
         dbContext.Users.Add(user1 );
         dbContext.SaveChanges();
     }
