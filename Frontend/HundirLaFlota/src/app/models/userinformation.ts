@@ -4,4 +4,5 @@ export interface Userinformation {
     email:string
     avatar:string
     role:string
+    ban:string
 }

@@ -36,6 +36,7 @@ export class MenuComponent {
     }else{
       router.navigateByUrl("login")
       this.decoded=null
+      
     }
     console.log("HOLAAAAAAAAA:"+this.decoded);
     this.reciveData()
@@ -191,6 +192,11 @@ export class MenuComponent {
             friend.nickName=message.newNickName
           }
         });
+      }
+      if(message.message=="Has sido baneado"){
+        this.apiService.deleteToken();
+        this.webSocketService.disconnectRxjs();
+        this.router.navigateByUrl("/login");
       }
       this.serverResponse = message
     });

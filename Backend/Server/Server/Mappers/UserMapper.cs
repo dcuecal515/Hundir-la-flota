@@ -41,9 +41,11 @@ namespace Server.Mappers
             return new UserInformation
             {
                 Id= user.Id,
-                Nickname = user.NickName,
+                Email=user.Email,
+                NickName = user.NickName,
                 Avatar = user.Avatar,
-                Role = user.Role
+                Role = user.Role,
+                Ban=user.Ban
             };
         }
         public IEnumerable<UserInformation> toUserList(IEnumerable<User> users)

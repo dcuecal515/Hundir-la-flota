@@ -1,1 +1,20 @@
-<p>administration works!</p>
+<div>
+    <h1>VISTA ADMINISTRADOR</h1>
+    @for(user of usersarray; track $index){
+        <img [src]="user.avatar" alt="mi imagen de usuario">
+        <p>apodo: {{user.nickName}}</p>
+        <p>email: {{user.email}}</p>
+        <p>role: {{user.role}}</p>
+        @if(user.role=="User"){
+            <button (click)="changeRol(user.id,user.role)">Volver admin</button>
+        }@else{
+            <button (click)="changeRol(user.id,user.role)">Volver usuario</button>
+        }
+        @if(user.ban=="No" && user.role=="User"){
+            <button (click)="banUser(user.id)">Banear</button>
+        }@else if(user.ban=="Si" && user.role=="User") {
+            <button (click)="quitBanUser(user.id)">Desbanear</button>
+        }
+        <br>
+    }
+</div>
