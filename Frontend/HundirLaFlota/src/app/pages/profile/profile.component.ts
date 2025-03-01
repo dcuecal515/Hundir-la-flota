@@ -50,6 +50,10 @@ export class ProfileComponent {
   newImage:File | null = null;
   activateButtonFriend:boolean=false;
   activateButtonRequest:boolean=false;
+  userId:number;
+  maximumPage:number;
+  pageSize:number = 5
+  actualPage:number = 1
 
   ngOnInit(): void {
     console.log(this.decoded.nickName)
@@ -129,16 +133,18 @@ export class ProfileComponent {
   async getUser() {
     this.routeParamMap$ = this.activatedRoute.paramMap.subscribe(async paramMap => {
       const id = paramMap.get('id') as unknown as number;
+      this.userId=id
       if(this.decoded.id != id){
         this.isMyProfile=false
       }else{
         console.log("Mi perfil")
         this.isMyProfile=true
       }
-      const result = await this.authService.getFullUserById(id)
+      const result = await this.authService.getFullUserById(id,{ActualPage:this.actualPage,GamePageSize:this.pageSize})
       if (result != null) {
         console.log("entro")
         this.user = result
+        this.maximumPage = Math.ceil(this.user.totalGames / this.pageSize);
         console.log(this.user)
         console.log("Usuario: ", this.user)
       }
@@ -147,6 +153,141 @@ export class ProfileComponent {
       }
       
     });
+  }
+
+  backToMenu(){
+    this.router.navigateByUrl("menu")
+  }
+
+  async changeNumberOfGames(){
+    const pagesSelect = document.getElementById("games-per-page") as HTMLInputElement | HTMLSelectElement;
+    if(pagesSelect){
+      this.pageSize = parseInt(pagesSelect.value)
+      this.actualPage = 1
+
+      const result = await this.authService.getFullUserById(this.userId,{ActualPage:this.actualPage,GamePageSize:this.pageSize})
+      if (result != null) {
+        this.user = result
+
+        this.maximumPage = Math.ceil(this.user.totalGames / this.pageSize);
+        // disabled botones prev y first
+        const firstBtn = document.getElementById("firstBtn") as HTMLButtonElement
+        const prevBtn = document.getElementById("prevBtn") as HTMLButtonElement
+        firstBtn.disabled = true
+        prevBtn.disabled = true
+        if(this.actualPage < this.maximumPage){
+          // disabled botones next y last
+          const nextBtn = document.getElementById("nextBtn") as HTMLButtonElement
+          const lastBtn = document.getElementById("lastBtn") as HTMLButtonElement
+          nextBtn.disabled = true
+          lastBtn.disabled = true
+        }
+      }
+      else{
+        console.log("fallo al cargar usuario")
+      }
+    }
+  }
+
+  async firstPage(){
+    if(this.actualPage > 1){
+      this.actualPage = 1
+      // Hacer disabled los botones prev y frist
+      const firstBtn = document.getElementById("firstBtn") as HTMLButtonElement
+      const prevBtn = document.getElementById("prevBtn") as HTMLButtonElement
+      firstBtn.disabled = true
+      prevBtn.disabled =true
+      if(this.actualPage < this.maximumPage){
+        // hacer enabled los botones next y last
+        const nextBtn = document.getElementById("nextBtn") as HTMLButtonElement
+        const lastBtn = document.getElementById("lastBtn") as HTMLButtonElement
+        nextBtn.disabled = false
+        lastBtn.disabled = false
+      }
+      const result = await this.authService.getFullUserById(this.userId,{ActualPage:this.actualPage,GamePageSize:this.pageSize})
+      if (result != null) {
+        this.user = result
+      }
+      else{
+        console.log("fallo al cargar usuario")
+      }
+    }
+  }
+
+  async prevPage(){
+    if(this.actualPage > 1){
+      this.actualPage = this.actualPage - 1
+      if (this.actualPage == 1) {
+        // hacer disabled los botones prev y first
+        const firstBtn = document.getElementById("firstBtn") as HTMLButtonElement
+        const prevBtn = document.getElementById("prevBtn") as HTMLButtonElement
+        firstBtn.disabled = true
+        prevBtn.disabled = true
+      }
+      if(this.actualPage < this.maximumPage){
+        // hacer enabled los botones next y last
+        const nextBtn = document.getElementById("nextBtn") as HTMLButtonElement
+        const lastBtn = document.getElementById("lastBtn") as HTMLButtonElement
+        nextBtn.disabled = false
+        lastBtn.disabled = false
+      }
+      const result = await this.authService.getFullUserById(this.userId,{ActualPage:this.actualPage,GamePageSize:this.pageSize})
+      if (result != null) {
+        this.user = result
+      }
+      else{
+        console.log("fallo al cargar usuario")
+      }
+    }
+  }
+
+  async nextPage(){
+    if(this.actualPage < this.maximumPage){
+      this.actualPage = this.actualPage + 1
+      // enabled botones prev y first
+      const firstBtn = document.getElementById("firstBtn") as HTMLButtonElement
+      const prevBtn = document.getElementById("prevBtn") as HTMLButtonElement
+      firstBtn.disabled = false
+      prevBtn.disabled = false
+      if(this.actualPage == this.maximumPage){
+        // disabled botones next y last
+        const nextBtn = document.getElementById("nextBtn") as HTMLButtonElement
+        const lastBtn = document.getElementById("lastBtn") as HTMLButtonElement
+        nextBtn.disabled = true
+        lastBtn.disabled = true
+      }
+      const result = await this.authService.getFullUserById(this.userId,{ActualPage:this.actualPage,GamePageSize:this.pageSize})
+      if (result != null) {
+        this.user = result
+      }
+      else{
+        console.log("fallo al cargar usuario")
+      }
+    }
+  }
+
+  async lastPage(){
+    if(this.actualPage < this.maximumPage){
+      this.actualPage = this.maximumPage
+      // enable botones prev y first
+      const firstBtn = document.getElementById("firstBtn") as HTMLButtonElement
+      const prevBtn = document.getElementById("prevBtn") as HTMLButtonElement
+      firstBtn.disabled = false
+      prevBtn.disabled = false
+      // disabled botones next y last
+      const nextBtn = document.getElementById("nextBtn") as HTMLButtonElement
+      const lastBtn = document.getElementById("lastBtn") as HTMLButtonElement
+      nextBtn.disabled = true
+      lastBtn.disabled = true
+
+      const result = await this.authService.getFullUserById(this.userId,{ActualPage:this.actualPage,GamePageSize:this.pageSize})
+      if (result != null) {
+        this.user = result
+      }
+      else{
+        console.log("fallo al cargar usuario")
+      }
+    }
   }
 
   requestUser(nickName){

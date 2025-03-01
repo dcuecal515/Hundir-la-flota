@@ -7,5 +7,6 @@
         public string Email { get; set; }
         public string Avatar { get; set; }
         public List<GameInfoDto> Games { get; set; }
+        public int TotalGames { get; set; }
     }
 }
