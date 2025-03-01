@@ -27,6 +27,7 @@ export class MatchmakingComponent {
         }else if(sessionStorage.getItem("token")){
           this.decoded=jwtDecode(sessionStorage.getItem("token"));
         }else{
+          router.navigateByUrl("login")
           this.decoded=null
         }
     this.url=environment.images+this.decoded.Avatar;
@@ -48,25 +49,7 @@ export class MatchmakingComponent {
   isPlayingRamdon:boolean=false;
 
   ngOnInit(): void {
-    window.addEventListener('beforeunload', () => {
-      this.partyRequestSended.forEach(nickName => {
-        const message:FriendRequest={TypeMessage:"sala finalizada",Identifier:nickName}
-        const jsonData = JSON.stringify(message)
-        console.log(jsonData)
-        this.webSocketService.sendRxjs(jsonData)
-        if(this.partyHost.nickName == this.decoded.nickName){
-          const message:FriendRequest={TypeMessage:"Abandono anfitrion",Identifier:this.partyGuest.nickName}
-          const jsonData = JSON.stringify(message)
-          console.log(jsonData)
-          this.webSocketService.sendRxjs(jsonData)
-        }else{
-          const message:FriendRequest={TypeMessage:"Abandono invitado",Identifier:this.partyHost.nickName}
-          const jsonData = JSON.stringify(message)
-          console.log(jsonData)
-          this.webSocketService.sendRxjs(jsonData)
-        }
-      });
-    });
+    
       this.messageReceived$ = this.webSocketService.messageReceived.subscribe(async message => {
         if(message.message=="amigo conectado"){
           console.log("HOLAAAA")
@@ -275,7 +258,26 @@ export class MatchmakingComponent {
         
         this.serverResponse = message
       });
-      this.disconnected$ = this.webSocketService.disconnected.subscribe(() => this.isConnected = false);
+      this.disconnected$ = this.webSocketService.disconnected.subscribe(() =>{
+        this.partyRequestSended.forEach(nickName => {
+          const message:FriendRequest={TypeMessage:"sala finalizada",Identifier:nickName}
+          const jsonData = JSON.stringify(message)
+          console.log(jsonData)
+          this.webSocketService.sendRxjs(jsonData)
+          if(this.partyHost.nickName == this.decoded.nickName){
+            const message:FriendRequest={TypeMessage:"Abandono anfitrion",Identifier:this.partyGuest.nickName}
+            const jsonData = JSON.stringify(message)
+            console.log(jsonData)
+            this.webSocketService.sendRxjs(jsonData)
+          }else{
+            const message:FriendRequest={TypeMessage:"Abandono invitado",Identifier:this.partyHost.nickName}
+            const jsonData = JSON.stringify(message)
+            console.log(jsonData)
+            this.webSocketService.sendRxjs(jsonData)
+          }
+        });
+        this.isConnected = false
+      });
     }
     backToTheMenu(){
       this.router.navigateByUrl("menu");
@@ -376,6 +378,7 @@ export class MatchmakingComponent {
       var idrecivido=document.getElementById("cancel")
       idrecivido.classList.remove("cancel")
       idrecivido.classList.add("cancelview")
+      
     }
     cancelSearch(){
       const message:FriendRequest={TypeMessage:"Cancelar busqueda de partida"}

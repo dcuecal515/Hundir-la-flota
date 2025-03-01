@@ -31,6 +31,7 @@ export class ProfileComponent {
           }else if(sessionStorage.getItem("token")){
             this.decoded=jwtDecode(sessionStorage.getItem("token"));
           }else{
+            router.navigateByUrl("login")
             this.decoded=null
           }
           console.log("HOLAA ESTE ES MI CONSTRUCTOR")

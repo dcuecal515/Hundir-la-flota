@@ -50,7 +50,7 @@
         }
         <button disabled (click)="firstPage()" id="firstBtn"><i class="fa-solid fa-angles-left"></i></button>
         <button disabled (click)="prevPage()" id="prevBtn"><i class="fa-solid fa-angle-left"></i></button>
-        @if(actualPage < maximumPage){
+        @if(actualPage >= maximumPage){
             <button disabled (click)="nextPage()" id="nextBtn"><i class="fa-solid fa-angle-right"></i></button>
             <button disabled (click)="lastPage()" id="lastBtn"><i class="fa-solid fa-angles-right"></i></button>
         }@else {
