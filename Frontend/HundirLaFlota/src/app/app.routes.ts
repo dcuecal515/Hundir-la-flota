@@ -5,6 +5,7 @@ import { MenuComponent } from './pages/menu/menu.component';
 import { MatchmakingComponent } from './pages/matchmaking/matchmaking.component';
 import { PartyComponent } from './pages/party/party.component';
 import { ProfileComponent } from './pages/profile/profile.component';
+import { AdministrationComponent } from './pages/administration/administration.component';
 
 export const routes: Routes = [
     {path:'',component:HomeComponent},
@@ -12,5 +13,6 @@ export const routes: Routes = [
     {path:'menu',component:MenuComponent},
     {path:'matchmaking',component:MatchmakingComponent},
     {path:'game',component:PartyComponent},
-    {path:'profile/:id',component:ProfileComponent}
+    {path:'profile/:id',component:ProfileComponent},
+    {path:'administration',component:AdministrationComponent}
 ];
