@@ -61,7 +61,7 @@ namespace Server.Repositories
 
         public async Task<User> GetIfExistUserByNickName(string nickName)
         {
-            return await GetQueryable().FirstOrDefaultAsync(user=>user.NickName==nickName);
+            return await GetQueryable().FirstOrDefaultAsync(user=>user.NickName.ToLower()==nickName);
         }
         public async Task<User> GetIfExistUserByEmail(string email)
         {

@@ -9,6 +9,7 @@ import { delay, Subscription } from 'rxjs';
 import { FriendRequest } from '../../models/FriendRequest';
 import Swal from 'sweetalert2';
 import { chatMessage } from '../../models/chatMessage';
+import { ApiService } from '../../services/api.service';
 
 @Component({
   selector: 'app-party',
@@ -19,7 +20,7 @@ import { chatMessage } from '../../models/chatMessage';
 })
 
 export class PartyComponent implements AfterViewInit,DoCheck {
-  constructor(private webSocketService:WebsocketService,private requestService:RequestService,private router:Router,private dataService:DataService){
+  constructor(private webSocketService:WebsocketService,private requestService:RequestService,private router:Router,private dataService:DataService,private apiService:ApiService){
       if(localStorage.getItem("token")){
             this.decoded=jwtDecode(localStorage.getItem("token"));
           }else if(sessionStorage.getItem("token")){
@@ -325,6 +326,15 @@ export class PartyComponent implements AfterViewInit,DoCheck {
         const jsonData = JSON.stringify(message)
         console.log(jsonData)
         this.webSocketService.sendRxjs(jsonData)
+      }
+      if(message.message=="Has sido baneado"){
+        const messageToSend:FriendRequest={TypeMessage:"Abandono de partida",Identifier:this.opponentName}
+        const jsonData = JSON.stringify(messageToSend)
+        console.log(jsonData)
+        this.webSocketService.sendRxjs(jsonData)
+        this.apiService.deleteToken();
+        this.webSocketService.disconnectRxjs();
+        this.router.navigateByUrl("/login");
       }
     });
     this.disconnected$ = this.webSocketService.disconnected.subscribe(() =>{
