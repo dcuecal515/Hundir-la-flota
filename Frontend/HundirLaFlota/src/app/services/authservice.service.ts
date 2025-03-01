@@ -9,6 +9,7 @@ import { environment } from '../../environments/environment';
 import { Image } from '../models/image';
 import { Password } from '../models/password';
 import { FullUserReceived } from '../models/FullUserReceived';
+import { QueryPaged } from '../models/QueryPaged';
 
 
 @Injectable({
@@ -54,9 +55,12 @@ export class AuthserviceService {
     const result=await this.api.post('User/password',contrasena)
     return result
   }
-  async getFullUserById(id:number):Promise<FullUserReceived>{
+  async getFullUserById(id:number,query:QueryPaged):Promise<FullUserReceived>{
     const path = "User/full/"+ id
-    const result = await this.api.get<FullUserReceived>(path,{},'json')
+    const result = await this.api.get<FullUserReceived>(path,{
+      "GamePageSize": query.GamePageSize,
+      "ActualPage": query.ActualPage
+    },'json')
     result.data.avatar = environment.images+result.data.avatar;
     return result.data
   }

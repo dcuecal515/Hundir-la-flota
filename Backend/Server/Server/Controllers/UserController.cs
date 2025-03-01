@@ -71,9 +71,9 @@ namespace Server.Controllers
 
         [Authorize]
         [HttpGet("full/{id}")]
-        public async Task<FullUserDataDto> GetFullUserById(int id)
+        public async Task<FullUserDataDto> GetFullUserById(int id,[FromQuery] QueryDto queryDto)
         {
-            FullUserDataDto fullUserDataDto = await _userService.GetFullUserById(id);
+            FullUserDataDto fullUserDataDto = await _userService.GetFullUserById(id, queryDto);
             return fullUserDataDto;
         }
     }
