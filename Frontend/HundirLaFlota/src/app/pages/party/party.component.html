@@ -1,28 +1,15 @@
-<p>party works!</p>
 <p>{{timeString}}</p>
-@if(barcos.length == 4){
-    @if(timeStoped == false){
-        <button (click)="stopTimerfuction()">Stop Timer</button>
-    }
-}
-@if(opponentName == "Bot1"){
-    @if(barcos.length == 4){
-        @for (letra of letras; track $index) {
-            <div class="rows">
-            @for (item of items; track $index) {
-                <div id="{{letra}}{{item}}enemigo" class="game-box" (click)="guardarposicion(letra,item)"><p>{{letra}}{{item}}</p></div>
-            }
-            </div>
+@if(opponentName != "Bot1"){
+    
+    @if(chatContent.length != 0){
+        @for (chatMessage of chatContent; track chatMessage.userName){
+            <p>{{chatMessage.userName}}: {{chatMessage.message}}</p>
         }
-    }
-}@else{
-    @for (chatMessage of chatContent; track chatMessage.userName){
-        <p>{{chatMessage.userName}}: {{chatMessage.message}}</p>
     }
     <input type="text" id="chat">
     <button (click)="sendChat()">Enviar</button>
-    
-    @if(barcos.length == 4 && barcosoponente){
+}
+    @if(barcos.length == 4 && barcosoponente && timeStoped){
         @for (letra of letras; track $index) {
             <div class="rows">
             @for (item of items; track $index) {
@@ -31,7 +18,7 @@
             </div>
         }
     }
-}
+
 
     <div class="body-colocar-barcos">
         
