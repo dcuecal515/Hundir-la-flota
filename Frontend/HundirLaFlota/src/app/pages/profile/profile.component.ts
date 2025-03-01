@@ -16,10 +16,11 @@ import { FullUserReceived } from '../../models/FullUserReceived';
 import { Request } from '../../models/Request';
 import { Friend } from '../../models/Friend';
 import { RequestService } from '../../services/request.service';
+import { RouterLink } from '@angular/router';
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [],
+  imports: [RouterLink],
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.css'
 })
@@ -34,12 +35,7 @@ export class ProfileComponent {
           }
           console.log("HOLAA ESTE ES MI CONSTRUCTOR")
           this.getUser()
-          if(!this.isMyProfile){
-            console.log("HE ENTRADO")
-            this.recievFriend()
-            this.reciveData()
-            this.sendRequest()
-          }
+          
   }
 
   decoded:User
@@ -50,6 +46,8 @@ export class ProfileComponent {
   newImage:File | null = null;
   activateButtonFriend:boolean=false;
   activateButtonRequest:boolean=false;
+  disconnected$: Subscription;
+  isConnected: boolean = false;
   userId:number;
   maximumPage:number;
   pageSize:number = 5
@@ -128,6 +126,7 @@ export class ProfileComponent {
         this.activateButtonRequest=true;
       }
     });
+    this.disconnected$ = this.webSocketService.disconnected.subscribe(() => this.isConnected = false);
   }
 
   async getUser() {
@@ -147,6 +146,12 @@ export class ProfileComponent {
         this.maximumPage = Math.ceil(this.user.totalGames / this.pageSize);
         console.log(this.user)
         console.log("Usuario: ", this.user)
+        if(!this.isMyProfile){
+          console.log("HE ENTRADO")
+          this.recievFriend()
+          this.reciveData()
+          this.sendRequest()
+        }
       }
       else{
         console.log("no entro")
@@ -468,5 +473,8 @@ export class ProfileComponent {
       }
     });
   }
-
+  ngOnDestroy(): void {
+    this.messageReceived$.unsubscribe();
+    this.disconnected$.unsubscribe();
+  }
 }

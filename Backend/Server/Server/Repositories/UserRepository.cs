@@ -123,6 +123,12 @@ namespace Server.Repositories
 
             return fullUserData;
         }
+        public async Task<ICollection<User>> getAllUserExceptId(int id)
+        {
+            return await GetQueryable()
+                .Where(user => user.Id != id)
+                .ToArrayAsync();
+        }
 
     }
 }

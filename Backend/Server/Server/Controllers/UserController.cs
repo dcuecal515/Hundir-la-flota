@@ -58,6 +58,19 @@ namespace Server.Controllers
             }
             await _userService.UpdateUser(user);
         }
+        [Authorize]
+        [HttpGet]
+        public async Task<IEnumerable<UserInformation>> GetAllUserexceptId()
+        {
+            User user = await GetCurrentUser();
+            if (user == null && !user.Role.Equals("Admin")) {
+                return null;
+            }
+            IEnumerable<User> users =await _userService.getAllUserExceptId(user.Id);
+            IEnumerable<UserInformation> userDtos = _userService.ToDto(users);
+            return userDtos;
+
+        }
         private async Task<User> GetCurrentUser()
         {
             // Pilla el usuario autenticado según ASP
