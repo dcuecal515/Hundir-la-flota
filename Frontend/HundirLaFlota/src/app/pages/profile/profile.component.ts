@@ -16,10 +16,11 @@ import { FullUserReceived } from '../../models/FullUserReceived';
 import { Request } from '../../models/Request';
 import { Friend } from '../../models/Friend';
 import { RequestService } from '../../services/request.service';
+import { RouterLink } from '@angular/router';
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [],
+  imports: [RouterLink],
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.css'
 })
@@ -30,16 +31,12 @@ export class ProfileComponent {
           }else if(sessionStorage.getItem("token")){
             this.decoded=jwtDecode(sessionStorage.getItem("token"));
           }else{
+            router.navigateByUrl("login")
             this.decoded=null
           }
           console.log("HOLAA ESTE ES MI CONSTRUCTOR")
           this.getUser()
-          if(!this.isMyProfile){
-            console.log("HE ENTRADO")
-            this.recievFriend()
-            this.reciveData()
-            this.sendRequest()
-          }
+          
   }
 
   decoded:User
@@ -50,6 +47,12 @@ export class ProfileComponent {
   newImage:File | null = null;
   activateButtonFriend:boolean=false;
   activateButtonRequest:boolean=false;
+  disconnected$: Subscription;
+  isConnected: boolean = false;
+  userId:number;
+  maximumPage:number;
+  pageSize:number = 5
+  actualPage:number = 1
 
   ngOnInit(): void {
     console.log(this.decoded.nickName)
@@ -111,7 +114,9 @@ export class ProfileComponent {
       if(message.message=="Has sido eliminado de amigos"){
         console.log("Te eliminaron")
         if(message.nickName==this.user.nickName){
-          this.activateButtonFriend=true;
+          console.log("Entre")
+          this.activateButtonFriend=false;
+          this.activateButtonRequest=false;
         }
       }
       if(message.message=="Has recibido una solicitud de amistad"){
@@ -123,30 +128,179 @@ export class ProfileComponent {
       if(message.message=="Se envió correctamente la solicitud"){
         this.activateButtonRequest=true;
       }
+      if(message.message=="Has sido baneado"){
+        this.apiService.deleteToken();
+        this.webSocketService.disconnectRxjs();
+        this.router.navigateByUrl("/login");
+      }
     });
+    this.disconnected$ = this.webSocketService.disconnected.subscribe(() => this.isConnected = false);
   }
 
   async getUser() {
     this.routeParamMap$ = this.activatedRoute.paramMap.subscribe(async paramMap => {
       const id = paramMap.get('id') as unknown as number;
+      this.userId=id
       if(this.decoded.id != id){
         this.isMyProfile=false
       }else{
         console.log("Mi perfil")
         this.isMyProfile=true
       }
-      const result = await this.authService.getFullUserById(id)
+      const result = await this.authService.getFullUserById(id,{ActualPage:this.actualPage,GamePageSize:this.pageSize})
       if (result != null) {
         console.log("entro")
         this.user = result
+        this.maximumPage = Math.ceil(this.user.totalGames / this.pageSize);
         console.log(this.user)
         console.log("Usuario: ", this.user)
+        if(!this.isMyProfile){
+          console.log("HE ENTRADO")
+          this.recievFriend()
+          this.reciveData()
+          this.sendRequest()
+        }
       }
       else{
         console.log("no entro")
       }
       
     });
+  }
+
+  backToMenu(){
+    this.router.navigateByUrl("menu")
+  }
+
+  async changeNumberOfGames(){
+    const pagesSelect = document.getElementById("games-per-page") as HTMLInputElement | HTMLSelectElement;
+    if(pagesSelect){
+      this.pageSize = parseInt(pagesSelect.value)
+      this.actualPage = 1
+
+      const result = await this.authService.getFullUserById(this.userId,{ActualPage:this.actualPage,GamePageSize:this.pageSize})
+      if (result != null) {
+        this.user = result
+
+        this.maximumPage = Math.ceil(this.user.totalGames / this.pageSize);
+        // disabled botones prev y first
+        const firstBtn = document.getElementById("firstBtn") as HTMLButtonElement
+        const prevBtn = document.getElementById("prevBtn") as HTMLButtonElement
+        firstBtn.disabled = true
+        prevBtn.disabled = true
+        if(this.actualPage < this.maximumPage){
+          // disabled botones next y last
+          const nextBtn = document.getElementById("nextBtn") as HTMLButtonElement
+          const lastBtn = document.getElementById("lastBtn") as HTMLButtonElement
+          nextBtn.disabled = true
+          lastBtn.disabled = true
+        }
+      }
+      else{
+        console.log("fallo al cargar usuario")
+      }
+    }
+  }
+
+  async firstPage(){
+    if(this.actualPage > 1){
+      this.actualPage = 1
+      // Hacer disabled los botones prev y frist
+      const firstBtn = document.getElementById("firstBtn") as HTMLButtonElement
+      const prevBtn = document.getElementById("prevBtn") as HTMLButtonElement
+      firstBtn.disabled = true
+      prevBtn.disabled =true
+      if(this.actualPage < this.maximumPage){
+        // hacer enabled los botones next y last
+        const nextBtn = document.getElementById("nextBtn") as HTMLButtonElement
+        const lastBtn = document.getElementById("lastBtn") as HTMLButtonElement
+        nextBtn.disabled = false
+        lastBtn.disabled = false
+      }
+      const result = await this.authService.getFullUserById(this.userId,{ActualPage:this.actualPage,GamePageSize:this.pageSize})
+      if (result != null) {
+        this.user = result
+      }
+      else{
+        console.log("fallo al cargar usuario")
+      }
+    }
+  }
+
+  async prevPage(){
+    if(this.actualPage > 1){
+      this.actualPage = this.actualPage - 1
+      if (this.actualPage == 1) {
+        // hacer disabled los botones prev y first
+        const firstBtn = document.getElementById("firstBtn") as HTMLButtonElement
+        const prevBtn = document.getElementById("prevBtn") as HTMLButtonElement
+        firstBtn.disabled = true
+        prevBtn.disabled = true
+      }
+      if(this.actualPage < this.maximumPage){
+        // hacer enabled los botones next y last
+        const nextBtn = document.getElementById("nextBtn") as HTMLButtonElement
+        const lastBtn = document.getElementById("lastBtn") as HTMLButtonElement
+        nextBtn.disabled = false
+        lastBtn.disabled = false
+      }
+      const result = await this.authService.getFullUserById(this.userId,{ActualPage:this.actualPage,GamePageSize:this.pageSize})
+      if (result != null) {
+        this.user = result
+      }
+      else{
+        console.log("fallo al cargar usuario")
+      }
+    }
+  }
+
+  async nextPage(){
+    if(this.actualPage < this.maximumPage){
+      this.actualPage = this.actualPage + 1
+      // enabled botones prev y first
+      const firstBtn = document.getElementById("firstBtn") as HTMLButtonElement
+      const prevBtn = document.getElementById("prevBtn") as HTMLButtonElement
+      firstBtn.disabled = false
+      prevBtn.disabled = false
+      if(this.actualPage == this.maximumPage){
+        // disabled botones next y last
+        const nextBtn = document.getElementById("nextBtn") as HTMLButtonElement
+        const lastBtn = document.getElementById("lastBtn") as HTMLButtonElement
+        nextBtn.disabled = true
+        lastBtn.disabled = true
+      }
+      const result = await this.authService.getFullUserById(this.userId,{ActualPage:this.actualPage,GamePageSize:this.pageSize})
+      if (result != null) {
+        this.user = result
+      }
+      else{
+        console.log("fallo al cargar usuario")
+      }
+    }
+  }
+
+  async lastPage(){
+    if(this.actualPage < this.maximumPage){
+      this.actualPage = this.maximumPage
+      // enable botones prev y first
+      const firstBtn = document.getElementById("firstBtn") as HTMLButtonElement
+      const prevBtn = document.getElementById("prevBtn") as HTMLButtonElement
+      firstBtn.disabled = false
+      prevBtn.disabled = false
+      // disabled botones next y last
+      const nextBtn = document.getElementById("nextBtn") as HTMLButtonElement
+      const lastBtn = document.getElementById("lastBtn") as HTMLButtonElement
+      nextBtn.disabled = true
+      lastBtn.disabled = true
+
+      const result = await this.authService.getFullUserById(this.userId,{ActualPage:this.actualPage,GamePageSize:this.pageSize})
+      if (result != null) {
+        this.user = result
+      }
+      else{
+        console.log("fallo al cargar usuario")
+      }
+    }
   }
 
   requestUser(nickName){
@@ -327,5 +481,8 @@ export class ProfileComponent {
       }
     });
   }
-
+  ngOnDestroy(): void {
+    this.messageReceived$.unsubscribe();
+    this.disconnected$.unsubscribe();
+  }
 }

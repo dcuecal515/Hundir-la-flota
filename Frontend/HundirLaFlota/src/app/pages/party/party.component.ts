@@ -1,4 +1,4 @@
-import { Component,AfterViewInit } from '@angular/core';
+import { Component,AfterViewInit, DoCheck } from '@angular/core';
 import { WebsocketService } from '../../services/websocket.service';
 import { RequestService } from '../../services/request.service';
 import { jwtDecode } from 'jwt-decode';
@@ -9,6 +9,7 @@ import { delay, Subscription } from 'rxjs';
 import { FriendRequest } from '../../models/FriendRequest';
 import Swal from 'sweetalert2';
 import { chatMessage } from '../../models/chatMessage';
+import { ApiService } from '../../services/api.service';
 
 @Component({
   selector: 'app-party',
@@ -18,13 +19,14 @@ import { chatMessage } from '../../models/chatMessage';
   styleUrl: './party.component.css'
 })
 
-export class PartyComponent implements AfterViewInit {
-  constructor(private webSocketService:WebsocketService,private requestService:RequestService,private router:Router,private dataService:DataService){
+export class PartyComponent implements AfterViewInit,DoCheck {
+  constructor(private webSocketService:WebsocketService,private requestService:RequestService,private router:Router,private dataService:DataService,private apiService:ApiService){
       if(localStorage.getItem("token")){
             this.decoded=jwtDecode(localStorage.getItem("token"));
           }else if(sessionStorage.getItem("token")){
             this.decoded=jwtDecode(sessionStorage.getItem("token"));
           }else{
+            // router.navigateByUrl("login")
             this.decoded=null
           }
   }
@@ -51,7 +53,14 @@ export class PartyComponent implements AfterViewInit {
   timerInterval:any
   isRequestedRematch:boolean = false
 
+  ngDoCheck() {
+    if (this.barcos.length === 4 && !this.timeStoped) {
+      this.stopTimerfuction();
+    }
+  }
+
   ngOnInit(): void {
+    // history.pushState(null, "", location.href);
     this.messageReceived$ = this.webSocketService.messageReceived.subscribe(async message => {
       if(message.message=="amigo conectado"){
         console.log("HOLAAAA")
@@ -318,8 +327,24 @@ export class PartyComponent implements AfterViewInit {
         console.log(jsonData)
         this.webSocketService.sendRxjs(jsonData)
       }
+      if(message.message=="Has sido baneado"){
+        const messageToSend:FriendRequest={TypeMessage:"Abandono de partida",Identifier:this.opponentName}
+        const jsonData = JSON.stringify(messageToSend)
+        console.log(jsonData)
+        this.webSocketService.sendRxjs(jsonData)
+        this.apiService.deleteToken();
+        this.webSocketService.disconnectRxjs();
+        this.router.navigateByUrl("/login");
+      }
     });
-    this.disconnected$ = this.webSocketService.disconnected.subscribe(() => this.isConnected = false);
+    this.disconnected$ = this.webSocketService.disconnected.subscribe(() =>{
+      const messageToSend:FriendRequest={TypeMessage:"Abandono de partida",Identifier:this.opponentName}
+      const jsonData = JSON.stringify(messageToSend)
+      console.log(jsonData)
+      this.webSocketService.sendRxjs(jsonData)
+
+      this.isConnected = false
+    });
     this.startTimer()
     if(this.dataService.opponentName != ""){
       this.opponentName=this.dataService.opponentName
@@ -549,13 +574,31 @@ export class PartyComponent implements AfterViewInit {
             console.log("Pongo la posicion uno")
             console.log("Esta seria mi letra"+Idsuelto[0])
             if(hijos.length==4 && (Idsuelto[0]=="j" || Idsuelto[0]=="h" || Idsuelto[0]=="i")){
-              alert("No puedes colocar el barco aqui no hay espacio suficiente")
+              Swal.fire({
+                title: 'Error',
+                text: 'No puedes colocar el barco aqui no hay espacio suficiente',
+                icon: 'error',
+                timer: 1000, 
+                showConfirmButton: false
+              });
               return
             }else if(hijos.length==3 && (Idsuelto[0]=="j" || Idsuelto[0]=="i")){
-              alert("No puedes colocar el barco aqui no hay espacio suficiente")
+              Swal.fire({
+                title: 'Error',
+                text: 'No puedes colocar el barco aqui no hay espacio suficiente',
+                icon: 'error',
+                timer: 1000, 
+                showConfirmButton: false
+              });
               return
             }else if(hijos.length==2 && Idsuelto[0]=="j" ){
-                alert("No puedes colocar el barco aqui no hay espacio suficiente")
+              Swal.fire({
+                title: 'Error',
+                text: 'No puedes colocar el barco aqui no hay espacio suficiente',
+                icon: 'error',
+                timer: 1000, 
+                showConfirmButton: false
+              });
                 return
             }else{
               const letra=Idsuelto[0]
@@ -585,7 +628,6 @@ export class PartyComponent implements AfterViewInit {
                   console.log("ENTRRREEEEEE")
                   if(this.barco.includes(posicion)){
                     console.log("ENTRRRRRREEEEEEEEE")
-                    alert("Has puesto el barco en una posicion donde ya ahi un barco ponlo en otro lado pendejo")
                     terminar=true
                   }
                 });
@@ -598,6 +640,14 @@ export class PartyComponent implements AfterViewInit {
                   posicion.style.background='grey'
                 }
                 this.quitar=true
+              }else{
+                Swal.fire({
+                  title: 'Error',
+                  text: 'Has puesto el barco en una posicion donde ya ahi un barco ponlo en otro lado',
+                  icon: 'error',
+                  timer: 1000, 
+                  showConfirmButton: false
+                });
               }
             }else{
               this.barcos.push(this.barco)
@@ -615,13 +665,31 @@ export class PartyComponent implements AfterViewInit {
             console.log("Pongo la posicion dos")
             console.log("Esta seria mi letra"+Idsuelto[0])
             if(hijos.length==4 && (Idsuelto[0]=="a" || Idsuelto[0]=="j" || Idsuelto[0]=="i")){
-              alert("No puedes colocar el barco aqui no hay espacio suficiente")
+              Swal.fire({
+                title: 'Error',
+                text: 'No puedes colocar el barco aqui no hay espacio suficiente',
+                icon: 'error',
+                timer: 1000, 
+                showConfirmButton: false
+              });
               return
             }else if(hijos.length==3 && (Idsuelto[0]=="a" || Idsuelto[0]=="j")){
-              alert("No puedes colocar el barco aqui no hay espacio suficiente")
+              Swal.fire({
+                title: 'Error',
+                text: 'No puedes colocar el barco aqui no hay espacio suficiente',
+                icon: 'error',
+                timer: 1000, 
+                showConfirmButton: false
+              });
               return
             }else if(hijos.length==2 && Idsuelto[0]=="a" ){
-              alert("No puedes colocar el barco aqui no hay espacio suficiente")
+              Swal.fire({
+                title: 'Error',
+                text: 'No puedes colocar el barco aqui no hay espacio suficiente',
+                icon: 'error',
+                timer: 1000, 
+                showConfirmButton: false
+              });
               return
             }else{
               const letra=Idsuelto[0]
@@ -656,7 +724,6 @@ export class PartyComponent implements AfterViewInit {
                   console.log("ENTRRREEEEEE")
                   if(this.barco.includes(posicion)){
                     console.log("ENTRRRRRREEEEEEEEE")
-                    alert("Has puesto el barco en una posicion donde ya ahi un barco ponlo en otro lado pendejo")
                     terminar=true
                   }
                 });
@@ -669,6 +736,14 @@ export class PartyComponent implements AfterViewInit {
                   posicion.style.background='grey'
                 }
                 this.quitar=true
+              }else{
+                Swal.fire({
+                  title: 'Error',
+                  text: 'Has puesto el barco en una posicion donde ya ahi un barco ponlo en otro lado',
+                  icon: 'error',
+                  timer: 1000, 
+                  showConfirmButton: false
+                });
               }
             }else{
               this.barcos.push(this.barco)
@@ -686,10 +761,22 @@ export class PartyComponent implements AfterViewInit {
           if(this.altura>108 && this.altura<=162){
             console.log("Pongo la posicion tres")
             if(hijos.length==4 && (Idsuelto[0]=="a" || Idsuelto[0]=="j" || Idsuelto[0]=="b")){
-              alert("No puedes colocar el barco aqui no hay espacio suficiente")
+              Swal.fire({
+                title: 'Error',
+                text: 'No puedes colocar el barco aqui no hay espacio suficiente',
+                icon: 'error',
+                timer: 1000, 
+                showConfirmButton: false
+              });
               return
             }else if(hijos.length==3 && (Idsuelto[0]=="a" || Idsuelto[0]=="b")){
-              alert("No puedes colocar el barco aqui no hay espacio suficiente")
+              Swal.fire({
+                title: 'Error',
+                text: 'No puedes colocar el barco aqui no hay espacio suficiente',
+                icon: 'error',
+                timer: 1000, 
+                showConfirmButton: false
+              });
               return
             }else{
               let posicionesanteriores=[]
@@ -728,7 +815,6 @@ export class PartyComponent implements AfterViewInit {
                   console.log("ENTRRREEEEEE")
                   if(this.barco.includes(posicion)){
                     console.log("ENTRRRRRREEEEEEEEE")
-                    alert("Has puesto el barco en una posicion donde ya ahi un barco ponlo en otro lado pendejo")
                     terminar=true
                   }
                 });
@@ -741,6 +827,14 @@ export class PartyComponent implements AfterViewInit {
                   posicion.style.background='grey'
                 }
                 this.quitar=true
+              }else{
+                Swal.fire({
+                  title: 'Error',
+                  text: 'Has puesto el barco en una posicion donde ya ahi un barco ponlo en otro lado',
+                  icon: 'error',
+                  timer: 1000, 
+                  showConfirmButton: false
+                });
               }
             }else{
               this.barcos.push(this.barco)
@@ -757,7 +851,13 @@ export class PartyComponent implements AfterViewInit {
           if(this.altura>162 && this.altura<=220){
             console.log("pongo la posicion cuatro")
             if(Idsuelto[0]=="a"|| Idsuelto[0]=="b" || Idsuelto[0]=="c"){
-              alert("No puedes colocar el barco aqui no hay espacio suficiente")
+              Swal.fire({
+                title: 'Error',
+                text: 'No puedes colocar el barco aqui no hay espacio suficiente',
+                icon: 'error',
+                timer: 1000, 
+                showConfirmButton: false
+              });
               return
             }else{
               let posicionesanteriores=[]
@@ -793,7 +893,6 @@ export class PartyComponent implements AfterViewInit {
                   console.log("ENTRRREEEEEE")
                   if(this.barco.includes(posicion)){
                     console.log("ENTRRRRRREEEEEEEEE")
-                    alert("Has puesto el barco en una posicion donde ya ahi un barco ponlo en otro lado pendejo")
                     terminar=true
                   }
                 });
@@ -806,6 +905,14 @@ export class PartyComponent implements AfterViewInit {
                   posicion.style.background='grey'
                 }
                 this.quitar=true
+              }else{
+                Swal.fire({
+                  title: 'Error',
+                  text: 'Has puesto el barco en una posicion donde ya ahi un barco ponlo en otro lado',
+                  icon: 'error',
+                  timer: 1000, 
+                  showConfirmButton: false
+                });
               }
             }else{
               this.barcos.push(this.barco)
@@ -832,13 +939,31 @@ export class PartyComponent implements AfterViewInit {
               numero=Idsuelto[1]+Idsuelto[2]
             }
             if(hijos.length==4 && (numero=="10" || numero=="9" || numero=="8")){
-              alert("No puedes colocar el barco aqui no hay espacio suficiente")
+              Swal.fire({
+                title: 'Error',
+                text: 'No puedes colocar el barco aqui no hay espacio suficiente',
+                icon: 'error',
+                timer: 1000, 
+                showConfirmButton: false
+              });
               return
             }else if(hijos.length==3 && (numero=="10" || numero=="9")){
-              alert("No puedes colocar el barco aqui no hay espacio suficiente")
+              Swal.fire({
+                title: 'Error',
+                text: 'No puedes colocar el barco aqui no hay espacio suficiente',
+                icon: 'error',
+                timer: 1000, 
+                showConfirmButton: false
+              });
               return
             }else if(hijos.length==2 && numero=="10"){
-              alert("No puedes colocar el barco aqui no hay espacio suficiente")
+              Swal.fire({
+                title: 'Error',
+                text: 'No puedes colocar el barco aqui no hay espacio suficiente',
+                icon: 'error',
+                timer: 1000, 
+                showConfirmButton: false
+              });
               return
             }
             else{
@@ -860,7 +985,6 @@ export class PartyComponent implements AfterViewInit {
                   console.log("ENTRRREEEEEE")
                   if(this.barco.includes(posicion)){
                     console.log("ENTRRRRRREEEEEEEEE")
-                    alert("Has puesto el barco en una posicion donde ya ahi un barco ponlo en otro lado pendejo")
                     terminar=true
                   }
                 });
@@ -873,6 +997,14 @@ export class PartyComponent implements AfterViewInit {
                   posicion.style.background='grey'
                 }
                 this.quitar=true
+              }else{ 
+                Swal.fire({
+                  title: 'Error',
+                  text: 'Has puesto el barco en una posicion donde ya ahi un barco ponlo en otro lado',
+                  icon: 'error',
+                  timer: 1000, 
+                  showConfirmButton: false
+                });
               }
             }else{
               this.barcos.push(this.barco)
@@ -897,13 +1029,31 @@ export class PartyComponent implements AfterViewInit {
               numero=Idsuelto[1]+Idsuelto[2]
             }
             if(hijos.length==4 && (numero=="1"||numero=="10"||numero=="9")){
-              alert("No puedes colocar el barco aqui no hay espacio suficiente")
+              Swal.fire({
+                title: 'Error',
+                text: 'No puedes colocar el barco aqui no hay espacio suficiente',
+                icon: 'error',
+                timer: 1000, 
+                showConfirmButton: false
+              });
               return
             }else if(hijos.length==3 && (numero=="1"||numero=="10")){
-              alert("No puedes colocar el barco aqui no hay espacio suficiente")
+              Swal.fire({
+                title: 'Error',
+                text: 'No puedes colocar el barco aqui no hay espacio suficiente',
+                icon: 'error',
+                timer: 1000, 
+                showConfirmButton: false
+              });
               return
             }else if(hijos.length==2 && numero=="1"){
-              alert("No puedes colocar el barco aqui no hay espacio suficiente")
+              Swal.fire({
+                title: 'Error',
+                text: 'No puedes colocar el barco aqui no hay espacio suficiente',
+                icon: 'error',
+                timer: 1000, 
+                showConfirmButton: false
+              });
               return
             }else{
               this.barco = [];
@@ -931,7 +1081,6 @@ export class PartyComponent implements AfterViewInit {
                   console.log("ENTRRREEEEEE")
                   if(this.barco.includes(posicion)){
                     console.log("ENTRRRRRREEEEEEEEE")
-                    alert("Has puesto el barco en una posicion donde ya ahi un barco ponlo en otro lado pendejo")
                     terminar=true
                   }
                 });
@@ -944,6 +1093,14 @@ export class PartyComponent implements AfterViewInit {
                   posicion.style.background='grey'
                 }
                 this.quitar=true
+              }else{
+                Swal.fire({
+                  title: 'Error',
+                  text: 'Has puesto el barco en una posicion donde ya ahi un barco ponlo en otro lado',
+                  icon: 'error',
+                  timer: 1000, 
+                  showConfirmButton: false
+                });
               }
             }else{
               this.barcos.push(this.barco)
@@ -969,10 +1126,22 @@ export class PartyComponent implements AfterViewInit {
               numero=Idsuelto[1]+Idsuelto[2]
             }
             if(hijos.length==4 && (numero=="1"||numero=="2"||numero=="10")){
-              alert("No puedes colocar el barco aqui no hay espacio suficiente")
+              Swal.fire({
+                title: 'Error',
+                text: 'No puedes colocar el barco aqui no hay espacio suficiente',
+                icon: 'error',
+                timer: 1000, 
+                showConfirmButton: false
+              });
               return
             }else if(hijos.length==3 && (numero=="1"||numero=="2")){
-              alert("No puedes colocar el barco aqui no hay espacio suficiente")
+              Swal.fire({
+                title: 'Error',
+                text: 'No puedes colocar el barco aqui no hay espacio suficiente',
+                icon: 'error',
+                timer: 1000, 
+                showConfirmButton: false
+              });
               return
             }else{
               this.barco = [];
@@ -1005,7 +1174,6 @@ export class PartyComponent implements AfterViewInit {
                   console.log("ENTRRREEEEEE")
                   if(this.barco.includes(posicion)){
                     console.log("ENTRRRRRREEEEEEEEE")
-                    alert("Has puesto el barco en una posicion donde ya ahi un barco ponlo en otro lado pendejo")
                     terminar=true
                   }
                 });
@@ -1018,6 +1186,14 @@ export class PartyComponent implements AfterViewInit {
                   posicion.style.background='grey'
                 }
                 this.quitar=true
+              }else{
+                Swal.fire({
+                  title: 'Error',
+                  text: 'Has puesto el barco en una posicion donde ya ahi un barco ponlo en otro lado',
+                  icon: 'error',
+                  timer: 1000, 
+                  showConfirmButton: false
+                });
               }
             }else{
               this.barcos.push(this.barco)
@@ -1043,7 +1219,13 @@ export class PartyComponent implements AfterViewInit {
               numero=Idsuelto[1]+Idsuelto[2]
             }
             if(numero=="1"||numero=="2"||numero=="3"){
-              alert("No puedes colocar el barco aqui no hay espacio suficiente")
+              Swal.fire({
+                title: 'Error',
+                text: 'No puedes colocar el barco aqui no hay espacio suficiente',
+                icon: 'error',
+                timer: 1000, 
+                showConfirmButton: false
+              });
               return
             }else{
               this.barco = [];
@@ -1069,7 +1251,6 @@ export class PartyComponent implements AfterViewInit {
                   console.log("ENTRRREEEEEE")
                   if(this.barco.includes(posicion)){
                     console.log("ENTRRRRRREEEEEEEEE")
-                    alert("Has puesto el barco en una posicion donde ya ahi un barco ponlo en otro lado pendejo")
                     terminar=true
                   }
                 });
@@ -1082,6 +1263,14 @@ export class PartyComponent implements AfterViewInit {
                   posicion.style.background='grey'
                 }
                 this.quitar=true
+              }else{
+                Swal.fire({
+                  title: 'Error',
+                  text: 'Has puesto el barco en una posicion donde ya ahi un barco ponlo en otro lado',
+                  icon: 'error',
+                  timer: 1000, 
+                  showConfirmButton: false
+                });
               }
             }else{
               this.barcos.push(this.barco)

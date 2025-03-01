@@ -58,6 +58,61 @@ namespace Server.Controllers
             }
             await _userService.UpdateUser(user);
         }
+        [Authorize]
+        [HttpGet]
+        public async Task<IEnumerable<UserInformation>> GetAllUserexceptId()
+        {
+            User user = await GetCurrentUser();
+            if (user == null || !user.Role.Equals("Admin")) {
+                return null;
+            }
+            IEnumerable<User> users =await _userService.getAllUserExceptId(user.Id);
+            IEnumerable<UserInformation> userDtos = _userService.ToDto(users);
+            return userDtos;
+
+        }
+        [Authorize]
+        [HttpPut("role")]
+        public async Task<IActionResult> changeRol([FromBody] ChangeRoleDto changeRoleDto)
+        {
+            User user = await GetCurrentUser();
+            if (user == null || !user.Role.Equals("Admin"))
+            {
+                return Unauthorized();
+            }
+            User userchange = await _userService.getUserByIdOnlyAsync(changeRoleDto.Id);
+            if (userchange != null)
+            {
+                userchange.Role = changeRoleDto.Role;
+            }
+            else
+            {
+                return null;
+            }
+            await _userService.UpdateUser(userchange);
+            return Ok();
+        }
+        [Authorize]
+        [HttpPut("quitban")]
+        public async Task<IActionResult> changeBan([FromBody] int id)
+        {
+            User user = await GetCurrentUser();
+            if (user == null || !user.Role.Equals("Admin"))
+            {
+                return Unauthorized();
+            }
+            User userchange = await _userService.getUserByIdOnlyAsync(id);
+            if (userchange != null)
+            {
+                userchange.Ban = "No";
+            }
+            else
+            {
+                return null;
+            }
+            await _userService.UpdateUser(userchange);
+            return Ok();
+        }
         private async Task<User> GetCurrentUser()
         {
             // Pilla el usuario autenticado según ASP
@@ -71,9 +126,9 @@ namespace Server.Controllers
 
         [Authorize]
         [HttpGet("full/{id}")]
-        public async Task<FullUserDataDto> GetFullUserById(int id)
+        public async Task<FullUserDataDto> GetFullUserById(int id,[FromQuery] QueryDto queryDto)
         {
-            FullUserDataDto fullUserDataDto = await _userService.GetFullUserById(id);
+            FullUserDataDto fullUserDataDto = await _userService.GetFullUserById(id, queryDto);
             return fullUserDataDto;
         }
     }

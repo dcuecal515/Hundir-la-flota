@@ -9,6 +9,9 @@ import { environment } from '../../environments/environment';
 import { Image } from '../models/image';
 import { Password } from '../models/password';
 import { FullUserReceived } from '../models/FullUserReceived';
+import { Userinformation } from '../models/userinformation';
+import { QueryPaged } from '../models/QueryPaged';
+import { Userchangerole } from '../models/userchangerole';
 
 
 @Injectable({
@@ -54,11 +57,35 @@ export class AuthserviceService {
     const result=await this.api.post('User/password',contrasena)
     return result
   }
-  async getFullUserById(id:number):Promise<FullUserReceived>{
+  async getFullUserById(id:number,query:QueryPaged):Promise<FullUserReceived>{
     const path = "User/full/"+ id
-    const result = await this.api.get<FullUserReceived>(path,{},'json')
+    const result = await this.api.get<FullUserReceived>(path,{
+      "GamePageSize": query.GamePageSize,
+      "ActualPage": query.ActualPage
+    },'json')
     result.data.avatar = environment.images+result.data.avatar;
     return result.data
+  }
+
+  async getallusers():Promise<Userinformation[]|null>{
+    const path="User"
+    const result = await this.api.get<Userinformation[]|null>(path,{},'json')
+    if (result.data){
+      const users=result.data
+      return users
+    }
+    return null
+  }
+
+  async changerole(change:Userchangerole){
+    console.log("CamBIANDO")
+    const result=await this.api.put('User/role',change)
+    return result
+  }
+
+  async quitBan(id:number){
+    const result=await this.api.put('User/quitban',id)
+    return result
   }
 
   createForm(signup:SignUp,avatar:File) : FormData{

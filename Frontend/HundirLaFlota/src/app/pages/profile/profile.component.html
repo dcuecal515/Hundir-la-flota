@@ -1,5 +1,6 @@
 <p>profile works!</p>
 @if(user!=null){
+    <button (click)="backToMenu()">Volver a menu</button>
     @if(!isMyProfile)
     { <!-- Perfil de otro usuario -->
         <p>Apodo: {{user.nickName}}</p>
@@ -21,14 +22,6 @@
                 <p>{{game.opponentId}}</p>
             }
         }-->
-        @if(user.games.length != 0){
-            @for(game of user.games; track $index){
-                <p>{{game.state}}</p>
-                <p>Contra: {{game.opponentNickName}}</p>
-                <p>En {{game.timeSeconds}} segundos</p>
-                <p>Con una puntuación de: {{game.score}}</p>
-            }
-        }
     }
     @else
     { <!-- Mi perfil -->
@@ -36,14 +29,37 @@
         <p>Email: {{user.email}}</p><input type="text" id="email"><button (click)="changeEmail()">Cambiar email</button>
         <p>Avatar: <img [src]="user.avatar"></p><button (click)="changeOrTakeOffImage()">Cambiar o quitar avatar</button>
         <p>Cambiar contraseña: </p><input type="password" id="password"><input type="password" id="repeat-password"><button (click)="changePassword()">Cambiar contraseña</button>
-        @if(user.games.length != 0){
-            @for(game of user.games; track $index){
-                <p>{{game.state}}</p>
-                <p>Contra: {{game.opponentNickName}}</p>
-                <p>En {{game.timeSeconds}} segundos</p>
-                <p>Con una puntuación de: {{game.score}}</p>
-            }
+
+        @if(decoded.role=="Admin"){
+            <button [routerLink]="['/administration']">pantalla admin</button>
         }
+    }
+    @if(user.games.length != 0){
+        <select id="games-per-page" (change)="changeNumberOfGames()">
+            <option value="5">5</option>
+            <option value="10">10</option>
+            <option value="15">15</option>
+            <option value="20">20</option>
+        </select>
+        @for(game of user.games; track $index){
+            <p>{{game.state}}</p>
+            <p>{{user.nickName}} vs {{game.opponentNickName}}</p>
+            <p>En {{game.timeSeconds}} segundos</p>
+            <p>Con una puntuación de: {{game.score}}</p>
+
+        }
+        <button disabled (click)="firstPage()" id="firstBtn"><i class="fa-solid fa-angles-left"></i></button>
+        <button disabled (click)="prevPage()" id="prevBtn"><i class="fa-solid fa-angle-left"></i></button>
+        @if(actualPage >= maximumPage){
+            <button disabled (click)="nextPage()" id="nextBtn"><i class="fa-solid fa-angle-right"></i></button>
+            <button disabled (click)="lastPage()" id="lastBtn"><i class="fa-solid fa-angles-right"></i></button>
+        }@else {
+            <button (click)="nextPage()" id="nextBtn"><i class="fa-solid fa-angle-right"></i></button>
+            <button (click)="lastPage()" id="lastBtn"><i class="fa-solid fa-angles-right"></i></button>
+        }
+        
+    }@else {
+        <p>No tienes partidas registradas</p>
     }
 }
 

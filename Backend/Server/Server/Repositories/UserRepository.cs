@@ -61,13 +61,13 @@ namespace Server.Repositories
 
         public async Task<User> GetIfExistUserByNickName(string nickName)
         {
-            return await GetQueryable().FirstOrDefaultAsync(user=>user.NickName==nickName);
+            return await GetQueryable().FirstOrDefaultAsync(user=>user.NickName.ToLower()==nickName);
         }
         public async Task<User> GetIfExistUserByEmail(string email)
         {
             return await GetQueryable().FirstOrDefaultAsync(user => user.Email == email);
         }
-        public async Task<FullUserDataDto> GetFullUserById(int id)
+        public async Task<FullUserDataDto> GetFullUserById(int id, QueryDto query)
         {
             User user = await GetQueryable()
                                       .Include(u => u.gameInfos)
@@ -87,13 +87,19 @@ namespace Server.Repositories
                                           .ThenInclude(gi => gi.User)
                                       .ToListAsync();
 
+            // Le damos la vuelta al array para que salga en orden de novedad
+            games.Reverse();
+
+            int totalGames = games.Count();
+
             FullUserDataDto fullUserData = new FullUserDataDto
             {
                 Id = id,
                 NickName = user.NickName,
                 Email = user.Email,
                 Avatar = user.Avatar,
-                Games = new List<GameInfoDto>()
+                Games = new List<GameInfoDto>(),
+                TotalGames = totalGames
             };
 
             foreach (var gameInfo in user.gameInfos)
@@ -113,7 +119,15 @@ namespace Server.Repositories
                 });
             }
 
+            fullUserData.Games = fullUserData.Games.Skip((query.ActualPage - 1) * query.GamePageSize).Take(query.GamePageSize).ToList();
+
             return fullUserData;
+        }
+        public async Task<ICollection<User>> getAllUserExceptId(int id)
+        {
+            return await GetQueryable()
+                .Where(user => user.Id != id)
+                .ToArrayAsync();
         }
 
     }

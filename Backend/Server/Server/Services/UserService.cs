@@ -94,6 +94,11 @@ namespace Server.Services
         public async Task<string> RegisterUser(SignUpDto receivedUser)
         {
             User user = _userMapper.toEntity(receivedUser);
+            User userexist = await _unitOfWork.UserRepository.GetIfExistUserByNickName(user.NickName.ToLower());
+            if (userexist != null)
+            {
+                return null;
+            }
             PasswordService passwordService = new PasswordService();
             user.Password = passwordService.Hash(receivedUser.Password);
             if (receivedUser.Avatar != null)
@@ -106,6 +111,8 @@ namespace Server.Services
             }
             
             user.Role = "User";
+
+            user.Ban = "No";
 
             User newUser = await InsertUserAsync(user);
 
@@ -124,9 +131,21 @@ namespace Server.Services
         {
             return await _unitOfWork.UserRepository.GetUserByIdAsync(id);
         }
-        public async Task<FullUserDataDto> GetFullUserById(int id)
+        public async Task<FullUserDataDto> GetFullUserById(int id, QueryDto queryDto)
         {
-            return await _unitOfWork.UserRepository.GetFullUserById(id);
+            return await _unitOfWork.UserRepository.GetFullUserById(id, queryDto);
+        }
+        public async Task<ICollection<User>> getAllUserExceptId(int id)
+        {
+            return await _unitOfWork.UserRepository.getAllUserExceptId(id);
+        }
+        public IEnumerable<UserInformation> ToDto(IEnumerable<User> users)
+        {
+            return _userMapper.toUserList(users);
+        }
+        public async Task<User> getUserByIdOnlyAsync(int id)
+        {
+            return await _unitOfWork.UserRepository.GetByIdAsync(id);
         }
     }
 }

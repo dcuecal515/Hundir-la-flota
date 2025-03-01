@@ -2008,6 +2008,38 @@ namespace Server.Services
                     await _wsHelper.UpdateUserAsync(user);
                 }
             }
+            if(receivedUser.TypeMessage.Equals("Baneando jugador"))
+            {
+                using (var scope = _serviceProvider.CreateScope())
+                {
+                    var _wsHelper = scope.ServiceProvider.GetRequiredService<WSHelper>();
+
+                    User user = await _wsHelper.GetUserById(userHandler.Id);
+                    
+                    if (user.Role.Equals("Admin"))
+                    {
+                        User userban = await _wsHelper.GetUserById(int.Parse(receivedUser.Identifier));
+                        userban.Ban = "Si";
+                        await _wsHelper.UpdateUserAsync(userban);
+                        foreach (WebSocketHandler handler in handlers)
+                        {
+                            if (handler.Id == userban.Id)
+                            {
+                                WebsocketMessageDto outMessage = new WebsocketMessageDto
+                                {
+                                    Message="Has sido baneado"
+                                };
+                                string messageToSend = JsonSerializer.Serialize(outMessage, JsonSerializerOptions.Web);
+                                tasks.Add(handler.SendAsync(messageToSend));
+                            }
+                        }
+                    }
+                    else
+                    {
+                        return;
+                    }
+                }
+            }
 
             await Task.WhenAll(tasks);
         }

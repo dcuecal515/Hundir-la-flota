@@ -34,7 +34,9 @@ export class MenuComponent {
     }else if(sessionStorage.getItem("token")){
       this.decoded=jwtDecode(sessionStorage.getItem("token"));
     }else{
+      router.navigateByUrl("login")
       this.decoded=null
+      
     }
     console.log("HOLAAAAAAAAA:"+this.decoded);
     this.reciveData()
@@ -126,8 +128,12 @@ export class MenuComponent {
             friend.status="Desconectado"
           }
         });
-        this.conectedUsers=this.conectedUsers
-        this.dataService.players=message.quantity
+        this.conectedUsers=message.quantity
+        this.dataService.players=this.conectedUsers
+        this.playingUsers=message.quantityplayer
+        this.dataService.playersPlaying=message.quantityplayer
+        this.games=message.quantitygame
+        this.dataService.games=message.quantitygame
       }
       if(message.message=="Has recibido una solicitud de partida"){
         console.log("Solicitud de partida de "+message.nickName)
@@ -186,6 +192,11 @@ export class MenuComponent {
             friend.nickName=message.newNickName
           }
         });
+      }
+      if(message.message=="Has sido baneado"){
+        this.apiService.deleteToken();
+        this.webSocketService.disconnectRxjs();
+        this.router.navigateByUrl("/login");
       }
       this.serverResponse = message
     });
