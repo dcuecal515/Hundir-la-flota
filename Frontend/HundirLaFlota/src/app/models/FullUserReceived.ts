@@ -6,4 +6,5 @@ export interface FullUserReceived{
     email:string
     avatar:string
     games:Game[]
+    totalGames:number
 }
