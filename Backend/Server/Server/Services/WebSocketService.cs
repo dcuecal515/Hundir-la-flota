@@ -1050,7 +1050,6 @@ namespace Server.Services
                                 };
                                 string messageToSend = JsonSerializer.Serialize(outMessage, JsonSerializerOptions.Web);
                                 tasks.Add(handler.SendAsync(messageToSend));
-                                await _semaphoreplayerdisconnect.WaitAsync();
                             }
                             if (handler.Id == user.Id)
                             {
