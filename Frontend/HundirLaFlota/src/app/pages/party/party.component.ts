@@ -26,10 +26,10 @@ export class PartyComponent implements AfterViewInit,DoCheck {
           }else if(sessionStorage.getItem("token")){
             this.decoded=jwtDecode(sessionStorage.getItem("token"));
           }else{
-            // router.navigateByUrl("login")
+            router.navigateByUrl("login")
             this.decoded=null
           }
-        this.addUnloadListener()
+        window.addEventListener('beforeunload', this.beforeUnloadHandler);
   }
   decoded:User;
   messageReceived$: Subscription;
@@ -64,19 +64,19 @@ export class PartyComponent implements AfterViewInit,DoCheck {
     }
   }
 
-  private addUnloadListener() {
-    window.addEventListener('beforeunload', (event) => {
-      const messageToSend:FriendRequest={TypeMessage:"Abandono de partida",Identifier:this.opponentName}
-      const jsonData = JSON.stringify(messageToSend)
-      console.log(jsonData)
-      this.webSocketService.sendRxjs(jsonData)
-      this.router.navigateByUrl("matchmaking")
-      const message:FriendRequest={TypeMessage:"solicitud de partida contra bot"}
-      const jsonData2 = JSON.stringify(message)
-      console.log(jsonData2)
-      this.webSocketService.sendRxjs(jsonData2)
-    });
-  }
+  private beforeUnloadHandler = (event: Event) => {
+    const messageToSend: FriendRequest = { TypeMessage: "Abandono de partida", Identifier: this.opponentName };
+    const jsonData = JSON.stringify(messageToSend);
+    console.log(jsonData);
+    this.webSocketService.sendRxjs(jsonData);
+  
+    this.router.navigateByUrl("matchmaking");
+  
+    const message: FriendRequest = { TypeMessage: "solicitud de partida contra bot" };
+    const jsonData2 = JSON.stringify(message);
+    console.log(jsonData2);
+    this.webSocketService.sendRxjs(jsonData2);
+  };
 
   ngOnInit(): void {
     // history.pushState(null, "", location.href);
@@ -519,6 +519,7 @@ export class PartyComponent implements AfterViewInit,DoCheck {
   ngOnDestroy(): void {
     this.messageReceived$.unsubscribe();
     this.disconnected$.unsubscribe();
+    window.removeEventListener('beforeunload', this.beforeUnloadHandler);
   }
   
   ngAfterViewInit() {
