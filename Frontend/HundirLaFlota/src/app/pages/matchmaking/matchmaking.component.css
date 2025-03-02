@@ -5,10 +5,14 @@
 /*Estilo de mi pagiuna sin pulsar ningun boton*/
 .the-father{
     height: 100vh;
+    background-image: url(/assets/background.png);
+    background-repeat: no-repeat;
+    background-size: cover;
 }
 .title{
     text-align: center;
     margin-bottom: 10%;
+    font-family: titulo;
 }
 .buttons{
     display: flex;
@@ -100,6 +104,155 @@
     flex-direction: column;
     align-items: center;
     margin-top: 10%;
+}
+/*partida con amigos*/
+.player-friend{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+.host-data{
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+.guest-data{
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+.image-player{
+    width: 300px;
+    height: 300px;
+    max-width: 100%;
+    max-height: 100%;
+}
+.button-div-friend{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.title-friend{
+    margin: 0;
+    text-align: center;
+    font-family: titulo;
+}
+h3{
+    font-family: titulo;
+}
+h1{
+    font-family: titulo;
+    margin: 0;
+}
+h2{
+    text-align: center;
+}
+.exit{
+    height: 50px;
+    width: 50px;
+    border: none;
+    background-color: rgb(126, 126, 126);
+    color: rgb(63, 16, 16);
+    cursor: pointer;
+    font-family: titulo;
+}
+/*Responsive*/
+@media(max-width:1000px){
+    .the-father{
+        height: 110vh;
+    }
+    .bodyview{
+        flex-direction: column;
+        height: 50%;
+        align-items: center;
+        gap: 20px;
+    }
+    .button-design-view{
+        height: 100%;
+        font-size: 1em;
+    }
+    .buttonsview{
+        gap: 20px;
+    }
+    .player-content{
+        gap: 20px;
+    }
+    .players-information{
+        gap: 20px;
+        width: 100%;
+    }
+}
+@media(max-width:875px){
+    .the-father{
+        height: 112vh;
+    }
+    .button-div{
+        margin-top: 15%;
+    }
+}
+@media(max-width:830px){
+.button-design{
+    font-size: 1em;
+}
+}
+@media(max-width:710px){
+    .button-play{
+        font-size: 1em;
+    }
+}
+@media(max-width:696px){
+    .button-design-view{
+        width: 80%;
+    }
+    .button-div{
+        margin-top:20%;
+    }
+}
+@media(max-width:580px){
+    .button-design{
+        width: 50%;
+    }
+}
+@media(max-width:540px){
+    .button-div{
+        margin-top: 23%;
+    }
+    .button-play{
+        width: 40%
+    }
+}
+@media(max-width:540px){
+    .button-div{
+        margin-top: 28%;
+    }
+}
+@media(max-width:435px){
+    .button-design-view{
+        width: 100%;
+    }
+}
+@media(max-width:376px){
+    .button-div{
+        margin-top: 32%;
+    }
+    .button-play{
+        width: 50%;
+    }
+}
+@media(max-width:348px){
+    .the-father{
+        height: 120vh;
+    }
+    .button-design{
+        width: 55%;
+    }
+    .button-div{
+        margin-top: 50%;
+    }
 }
 /*esto aparte por ahora*/
 .cancel{

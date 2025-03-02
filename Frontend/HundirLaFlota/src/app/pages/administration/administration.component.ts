@@ -132,6 +132,10 @@ export class AdministrationComponent {
         });
       }
     }
+    backToTheProfile(id:number){
+      const route: string = `profile/${id}`;
+    this.router.navigateByUrl(route);
+    }
     ngOnDestroy(): void {
       this.messageReceived$.unsubscribe();
       this.disconnected$.unsubscribe();
