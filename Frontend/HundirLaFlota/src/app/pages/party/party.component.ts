@@ -1315,7 +1315,7 @@ export class PartyComponent implements AfterViewInit,DoCheck {
       const item = document.querySelector("#" + id);
       dropzone.append(item);
     });*/
-  }
+}
   cambiarposicionbarco4(){
     var barco4=document.getElementById("barco4");
     if(barco4.classList.contains("barco4-column")){
