@@ -1,20 +1,29 @@
-<div>
-    <h1>VISTA ADMINISTRADOR</h1>
+<div class="button">
+    <button class="exit" (click)="backToTheProfile(this.decoded.id)"><i class="fa-solid fa-arrow-left fa-xl"></i></button>
+</div>
+<div class="the-father">
+    <h1>ADMINISTRADOR</h1>
     @for(user of usersarray; track $index){
-        <img [src]="user.avatar" alt="mi imagen de usuario">
-        <p>apodo: {{user.nickName}}</p>
-        <p>email: {{user.email}}</p>
-        <p>role: {{user.role}}</p>
-        @if(user.role=="User"){
-            <button (click)="changeRol(user.id,user.role)">Volver admin</button>
-        }@else{
-            <button (click)="changeRol(user.id,user.role)">Volver usuario</button>
-        }
-        @if(user.ban=="No" && user.role=="User"){
-            <button (click)="banUser(user.id)">Banear</button>
-        }@else if(user.ban=="Si" && user.role=="User") {
-            <button (click)="quitBanUser(user.id)">Desbanear</button>
-        }
+        <div class="user-information">
+            <img class="user-image" [src]="user.avatar" alt="mi imagen de usuario">
+            <div class="user-information-all">
+                <h3><b>Apodo:</b> {{user.nickName}}</h3>
+                <h3><b>Email:</b> {{user.email}}</h3>
+                <h3><b>Role:</b> {{user.role}}</h3>
+            </div>
+            <div class="buttons">
+                @if(user.role=="User"){
+                    <button class="button-normal" (click)="changeRol(user.id,user.role)">Volver admin</button>
+                }@else{
+                    <button class="button-normal" (click)="changeRol(user.id,user.role)">Volver usuario</button>
+                }
+                @if(user.ban=="No" && user.role=="User"){
+                    <button class="button-bad" (click)="banUser(user.id)">Banear</button>
+                }@else if(user.ban=="Si" && user.role=="User") {
+                    <button class="button-good" (click)="quitBanUser(user.id)">Desbanear</button>
+                }
+            </div>
+        </div>
         <br>
     }
 </div>

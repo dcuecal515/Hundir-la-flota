@@ -72,6 +72,30 @@ export class AdministrationComponent {
           console.log("Ahora tu amigo se ha desconectado:"+message.friendId)
           this.dataService.players=message.quantity
         }
+        if(message.message=="Has recibido una solicitud de partida"){
+                console.log("Solicitud de partida de "+message.nickName)
+                const playRequest = await Swal.fire({
+                                title: "Solicitud de partida",
+                                text: message.nickName+" te a invitado a jugar",
+                                icon: "info",
+                                showCancelButton: true,
+                                confirmButtonText: "Aceptar",
+                                cancelButtonText: "Cerrar"
+                              });
+                              if (playRequest.isConfirmed) {
+                                Swal.fire("Aceptada", "Entrando a partida", "success");
+                                this.router.navigate(['/matchmaking']);
+                                const messageToSend:FriendRequest={TypeMessage:"Aceptar Partida",Identifier:message.nickName}
+                                const jsonData = JSON.stringify(messageToSend)
+                                console.log(jsonData)
+                                this.webSocketService.sendRxjs(jsonData)
+                              } else {
+                                const messageToSend:FriendRequest={TypeMessage:"Rechazar Partida",Identifier:message.nickName}
+                                const jsonData = JSON.stringify(messageToSend)
+                                console.log(jsonData)
+                                this.webSocketService.sendRxjs(jsonData)
+                              }
+              }
       });
       this.disconnected$ = this.webSocketService.disconnected.subscribe(() => this.isConnected = false);
     }
@@ -131,6 +155,10 @@ export class AdministrationComponent {
           }
         });
       }
+    }
+    backToTheProfile(id:number){
+      const route: string = `profile/${id}`;
+    this.router.navigateByUrl(route);
     }
     ngOnDestroy(): void {
       this.messageReceived$.unsubscribe();

@@ -1,19 +1,140 @@
-.body-colocar-barcos{
+@font-face{
+    font-family: titulo;
+    src: url('/assets/fonts/oldtimer.regular.ttf');
+}
+
+.all-content {
     display: flex;
     flex-direction: row;
-    justify-content: space-between;
+    width: 100%;
+    min-height: 100vh;
+    background-image: url(/assets/background.png);
+    background-repeat: no-repeat;
+    background-size: cover;
 }
-.rows{
-    display: flex;
-    flex-direction: row;
-}
-.tablero{
+
+.left-side {
     display: flex;
     flex-direction: column;
-    width: 50%;
+    width: 25%;
+    padding: 15px;
+}
+
+.timerContainer {
+    height: 20%;
+    text-align: center;
+    display: flex;
+    justify-content: center;
     align-items: center;
 }
-.game-box{
+
+.timerText {
+    font-size: 2em;
+    font-weight: bold;
+    color: black;
+    font-family: titulo;
+}
+
+.chatContainer {
+    height: 70%;
+    overflow-y: auto;
+    margin-bottom: 10px;
+}
+
+.myChat,
+.opponentChat {
+    margin: 5px 0;
+    padding: 8px;
+    border-radius: 10px;
+    font-size: 1em;
+    max-width: 80%;
+}
+
+.myChat {
+    background-color: #e1ffe1;
+    align-self: flex-end;
+}
+
+.opponentChat {
+    background-color: #e0e0e0;
+    align-self: flex-start;
+}
+
+.inputChat {
+    width: 80%;
+    padding: 10px;
+    font-size: 1em;
+    margin-top: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.sendChatBtn {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+    border-radius: 5px;
+    margin-left: 2%;
+    transition: background-color 0.3s ease;
+}
+
+.sendChatBtn:hover {
+    background-color: #0056b3;
+}
+
+.exitBtnContainer {
+    height: 10%;
+    text-align: center;
+    margin-top: 10px;
+}
+
+.exitBtnContainer button {
+    background-color: #ff4d4d;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    font-size: 1.1em;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+.exitBtnContainer button:hover {
+    background-color: #cc0000;
+}
+
+.boards {
+    display: flex;
+    flex-direction: column;
+    width: 75%;
+}
+
+.body-colocar-barcos {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+.tablero-enemigo {
+    margin-bottom: 2%;
+    display: flex;
+    flex-direction: column;
+    margin-right: 30%;
+}
+
+.rows {
+    display: flex;
+    flex-direction: row;
+}
+
+.tablero {
+    display: flex;
+    flex-direction: column;
+}
+
+.game-box {
     background-color: aqua;
     height: 50px;
     width: 50px;
@@ -21,19 +142,51 @@
     text-align: center;
     cursor: pointer;
 }
-.game-box-barco4{
+
+.game-box-view{
+    background-color: black;
     height: 50px;
     width: 50px;
-    border: 2px solid grey;
+    border: 2px solid black;
     text-align: center;
     cursor: pointer;
 }
-.barcos{
+
+.game-box-touched{
+    background-color: green;
+    height: 50px;
+    width: 50px;
+    border: 2px solid black;
+    text-align: center;
+    cursor: pointer;
+}
+
+.game-box-miss{
+    background-color: red;
+    height: 50px;
+    width: 50px;
+    border: 2px solid black;
+    text-align: center;
+    cursor: pointer;
+}
+
+.game-box-barco4 {
+    height: 50px;
+    width: 50px;
+    border: 2px solid rgb(63, 63, 63);
+    background-color: grey;
+    text-align: center;
+    cursor: pointer;
+}
+
+.barcos {
     width: 50%;
     height: 100%;
     display: flex;
     flex-direction: column;
+    align-items: center;
 }
+
 .barco4-column{
     display: flex;
     flex-direction: column;
@@ -47,10 +200,10 @@
     height: 54px;
 }
 .barco3-column{
-        display: flex;
-        flex-direction: column;
-        width: 54px;
-        height: 162px;
+    display: flex;
+    flex-direction: column;
+    width: 54px;
+    height: 162px;
 }
 .barco3-row{
     display: flex;
@@ -83,29 +236,145 @@
     height: 54px;
 }
 
-.game-box-view{
-    background-color: black;
-    height: 50px;
-    width: 50px;
-    border: 2px solid black;
-    text-align: center;
-    cursor: pointer;
+.barco4-column:hover,
+.barco3-column:hover,
+.barco32-column:hover,
+.barco2-column:hover,
+.barco4-row:hover,
+.barco3-row:hover,
+.barco32-row:hover,
+.barco2-row:hover {
+    transform: scale(1.05);
+    transition: transform 0.2s ease;
 }
 
-.game-box-touched{
-    background-color: green;
-    height: 50px;
-    width: 50px;
-    border: 2px solid black;
-    text-align: center;
-    cursor: pointer;
+/* RESPONSIVE */
+
+@media(max-width:1337px){
+    .inputChat{
+        width: 75%;
+    }
 }
 
-.game-box-miss{
-    background-color: red;
-    height: 50px;
-    width: 50px;
-    border: 2px solid black;
-    text-align: center;
-    cursor: pointer;
+@media (max-width: 1024px) {
+    .chatContent{
+        max-height: 12em;
+        overflow-y: auto; 
+    }
+    .inputChat {
+        width: 70%;
+    }
+    .body-colocar-barcos {
+        flex-direction: column;
+        align-items: center;
+    }
+    .tablero-enemigo {
+        margin-right: 0;
+    }
+    .barcos {
+        flex-direction: row;
+        width: 90%;
+        height: auto;
+        justify-content: space-between;
+    }
+}
+
+@media (max-width: 768px) {
+    .tablero-enemigo{
+        align-self: center;
+    }
+    .all-content {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .left-side {
+        width: 100%;
+        padding: 10px;
+        align-items: center;
+    }
+
+    .timerText {
+        font-size: 1.5em;
+    }
+
+    .chatContainer {
+        height: 60%;
+        width: 90%;
+    }
+
+    .inputChat {
+        width: 85%;
+    }
+
+    .boards {
+        width: 100%;
+    }
+
+    .barcos {
+        width: 80%;
+        flex-wrap: wrap;
+        justify-content: space-between;
+    }
+
+    .barco4-column,
+    .barco3-column,
+    .barco32-column,
+    .barco2-column{
+        width: 50px;
+        height: auto;
+        flex-direction: column;
+    }
+    .barco4-row,
+    .barco3-row,
+    .barco32-row,
+    .barco2-row{
+        flex-direction: row;
+    }
+}
+
+@media (max-width: 560px) {
+    .timerText {
+        font-size: 1.2em;
+    }
+
+    .tablero{
+        height: 90%;
+        width: 90%;
+    }
+
+    .tablero-enemigo{
+        height: 90%;
+        width: 90%;
+    }
+
+    .game-box,
+    .game-box-view,
+    .game-box-touched,
+    .game-box-miss,
+    .game-box-barco4 {
+        height: 40px;
+        width: 40px;
+        font-size: 0.8em;
+    }
+
+    .inputChat {
+        font-size: 0.9em;
+    }
+
+    .sendChatBtn {
+        padding: 8px;
+        font-size: 0.9em;
+    }
+
+    .exitBtnContainer button {
+        padding: 10px 15px;
+        font-size: 1em;
+    }
+}
+
+@media (max-width: 426px){
+    .inputChat{
+        width: 70%;
+    }
 }

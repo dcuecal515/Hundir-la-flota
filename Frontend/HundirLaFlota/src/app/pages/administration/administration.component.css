@@ -1,0 +1,112 @@
+@font-face{
+    font-family: titulo;
+    src: url('/assets/fonts/oldtimer.regular.ttf');
+}
+.the-father{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100%;
+    background-color: #0d1b2a;
+    min-height: 100vh;
+}
+h1{
+    font-family: titulo;
+    color: white;
+}
+.user-information{
+    display: flex;
+    flex-direction: row; 
+    justify-content: space-between;
+    align-items: center; 
+    border: 1px solid #ccc; 
+    border-radius: 10px;
+    width: 40%;
+    padding: 1%;
+    box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.5);
+    background-color: white;
+}
+.user-information-all{
+    display: flex;
+    flex-direction: column;
+}
+.user-image{
+    width: 150px;
+    height: 150px; 
+}
+.buttons{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 10px;
+}
+.button-normal{
+    background-color: #0d6efd;
+    color: white; 
+    padding: 10px 20px;
+    font-size: 1em;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
+}
+.button-bad{
+    background-color: #fd0d0d;
+    color: white; 
+    padding: 10px 20px;
+    font-size: 1em;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
+}
+.button-good{
+    background-color: #1ba91b;
+    color: white; 
+    padding: 10px 20px;
+    font-size: 1em;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
+}
+.exit{
+    height: 50px;
+    width: 50px;
+    border: none;
+    background-color: rgb(126, 126, 126);
+    color: rgb(63, 16, 16);
+    cursor: pointer;
+    font-family: titulo;
+}
+.button{
+    background-color: #0d1b2a;
+}
+/*responsive*/
+@media(max-width:1000px){
+    .user-information{
+        width: 60%;
+    }
+}
+@media(max-width:680px){
+    .user-information{
+        width: 80%;
+    }
+}
+@media(max-width:540px){
+    .user-information{
+        width: 95%;
+    }
+}
+@media(max-width:425px){
+    .user-information{
+        width: 100%;
+    }
+    .user-information-all{
+        font-size: 0.7em;
+    }
+    .user-image{
+        width: 100px;
+        height: 100px; 
+    }
+}

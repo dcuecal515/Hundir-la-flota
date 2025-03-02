@@ -128,6 +128,30 @@ export class ProfileComponent {
       if(message.message=="Se envió correctamente la solicitud"){
         this.activateButtonRequest=true;
       }
+      if(message.message=="Has recibido una solicitud de partida"){
+              console.log("Solicitud de partida de "+message.nickName)
+              const playRequest = await Swal.fire({
+                              title: "Solicitud de partida",
+                              text: message.nickName+" te a invitado a jugar",
+                              icon: "info",
+                              showCancelButton: true,
+                              confirmButtonText: "Aceptar",
+                              cancelButtonText: "Cerrar"
+                            });
+                            if (playRequest.isConfirmed) {
+                              Swal.fire("Aceptada", "Entrando a partida", "success");
+                              this.router.navigate(['/matchmaking']);
+                              const messageToSend:FriendRequest={TypeMessage:"Aceptar Partida",Identifier:message.nickName}
+                              const jsonData = JSON.stringify(messageToSend)
+                              console.log(jsonData)
+                              this.webSocketService.sendRxjs(jsonData)
+                            } else {
+                              const messageToSend:FriendRequest={TypeMessage:"Rechazar Partida",Identifier:message.nickName}
+                              const jsonData = JSON.stringify(messageToSend)
+                              console.log(jsonData)
+                              this.webSocketService.sendRxjs(jsonData)
+                            }
+            }
       if(message.message=="Has sido baneado"){
         this.apiService.deleteToken();
         this.webSocketService.disconnectRxjs();
@@ -336,31 +360,45 @@ export class ProfileComponent {
     }
 
   changeNickName(){
-    const nickNameInput = document.getElementById("nickName") as HTMLInputElement
-    const nickName = nickNameInput.value
-    if(nickName!=""){
-      const messageToSend:FriendRequest={TypeMessage:"Solicitud cambio de nombre",Identifier:nickName}
-      const jsonData = JSON.stringify(messageToSend)
-      console.log(jsonData)
-      this.webSocketService.sendRxjs(jsonData)     
-      nickNameInput.value = ""
-    }else{
-      console.log("no cambio nombre")
-    }
+    Swal.fire({
+      title: 'Cambiar nombre',
+      input: 'text',
+      inputPlaceholder: 'Ingresa tu nuevo apodo',
+      showCancelButton: true,
+      confirmButtonText: 'Cambiar',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed && result.value) {
+        const nickName = result.value;
+        const messageToSend = { TypeMessage: "Solicitud cambio de nombre", Identifier: nickName };
+        const jsonData = JSON.stringify(messageToSend);
+        console.log(jsonData);
+        this.webSocketService.sendRxjs(jsonData);
+      } else {
+        console.log("No se cambió el nombre");
+      }
+    });
   }
 
   changeEmail(){
-    const emailInput = document.getElementById("email") as HTMLInputElement
-    const email = emailInput.value
-    if(email!=""){
-      const messageToSend:FriendRequest={TypeMessage:"Solicitud cambio de email",Identifier:email}
-      const jsonData = JSON.stringify(messageToSend)
-      console.log(jsonData)
-      this.webSocketService.sendRxjs(jsonData)     
-      emailInput.value = ""
-    }else{
-      console.log("no cambio nombre")
-    }
+    Swal.fire({
+      title: 'Cambiar email',
+      input: 'email',
+      inputPlaceholder: 'Ingresa tu nuevo email',
+      showCancelButton: true,
+      confirmButtonText: 'Cambiar',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed && result.value) {
+        const email = result.value;
+        const messageToSend = { TypeMessage: "Solicitud cambio de email", Identifier: email };
+        const jsonData = JSON.stringify(messageToSend);
+        console.log(jsonData);
+        this.webSocketService.sendRxjs(jsonData);
+      } else {
+        console.log("No se cambió el email");
+      }
+    });
 
   }
 
@@ -420,34 +458,39 @@ export class ProfileComponent {
 
 
   async changePassword(){
-    const passwordInput = document.getElementById("password") as HTMLInputElement
-    const repeatPasswordInput = document.getElementById("repeat-password") as HTMLInputElement
-    const password = passwordInput.value
-    const repeatPassword = repeatPasswordInput.value
-    if(password != "" && repeatPassword != ""){
-      if(password==repeatPassword){
-        const result=await this.authService.changepassword(password)
-        if(result.success){
+    Swal.fire({
+      title: 'Cambiar contraseña',
+      html:
+        '<input type="password" id="password" class="swal2-input" placeholder="Nueva contraseña">' +
+        '<input type="password" id="repeat-password" class="swal2-input" placeholder="Repite la contraseña">',
+      showCancelButton: true,
+      confirmButtonText: 'Cambiar',
+      cancelButtonText: 'Cancelar',
+      preConfirm: () => {
+        const password = (document.getElementById('password') as HTMLInputElement).value;
+        const repeatPassword = (document.getElementById('repeat-password') as HTMLInputElement).value;
+        
+        if (!password || !repeatPassword) {
+          Swal.showValidationMessage('No dejes los campos vacíos');
+          return false;
+        }
+        if (password !== repeatPassword) {
+          Swal.showValidationMessage('Las contraseñas no coinciden');
+          return false;
+        }
+        return password;
+      }
+    }).then(async (result) => {
+      if (result.isConfirmed && result.value) {
+        const password = result.value;
+        const response = await this.authService.changepassword(password);
+        if (response.success) {
           this.apiService.deleteToken();
           this.webSocketService.disconnectRxjs();
           this.router.navigateByUrl("login");
         }
-      }else{
-        Swal.fire({
-          title: 'Las contraseñas no son iguales',
-          icon: 'error',
-          timer: 1000, 
-          showConfirmButton: false
-        });
       }
-    }else{
-      Swal.fire({
-        title: 'No dejes los campos vacios',
-        icon: 'error',
-        timer: 1000, 
-        showConfirmButton: false
-      });
-    }
+    });
   }
   async reciveData(){
     var result = await this.requestService.receiveRequests()

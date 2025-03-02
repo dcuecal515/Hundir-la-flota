@@ -1,65 +1,105 @@
-<p>profile works!</p>
+<div class="the-father">
 @if(user!=null){
-    <button (click)="backToMenu()">Volver a menu</button>
+    <div class="button container">
+        <button class="btn-exit" (click)="backToMenu()"><i class="fa-solid fa-arrow-left fa-xl"></i></button>
+    </div>
     @if(!isMyProfile)
     { <!-- Perfil de otro usuario -->
-        <p>Apodo: {{user.nickName}}</p>
-        <p>Email: {{user.email}}</p>
-        <p>Avatar: <img [src]="user.avatar"></p>
-        
-            @if(!activateButtonFriend && !activateButtonRequest){
-                <button (click)="requestUser(user.nickName)">Ser amigos</button>
-            }
-            @if(activateButtonRequest && !activateButtonFriend){
-                <button class="button-information" disabled>Ser amigos</button><p>Se ha enviado ya una solicitud</p>
-            }
-            @if(activateButtonFriend){
-                <button (click)="deleteUser(user.nickName)">Dejar de ser amigos</button>
-            }
-        <!--@if(user.gamesPlayed.length != 0){
-            @for(game of user.gamesPlayed; track $index){
-                <p>{{game.state}}</p>
-                <p>{{game.opponentId}}</p>
-            }
-        }-->
+        <h1>Perfil del usuario {{user.nickName}}</h1>
+        <div class="user-information-container">
+            <div class="user-avatar-container">
+                <img class="user-avatar" [src]="user.avatar">
+            </div>
+            <div class="user-information">
+                <h2>Nickname: {{user.nickName}}</h2>
+                <h2>Email: {{user.email}}</h2>
+                @if(!activateButtonFriend && !activateButtonRequest){
+                    <button class="button-good" (click)="requestUser(user.nickName)">Ser amigos</button>
+                }
+                @if(activateButtonRequest && !activateButtonFriend){
+                    <button class="button-information" disabled>Ser amigos</button><p>Se ha enviado ya una solicitud</p>
+                }
+                @if(activateButtonFriend){
+                    <button class="button-bad" (click)="deleteUser(user.nickName)">Dejar de ser amigos</button>
+                }
+            </div>
+        </div>
+            
     }
     @else
     { <!-- Mi perfil -->
-        <p>Apodo: {{user.nickName}}</p><input type="text" id="nickName"><button (click)="changeNickName()">Cambiar Apodo</button>
-        <p>Email: {{user.email}}</p><input type="text" id="email"><button (click)="changeEmail()">Cambiar email</button>
-        <p>Avatar: <img [src]="user.avatar"></p><button (click)="changeOrTakeOffImage()">Cambiar o quitar avatar</button>
-        <p>Cambiar contraseña: </p><input type="password" id="password"><input type="password" id="repeat-password"><button (click)="changePassword()">Cambiar contraseña</button>
-
-        @if(decoded.role=="Admin"){
-            <button [routerLink]="['/administration']">pantalla admin</button>
-        }
+        <h1>Mi perfil</h1>
+        <div class="user-information-container">
+            <div class="user-avatar-container">
+                <img class="user-avatar" [src]="user.avatar" (click)="changeOrTakeOffImage()">
+            </div>
+            <div class="user-information">
+                <div class="user-information-nickName">
+                    <h2>Nickname:{{user.nickName}}</h2><button class="button-normal" (click)="changeNickName()">Cambiar Apodo</button>
+                </div>
+                <div class="user-information-email">
+                    <h2>Email: {{user.email}}</h2>
+                    <button class="button-normal" (click)="changeEmail()">Cambiar email</button>
+                </div>
+                <br>
+                <div class="user-information-password">
+                    <button class="button-normal" (click)="changePassword()">Cambiar contraseña</button>
+                </div>
+                <br>
+                @if(decoded.role=="Admin"){
+                    <button class="button-normal" [routerLink]="['/administration']">Pantalla admin</button>
+                }
+            </div>
+        </div>
     }
-    @if(user.games.length != 0){
-        <select id="games-per-page" (change)="changeNumberOfGames()">
-            <option value="5">5</option>
-            <option value="10">10</option>
-            <option value="15">15</option>
-            <option value="20">20</option>
-        </select>
-        @for(game of user.games; track $index){
-            <p>{{game.state}}</p>
-            <p>{{user.nickName}} vs {{game.opponentNickName}}</p>
-            <p>En {{game.timeSeconds}} segundos</p>
-            <p>Con una puntuación de: {{game.score}}</p>
-
-        }
-        <button disabled (click)="firstPage()" id="firstBtn"><i class="fa-solid fa-angles-left"></i></button>
-        <button disabled (click)="prevPage()" id="prevBtn"><i class="fa-solid fa-angle-left"></i></button>
-        @if(actualPage >= maximumPage){
-            <button disabled (click)="nextPage()" id="nextBtn"><i class="fa-solid fa-angle-right"></i></button>
-            <button disabled (click)="lastPage()" id="lastBtn"><i class="fa-solid fa-angles-right"></i></button>
+    <div class="games-history-container">
+        @if(user.games.length != 0){
+            
+            @for(game of user.games; track $index){
+                @if(game.state=="Derrota"){
+                    <div class="game-card-defeat">
+                        <p class="game-card-state">{{game.state}}</p>
+                        <div class="game-card-information">
+                            <p class="game-card-oponents">{{user.nickName}} vs {{game.opponentNickName}}</p>
+                            <p class="game-card-time">En {{game.timeSeconds}} segundos</p>
+                            <p class="game-card-score">Con una puntuación de: {{game.score}}</p>
+                        </div>
+                    </div>
+                }@else {
+                    <div class="game-card-victory">
+                        <p class="game-card-state">{{game.state}}</p>
+                        <div class="game-card-information">
+                            <p class="game-card-oponents">{{user.nickName}} vs {{game.opponentNickName}}</p>
+                            <p class="game-card-time">En {{game.timeSeconds}} segundos</p>
+                            <p class="game-card-score">Con una puntuación de: {{game.score}}</p>
+                        </div>
+                    </div>
+                }
+                
+                
+            }
+            <div class="games-history-btns">
+                <button disabled (click)="firstPage()" id="firstBtn"><i class="fa-solid fa-angles-left"></i></button>
+                <button disabled (click)="prevPage()" id="prevBtn"><i class="fa-solid fa-angle-left"></i></button>
+                <select id="games-per-page" (change)="changeNumberOfGames()" class="games-per-page">
+                    <option value="5">5</option>
+                    <option value="10">10</option>
+                    <option value="15">15</option>
+                    <option value="20">20</option>
+                </select>
+                @if(actualPage >= maximumPage){
+                    <button disabled (click)="nextPage()" id="nextBtn"><i class="fa-solid fa-angle-right"></i></button>
+                    <button disabled (click)="lastPage()" id="lastBtn"><i class="fa-solid fa-angles-right"></i></button>
+                }@else {
+                    <button (click)="nextPage()" id="nextBtn"><i class="fa-solid fa-angle-right"></i></button>
+                    <button (click)="lastPage()" id="lastBtn"><i class="fa-solid fa-angles-right"></i></button>
+                }
+            </div>
+            
+            
         }@else {
-            <button (click)="nextPage()" id="nextBtn"><i class="fa-solid fa-angle-right"></i></button>
-            <button (click)="lastPage()" id="lastBtn"><i class="fa-solid fa-angles-right"></i></button>
+            <h2>No tienes partidas registradas</h2>
         }
-        
-    }@else {
-        <p>No tienes partidas registradas</p>
-    }
+    </div>
 }
-
+</div>
