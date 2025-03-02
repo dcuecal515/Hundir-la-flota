@@ -87,9 +87,6 @@ namespace Server.Repositories
                                           .ThenInclude(gi => gi.User)
                                       .ToListAsync();
 
-            // Le damos la vuelta al array para que salga en orden de novedad
-            games.Reverse();
-
             int totalGames = games.Count();
 
             FullUserDataDto fullUserData = new FullUserDataDto
@@ -119,6 +116,8 @@ namespace Server.Repositories
                 });
             }
 
+            // Le damos la vuelta al array para que salga en orden de novedad
+            fullUserData.Games.Reverse();
             fullUserData.Games = fullUserData.Games.Skip((query.ActualPage - 1) * query.GamePageSize).Take(query.GamePageSize).ToList();
 
             return fullUserData;
