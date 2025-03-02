@@ -176,6 +176,7 @@ export class MatchmakingComponent {
                     showConfirmButton: false
                   });
           this.partyGuest = null
+          this.gameFriend()
         }
         if(message.message=="Te volviste anfitrion"){
           console.log("Se salió "+message.nickName)
@@ -303,9 +304,39 @@ export class MatchmakingComponent {
     gameFriend(){
       this.gamemode="partywithfriend";
       this.recievFriend()
+      var body=document.getElementById("body")
+      var buttons=document.getElementById("buttons")
+      var buttonDesign=document.getElementById("button-design")
+      var buttonDesign2=document.getElementById("button-design2")
+      var buttonDesign3=document.getElementById("button-design3")
+      body.classList.remove("body")
+      body.classList.add("bodyview")
+      buttons.classList.remove("buttons")
+      buttons.classList.add("buttonsview")
+      buttonDesign.classList.remove("button-design")
+      buttonDesign.classList.add("button-design-view")
+      buttonDesign2.classList.remove("button-design")
+      buttonDesign2.classList.add("button-design-view")
+      buttonDesign3.classList.remove("button-design")
+      buttonDesign3.classList.add("button-design-view")
     }
     gameRamdon(){
       this.gamemode="partywithrandom";
+      var body=document.getElementById("body")
+      var buttons=document.getElementById("buttons")
+      var buttonDesign=document.getElementById("button-design")
+      var buttonDesign2=document.getElementById("button-design2")
+      var buttonDesign3=document.getElementById("button-design3")
+      body.classList.remove("body")
+      body.classList.add("bodyview")
+      buttons.classList.remove("buttons")
+      buttons.classList.add("buttonsview")
+      buttonDesign.classList.remove("button-design")
+      buttonDesign.classList.add("button-design-view")
+      buttonDesign2.classList.remove("button-design")
+      buttonDesign2.classList.add("button-design-view")
+      buttonDesign3.classList.remove("button-design")
+      buttonDesign3.classList.add("button-design-view")
     }
     async recievFriend(){
       var result = await this.requestService.receiveFriend()
@@ -314,6 +345,7 @@ export class MatchmakingComponent {
         result.data.forEach(friend => {
           if(this.friendList.includes(friend)){
             console.log("NO ME AÑADO")
+            return
           }else{
             friend.avatar = environment.images+friend.avatar
             if(friend.status=="Conectado"){
@@ -389,6 +421,10 @@ export class MatchmakingComponent {
       var idrecivido=document.getElementById("cancel")
       idrecivido.classList.remove("cancelview")
       idrecivido.classList.add("cancel")
+    }
+
+    openlist(){
+
     }
   
     ngOnDestroy(): void {
