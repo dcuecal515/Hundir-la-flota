@@ -318,14 +318,16 @@
     .barco4-column,
     .barco3-column,
     .barco32-column,
-    .barco2-column,
-    .barco4-row,
-    .barco3-row,
-    .barco32-row,
-    .barco2-row {
+    .barco2-column{
         width: 50px;
         height: auto;
         flex-direction: column;
+    }
+    .barco4-row,
+    .barco3-row,
+    .barco32-row,
+    .barco2-row{
+        flex-direction: row;
     }
 }
 

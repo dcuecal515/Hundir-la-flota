@@ -1,25 +1,26 @@
+<div class="the-father">
 @if(user!=null){
     <div class="button container">
         <button class="btn-exit" (click)="backToMenu()"><i class="fa-solid fa-arrow-left fa-xl"></i></button>
     </div>
-    
     @if(!isMyProfile)
     { <!-- Perfil de otro usuario -->
+        <h1>Perfil del usuario {{user.nickName}}</h1>
         <div class="user-information-container">
             <div class="user-avatar-container">
                 <img class="user-avatar" [src]="user.avatar">
             </div>
             <div class="user-information">
-                <p>Apodo: {{user.nickName}}</p>
-                <p>Email: {{user.email}}</p>
+                <h2>Nickname: {{user.nickName}}</h2>
+                <h2>Email: {{user.email}}</h2>
                 @if(!activateButtonFriend && !activateButtonRequest){
-                    <button (click)="requestUser(user.nickName)">Ser amigos</button>
+                    <button class="button-good" (click)="requestUser(user.nickName)">Ser amigos</button>
                 }
                 @if(activateButtonRequest && !activateButtonFriend){
                     <button class="button-information" disabled>Ser amigos</button><p>Se ha enviado ya una solicitud</p>
                 }
                 @if(activateButtonFriend){
-                    <button (click)="deleteUser(user.nickName)">Dejar de ser amigos</button>
+                    <button class="button-bad" (click)="deleteUser(user.nickName)">Dejar de ser amigos</button>
                 }
             </div>
         </div>
@@ -27,23 +28,26 @@
     }
     @else
     { <!-- Mi perfil -->
+        <h1>Mi perfil</h1>
         <div class="user-information-container">
             <div class="user-avatar-container">
                 <img class="user-avatar" [src]="user.avatar" (click)="changeOrTakeOffImage()">
             </div>
             <div class="user-information">
                 <div class="user-information-nickName">
-                    <h2>{{user.nickName}}</h2><button (click)="changeNickName()">Cambiar Apodo</button>
+                    <h2>Nickname:{{user.nickName}}</h2><button class="button-normal" (click)="changeNickName()">Cambiar Apodo</button>
                 </div>
                 <div class="user-information-email">
-                    <p>Email: {{user.email}}</p><button (click)="changeEmail()">Cambiar email</button>
+                    <h2>Email: {{user.email}}</h2>
+                    <button class="button-normal" (click)="changeEmail()">Cambiar email</button>
                 </div>
+                <br>
                 <div class="user-information-password">
-                    <p>Contraseña:</p>
-                    <button (click)="changePassword()">Cambiar contraseña</button>
+                    <button class="button-normal" (click)="changePassword()">Cambiar contraseña</button>
                 </div>
+                <br>
                 @if(decoded.role=="Admin"){
-                    <button [routerLink]="['/administration']">pantalla admin</button>
+                    <button class="button-normal" [routerLink]="['/administration']">Pantalla admin</button>
                 }
             </div>
         </div>
@@ -94,8 +98,8 @@
             
             
         }@else {
-            <p>No tienes partidas registradas</p>
+            <h2>No tienes partidas registradas</h2>
         }
     </div>
 }
-
+</div>
