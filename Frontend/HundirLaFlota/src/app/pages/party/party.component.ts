@@ -26,7 +26,7 @@ export class PartyComponent implements AfterViewInit,DoCheck {
           }else if(sessionStorage.getItem("token")){
             this.decoded=jwtDecode(sessionStorage.getItem("token"));
           }else{
-            // router.navigateByUrl("login")
+            router.navigateByUrl("login")
             this.decoded=null
           }
         this.addUnloadListener()
