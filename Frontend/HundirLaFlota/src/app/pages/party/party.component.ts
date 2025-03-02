@@ -29,6 +29,7 @@ export class PartyComponent implements AfterViewInit,DoCheck {
             // router.navigateByUrl("login")
             this.decoded=null
           }
+        this.addUnloadListener()
   }
   decoded:User;
   messageReceived$: Subscription;
@@ -61,6 +62,20 @@ export class PartyComponent implements AfterViewInit,DoCheck {
         colocarBarcos.style.marginRight = "30%"
       }
     }
+  }
+
+  private addUnloadListener() {
+    window.addEventListener('beforeunload', (event) => {
+      const messageToSend:FriendRequest={TypeMessage:"Abandono de partida",Identifier:this.opponentName}
+      const jsonData = JSON.stringify(messageToSend)
+      console.log(jsonData)
+      this.webSocketService.sendRxjs(jsonData)
+      this.router.navigateByUrl("matchmaking")
+      const message:FriendRequest={TypeMessage:"solicitud de partida contra bot"}
+      const jsonData2 = JSON.stringify(message)
+      console.log(jsonData2)
+      this.webSocketService.sendRxjs(jsonData2)
+    });
   }
 
   ngOnInit(): void {
