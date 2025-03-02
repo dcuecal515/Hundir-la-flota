@@ -121,7 +121,6 @@
     margin-bottom: 2%;
     display: flex;
     flex-direction: column;
-    align-items: center;
     margin-right: 30%;
 }
 
@@ -281,6 +280,9 @@
 }
 
 @media (max-width: 768px) {
+    .tablero-enemigo{
+        align-self: center;
+    }
     .all-content {
         flex-direction: column;
         align-items: center;
