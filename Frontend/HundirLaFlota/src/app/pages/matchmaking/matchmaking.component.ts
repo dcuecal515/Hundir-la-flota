@@ -31,7 +31,7 @@ export class MatchmakingComponent {
           this.decoded=null
         }
     this.url=environment.images+this.decoded.Avatar;
-    this.addUnloadListener()
+    window.addEventListener('beforeunload', this.beforeUnloadHandler);
   }
   conectedUsers:number = 0
   isConnected: boolean = false;
@@ -49,37 +49,34 @@ export class MatchmakingComponent {
   partyGuest:Request = null
   isPlayingRamdon:boolean=false;
 
-  private addUnloadListener() {
-    window.addEventListener('beforeunload', (event) => {
-      if(this.partyRequestSended.length != 0){
-        this.partyRequestSended.forEach(nickName => {
-          const message:FriendRequest={TypeMessage:"sala finalizada",Identifier:nickName}
-          const jsonData = JSON.stringify(message)
-          console.log(jsonData)
-          this.webSocketService.sendRxjs(jsonData)
-        });
-      }else{
-        if(this.isPlayingRamdon==true){
-          const message:FriendRequest={TypeMessage:"Cancelar busqueda de partida"}
-          this.isPlayingRamdon=false
-          const jsonData = JSON.stringify(message)
-          console.log(jsonData)
-          this.webSocketService.sendRxjs(jsonData)
-        } else if(this.partyHost.nickName == this.decoded.nickName){
-          const message:FriendRequest={TypeMessage:"Abandono anfitrion",Identifier:this.partyGuest.nickName}
-          const jsonData = JSON.stringify(message)
-          console.log(jsonData)
-          this.webSocketService.sendRxjs(jsonData)
-        }else 
-        {
-          const message:FriendRequest={TypeMessage:"Abandono invitado",Identifier:this.partyHost.nickName}
-          const jsonData = JSON.stringify(message)
-          console.log(jsonData)
-          this.webSocketService.sendRxjs(jsonData)
-        }
+  private beforeUnloadHandler = (event: Event) => {
+    if (this.partyRequestSended.length != 0) {
+      this.partyRequestSended.forEach(nickName => {
+        const message: FriendRequest = { TypeMessage: "sala finalizada", Identifier: nickName };
+        const jsonData = JSON.stringify(message);
+        console.log(jsonData);
+        this.webSocketService.sendRxjs(jsonData);
+      });
+    } else {
+      if (this.isPlayingRamdon) {
+        const message: FriendRequest = { TypeMessage: "Cancelar busqueda de partida" };
+        this.isPlayingRamdon = false;
+        const jsonData = JSON.stringify(message);
+        console.log(jsonData);
+        this.webSocketService.sendRxjs(jsonData);
+      } else if (this.partyHost.nickName == this.decoded.nickName) {
+        const message: FriendRequest = { TypeMessage: "Abandono anfitrion", Identifier: this.partyGuest.nickName };
+        const jsonData = JSON.stringify(message);
+        console.log(jsonData);
+        this.webSocketService.sendRxjs(jsonData);
+      } else {
+        const message: FriendRequest = { TypeMessage: "Abandono invitado", Identifier: this.partyHost.nickName };
+        const jsonData = JSON.stringify(message);
+        console.log(jsonData);
+        this.webSocketService.sendRxjs(jsonData);
       }
-    });
-  }
+    }
+  };
 
   ngOnInit(): void {
     
@@ -453,7 +450,7 @@ export class MatchmakingComponent {
       if (this.friendList && this.friendList.length > 0) {
         let htmlContent = this.friendList.map(friend => 
           `<p>${friend.nickName} 
-            <button onclick="sendInvite('${friend.nickName}')" 
+            <button id="invite-${friend.id}" 
                     style="background-color: #007bff; color: white; border: none; padding: 5px; border-radius: 5px; cursor: pointer;">
               Invitar a partida
             </button>
@@ -464,7 +461,15 @@ export class MatchmakingComponent {
           title: 'Invitar Amigos',
           html: htmlContent,
           showCloseButton: true,
-          showConfirmButton: false
+          showConfirmButton: false,
+          didOpen: () => {  // Se ejecuta cuando el SweetAlert ha sido renderizado
+            this.friendList.forEach(friend => {
+              const button = document.getElementById(`invite-${friend.id}`);
+              if (button) {
+                button.addEventListener('click', () => this.sendInvite(friend.nickName));
+              }
+            });
+          }
         });
   
       } else {
@@ -480,6 +485,7 @@ export class MatchmakingComponent {
     ngOnDestroy(): void {
       this.messageReceived$.unsubscribe();
       this.disconnected$.unsubscribe();
+      window.removeEventListener('beforeunload', this.beforeUnloadHandler);
       if(this.partyRequestSended && this.partyRequestSended.length != 0){
         this.partyRequestSended.forEach(nickName => {
           const message:FriendRequest={TypeMessage:"sala finalizada",Identifier:nickName}
