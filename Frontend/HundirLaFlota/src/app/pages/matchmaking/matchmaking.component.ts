@@ -466,7 +466,10 @@ export class MatchmakingComponent {
             this.friendList.forEach(friend => {
               const button = document.getElementById(`invite-${friend.id}`);
               if (button) {
-                button.addEventListener('click', () => this.sendInvite(friend.nickName));
+                button.addEventListener('click', () =>{
+                  this.sendInvite(friend.nickName)
+                  Swal.close()
+                });
               }
             });
           }
