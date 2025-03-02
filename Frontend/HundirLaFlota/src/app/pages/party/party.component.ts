@@ -56,6 +56,10 @@ export class PartyComponent implements AfterViewInit,DoCheck {
   ngDoCheck() {
     if (this.barcos.length === 4 && !this.timeStoped) {
       this.stopTimerfuction();
+      if (window.innerWidth > 768) {
+        const colocarBarcos = document.getElementById("colocar-barcos") as HTMLDivElement
+        colocarBarcos.style.marginRight = "30%"
+      }
     }
   }
 
