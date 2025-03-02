@@ -1,65 +1,79 @@
-<p>{{timeString}}</p>
-@if(opponentName != "Bot1"){
-    
-    @if(chatContent.length != 0){
-        @for (chatMessage of chatContent; track chatMessage.userName){
-            <p>{{chatMessage.userName}}: {{chatMessage.message}}</p>
-        }
-    }
-    <input type="text" id="chat">
-    <button (click)="sendChat()">Enviar</button>
-}
-    @if(barcos.length == 4 && barcosoponente && timeStoped){
-        @for (letra of letras; track $index) {
-            <div class="rows">
-            @for (item of items; track $index) {
-                <div id="{{letra}}{{item}}enemigo" class="game-box" (click)="guardarposicion(letra,item)"><p>{{letra}}{{item}}</p></div>
+<div class="all-content">
+    <div class="left-side">
+        <div class="timerContainer">
+            <h1 class="timerText">{{timeString}}</h1>
+        </div>
+        <div class="chatContainer">
+        @if(opponentName != "Bot1"){
+                @if(chatContent.length != 0){
+                    <div class="chatContent">
+                        @for (chatMessage of chatContent; track chatMessage.userName){
+                            @if(chatMessage.userName == "Yo"){
+                                <p class="myChat">{{chatMessage.userName}}: {{chatMessage.message}}</p>
+                            }@else {
+                                <p class="opponentChat">{{chatMessage.userName}}: {{chatMessage.message}}</p>
+                            }
+                        }
+                    </div>
+                }
+                <input type="text" id="chat" class="inputChat" placeholder="Escribe aquí">
+                <button (click)="sendChat()" class="sendChatBtn"><i class="fa-solid fa-arrow-right-long"></i></button>
             }
-            </div>
-        }
-    }
-
-
-    <div class="body-colocar-barcos">
-        
-        <div class="tablero">
+        </div>
+        <div class="exitBtnContainer">
+            <button (click)="exit()">Abandonar partida</button>
+        </div>
+    </div>
+    <div class="boards">
+        @if(barcos.length == 4 && barcosoponente || barcosBot && timeStoped){
+        <div class="tablero-enemigo">
             @for (letra of letras; track $index) {
                 <div class="rows">
                 @for (item of items; track $index) {
-                        <div id="{{letra}}{{item}}" class="game-box"><p>{{letra}}{{item}}</p></div>
+                    <div id="{{letra}}{{item}}enemigo" class="game-box" (click)="guardarposicion(letra,item)"><!--<p>{{letra}}{{item}}</p>--></div>
                 }
                 </div>
             }
         </div>
-        
-        @if(barcos.length < 4){
-            <div class="barcos">
-                <div id="barco4" class="barco4-column" (click)="cambiarposicionbarco4()" draggable="true">
-                    <div class="game-box-barco4"></div>
-                    <div class="game-box-barco4"></div>
-                    <div class="game-box-barco4"></div>
-                    <div class="game-box-barco4"></div>
-                </div>
-                <br>
-                <div id="barco3" class="barco3-column" (click)="cambiarposicionbarco3()" draggable="true">
-                    <div class="game-box-barco4"></div>
-                    <div class="game-box-barco4"></div>
-                    <div class="game-box-barco4"></div>
-                </div>
-                <br>
-                <div id="barco32" class="barco32-column" (click)="cambiarposicionbarco32()" draggable="true">
-                    <div class="game-box-barco4"></div>
-                    <div class="game-box-barco4"></div>
-                    <div class="game-box-barco4"></div>
-                </div>
-                <br>
-                <div id="barco2" class="barco2-column" (click)="cambiarposicionbarco2()" draggable="true">
-                    <div class="game-box-barco4"></div>
-                    <div class="game-box-barco4"></div>
-                </div>
-            </div>
         }
+        <div class="body-colocar-barcos" id="colocar-barcos">
+            <div class="tablero">
+                @for (letra of letras; track $index) {
+                    <div class="rows">
+                    @for (item of items; track $index) {
+                            <div id="{{letra}}{{item}}" class="game-box"><!--<p>{{letra}}{{item}}</p>--></div>
+                    }
+                    </div>
+                }
+            </div>
+            
+            @if(barcos.length < 4){
+                <div class="barcos">
+                    <div id="barco4" class="barco4-column" (click)="cambiarposicionbarco4()" draggable="true">
+                        <div class="game-box-barco4"></div>
+                        <div class="game-box-barco4"></div>
+                        <div class="game-box-barco4"></div>
+                        <div class="game-box-barco4"></div>
+                    </div>
+                    <br>
+                    <div id="barco3" class="barco3-column" (click)="cambiarposicionbarco3()" draggable="true">
+                        <div class="game-box-barco4"></div>
+                        <div class="game-box-barco4"></div>
+                        <div class="game-box-barco4"></div>
+                    </div>
+                    <br>
+                    <div id="barco32" class="barco32-column" (click)="cambiarposicionbarco32()" draggable="true">
+                        <div class="game-box-barco4"></div>
+                        <div class="game-box-barco4"></div>
+                        <div class="game-box-barco4"></div>
+                    </div>
+                    <br>
+                    <div id="barco2" class="barco2-column" (click)="cambiarposicionbarco2()" draggable="true">
+                        <div class="game-box-barco4"></div>
+                        <div class="game-box-barco4"></div>
+                    </div>
+                </div>
+            }
+        </div>
     </div>
-
-
-<button (click)="exit()">Abandonar partida</button>
+</div>
