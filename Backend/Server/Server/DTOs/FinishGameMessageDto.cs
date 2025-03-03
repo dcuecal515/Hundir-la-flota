@@ -6,5 +6,6 @@
         public int YourScore { get; set; }
         public int OpponentScore { get; set; }
         public string Position { get; set; }
+        public bool YourImpacted { get; set; }
     }
 }

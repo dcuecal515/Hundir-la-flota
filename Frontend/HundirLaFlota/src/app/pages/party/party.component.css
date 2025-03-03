@@ -115,13 +115,15 @@
     display: flex;
     flex-direction: row;
     justify-content: center;
+    margin-right: 20%;
 }
 
 .tablero-enemigo {
     margin-bottom: 2%;
     display: flex;
     flex-direction: column;
-    margin-right: 30%;
+    align-self: center;
+    margin-right: 20%;
 }
 
 .rows {
@@ -268,9 +270,6 @@
         flex-direction: column;
         align-items: center;
     }
-    .tablero-enemigo {
-        margin-right: 0;
-    }
     .barcos {
         flex-direction: row;
         width: 90%;
@@ -279,9 +278,13 @@
     }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 953px) {
     .tablero-enemigo{
         align-self: center;
+        margin-right: 0;
+    }
+    .body-colocar-barcos{
+        margin-right: 0;
     }
     .all-content {
         flex-direction: column;
