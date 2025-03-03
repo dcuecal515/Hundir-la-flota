@@ -25,7 +25,7 @@
         </div>
     </div>
     <div class="boards">
-        <!--@if(barcos.length == 4 && barcosoponente || barcosBot && timeStoped){-->
+        @if(barcos.length == 4 && barcosoponente || barcosBot && timeStoped){
         <div class="tablero-enemigo">
             @for (letra of letras; track $index) {
                 <div class="rows">
@@ -35,7 +35,7 @@
                 </div>
             }
         </div>
-        <!--}-->
+        }
         <div class="body-colocar-barcos">
             <div class="tablero" id="colocar-barcos">
                 @for (letra of letras; track $index) {
