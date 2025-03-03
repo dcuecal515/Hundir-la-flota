@@ -57,10 +57,6 @@ export class PartyComponent implements AfterViewInit,DoCheck {
   ngDoCheck() {
     if (this.barcos.length === 4 && !this.timeStoped) {
       this.stopTimerfuction();
-      if (window.innerWidth > 768) {
-        const colocarBarcos = document.getElementById("colocar-barcos") as HTMLDivElement
-        colocarBarcos.style.marginRight = "30%"
-      }
     }
   }
 
@@ -273,6 +269,9 @@ export class PartyComponent implements AfterViewInit,DoCheck {
         this.startTimer()
       }
       if(message.message=="Has ganado al bot"){
+        const opponentPosition = document.getElementById(message.position+"enemigo")
+        opponentPosition.classList.remove("game-box")
+        opponentPosition.classList.add("game-box-touched")
         const alertWin = await Swal.fire({
           title: 'Victoria',
           text: 'Has ganado a nuestro bot enhorabuena, quieres revancha? \nPuntuaciones:\nTu: '+message.yourScore+"\nBot1: "+message.opponentScore,
@@ -301,7 +300,14 @@ export class PartyComponent implements AfterViewInit,DoCheck {
       }
       if(message.message=="Te gano el bot"){
         console.log("Estoy aqui")
-        
+        const opponentPosition = document.getElementById(message.position+"enemigo")
+        if(message.yourImpacted){
+          opponentPosition.classList.remove("game-box")
+          opponentPosition.classList.add("game-box-touched")
+        }else{
+          opponentPosition.classList.remove("game-box")
+          opponentPosition.classList.add("game-box-miss")
+        }
         const alertDefeat = await Swal.fire({
           title: 'Derrota',
           text: 'Has perdido contra nuestro bot, quieres revancha? \nPuntuaciones:\nTu: '+message.yourScore+"\nBot1: "+message.opponentScore,
@@ -341,10 +347,6 @@ export class PartyComponent implements AfterViewInit,DoCheck {
       }
       if(message.message=="Tu oponente aceptó la revancha"){
         this.router.navigateByUrl("matchmaking")
-        const message:FriendRequest={TypeMessage:"ir a revancha",Identifier:this.opponentName}
-        const jsonData = JSON.stringify(message)
-        console.log(jsonData)
-        this.webSocketService.sendRxjs(jsonData)
       }
       if(message.message=="Has sido baneado"){
         const messageToSend:FriendRequest={TypeMessage:"Abandono de partida",Identifier:this.opponentName}

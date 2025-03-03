@@ -12,6 +12,8 @@ import { DataService } from '../../services/data.service';
 import { FriendRequest } from '../../models/FriendRequest';
 import Swal from 'sweetalert2';
 import { ApiService } from '../../services/api.service';
+import { AuthserviceService } from '../../services/authservice.service';
+import { UserReceived } from '../../models/UserReceived';
 
 @Component({
   selector: 'app-matchmaking',
@@ -21,7 +23,7 @@ import { ApiService } from '../../services/api.service';
   styleUrl: './matchmaking.component.css'
 })
 export class MatchmakingComponent {
-  constructor(private webSocketService:WebsocketService,private requestService:RequestService,private router:Router,private dataService:DataService,private apiService:ApiService){
+  constructor(private webSocketService:WebsocketService,private requestService:RequestService,private router:Router,private dataService:DataService,private apiService:ApiService, private authService:AuthserviceService){
     if(localStorage.getItem("token")){
           this.decoded=jwtDecode(localStorage.getItem("token"));
         }else if(sessionStorage.getItem("token")){
@@ -30,8 +32,8 @@ export class MatchmakingComponent {
           router.navigateByUrl("login")
           this.decoded=null
         }
-    this.url=environment.images+this.decoded.Avatar;
     window.addEventListener('beforeunload', this.beforeUnloadHandler);
+    this.obtainuser()
   }
   conectedUsers:number = 0
   isConnected: boolean = false;
@@ -43,7 +45,7 @@ export class MatchmakingComponent {
   serverResponse: string = '';
   gamemode:string="";
   decoded:User;
-  url:string
+  user:UserReceived = null;
   partyRequestSended:string[] = []
   partyHost:Request = null
   partyGuest:Request = null
@@ -64,7 +66,7 @@ export class MatchmakingComponent {
         const jsonData = JSON.stringify(message);
         console.log(jsonData);
         this.webSocketService.sendRxjs(jsonData);
-      } else if (this.partyHost.nickName == this.decoded.nickName) {
+      } else if (this.partyHost.nickName == this.user.nickName) {
         const message: FriendRequest = { TypeMessage: "Abandono anfitrion", Identifier: this.partyGuest.nickName };
         const jsonData = JSON.stringify(message);
         console.log(jsonData);
@@ -162,8 +164,8 @@ export class MatchmakingComponent {
           // Guarda el anfitrion y el invitado
           this.partyHost = {
             id:this.decoded.id,
-            nickName:this.decoded.nickName,
-            avatar:environment.images+this.decoded.Avatar
+            nickName:this.user.nickName,
+            avatar:this.user.avatar
           };
           message.avatar = environment.images+message.avatar
           this.partyGuest = message
@@ -176,8 +178,8 @@ export class MatchmakingComponent {
           this.partyHost = message
           this.partyGuest = {
             id:this.decoded.id,
-            nickName:this.decoded.nickName,
-            avatar:environment.images+this.decoded.Avatar
+            nickName:this.user.nickName,
+            avatar:this.user.avatar
           };
         }
         if(message.message=="Has sido eliminado de amigos"){
@@ -220,8 +222,8 @@ export class MatchmakingComponent {
           this.partyGuest = null
           this.partyHost = {
             id:this.decoded.id,
-            nickName:this.decoded.nickName,
-            avatar:environment.images+this.decoded.Avatar
+            nickName:this.user.nickName,
+            avatar:this.user.avatar
           };
         }
         if(message.message=="Empezo la partida"){
@@ -293,6 +295,9 @@ export class MatchmakingComponent {
       this.disconnected$ = this.webSocketService.disconnected.subscribe(() =>{
         this.isConnected = false
       });
+    }
+    async obtainuser(){
+      this.user = await this.authService.getUserById(this.decoded.id)
     }
     backToTheMenu(){
       this.router.navigateByUrl("menu");

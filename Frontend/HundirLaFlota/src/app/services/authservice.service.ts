@@ -64,6 +64,9 @@ export class AuthserviceService {
       "ActualPage": query.ActualPage
     },'json')
     result.data.avatar = environment.images+result.data.avatar;
+    result.data.games.forEach(game => {
+      game.timeSeconds = Math.round(game.timeSeconds)
+    });
     return result.data
   }
 

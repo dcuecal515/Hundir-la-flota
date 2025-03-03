@@ -43,6 +43,7 @@ export class MenuComponent {
     this.recievFriend()
     this.url=environment.images+this.decoded.Avatar;
     console.log(this.dataService.players)
+    this.obtainuser()
     this.conectedUsers=this.dataService.players
     this.playingUsers=dataService.playersPlaying
     this.games=dataService.games
@@ -66,7 +67,6 @@ export class MenuComponent {
   isOpen:boolean = false
 
   ngOnInit(){
-    this.obtainuser()
     this.messageReceived$ = this.webSocketService.messageReceived.subscribe(async message => {
       console.log("Mensaje recibido:", message);
       if(message.message=="Has recibido una solicitud de amistad"){

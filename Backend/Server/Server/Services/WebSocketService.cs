@@ -575,7 +575,8 @@ namespace Server.Services
                                 }
 
                             }
-                            StartGameTimer(userHandler.Id, userHandler);
+                            StartGameTimer(players [0].Id, players [0]);
+                            StartGameTimer(players [1].Id, players [1]);
                             Game game = await _gameService.CreateGame(0);
                             Partida nuevaPartida = new Partida(game.Id, players[0], players[1]);
                             await _semaphoreplayerdisconnect.WaitAsync();
@@ -937,6 +938,7 @@ namespace Server.Services
                             _semaphoreplayerdisconnect.Release();
                      */
                     StartGameTimer(_jugadores [0].Id, _jugadores[0]);
+                    StartGameTimer(_jugadores [1].Id, _jugadores [1]);
                     Game game = await _gameService.CreateGame(0);
                     Partida nuevaPartida = new Partida(game.Id, _jugadores[0], _jugadores[1]);
                     await _semaphoreplayerdisconnect.WaitAsync();
@@ -976,35 +978,41 @@ namespace Server.Services
                         user2.Status = "Conectado";
                         await _wsHelper.UpdateUserAsync(user);
                         await _wsHelper.UpdateUserAsync(user2);
-                        foreach (var friend in user.friends)
+                        if(user.friends != null)
                         {
-                            foreach (WebSocketHandler handler in handlers)
+                            foreach (var friend in user.friends)
                             {
-                                if (handler.Id == friend.FriendId)
+                                foreach (WebSocketHandler handler in handlers)
                                 {
-                                    DeleteDto outMessage2 = new DeleteDto
+                                    if (handler.Id == friend.FriendId)
                                     {
-                                        Message = "Tu amigo dejo de jugar",
-                                        NickName = user.NickName
-                                    };
-                                    string messageToSend2 = JsonSerializer.Serialize(outMessage2, JsonSerializerOptions.Web);
-                                    tasks.Add(handler.SendAsync(messageToSend2));
+                                        DeleteDto outMessage2 = new DeleteDto
+                                        {
+                                            Message = "Tu amigo dejo de jugar",
+                                            NickName = user.NickName
+                                        };
+                                        string messageToSend2 = JsonSerializer.Serialize(outMessage2, JsonSerializerOptions.Web);
+                                        tasks.Add(handler.SendAsync(messageToSend2));
+                                    }
                                 }
                             }
                         }
-                        foreach (var friend in user2.friends)
+                        if(user2.friends != null)
                         {
-                            foreach (WebSocketHandler handler in handlers)
+                            foreach (var friend in user2.friends)
                             {
-                                if (handler.Id == friend.FriendId)
+                                foreach (WebSocketHandler handler in handlers)
                                 {
-                                    DeleteDto outMessage2 = new DeleteDto
+                                    if (handler.Id == friend.FriendId)
                                     {
-                                        Message = "Tu amigo dejo de jugar",
-                                        NickName = user2.NickName
-                                    };
-                                    string messageToSend2 = JsonSerializer.Serialize(outMessage2, JsonSerializerOptions.Web);
-                                    tasks.Add(handler.SendAsync(messageToSend2));
+                                        DeleteDto outMessage2 = new DeleteDto
+                                        {
+                                            Message = "Tu amigo dejo de jugar",
+                                            NickName = user2.NickName
+                                        };
+                                        string messageToSend2 = JsonSerializer.Serialize(outMessage2, JsonSerializerOptions.Web);
+                                        tasks.Add(handler.SendAsync(messageToSend2));
+                                    }
                                 }
                             }
                         }
@@ -1061,8 +1069,8 @@ namespace Server.Services
                                 tasks.Add(handler.SendAsync(messageToSend));
                             }
                         }
-                        await _semaphoreplayerdisconnect.WaitAsync();
                         var partida = _partidas.FirstOrDefault(p => p.Player1.Id == userHandler.Id || p.Player2.Id == userHandler.Id);
+                        await _semaphoreplayerdisconnect.WaitAsync();
                         _partidas.Remove(partida);
                         _semaphoreplayerdisconnect.Release();
                         Partida[] partidas = _partidas.ToArray();
@@ -1081,7 +1089,6 @@ namespace Server.Services
                     }
                     else
                     {
-                        StopGameTimer(user.Id);
                         int partidausuario = _partidasbot.FirstOrDefault(p => p.Player1.Id == user.Id).GameId;
                         TimeSpan timeSpan = DateTime.Now - _startedTime [partidausuario];
                         double timeFinished = timeSpan.TotalSeconds;
@@ -1099,8 +1106,8 @@ namespace Server.Services
                         user.gameInfos.Add(gameInfo);
                         await _wsHelper.UpdateUserAsync(user);
 
-                        await _Semaphorepalyerbotdesconnect.WaitAsync();
                         var partida = _partidasbot.FirstOrDefault(h => h.Player1.Id == userHandler.Id);
+                        await _Semaphorepalyerbotdesconnect.WaitAsync();
                         _partidasbot.Remove(partida);
                         _Semaphorepalyerbotdesconnect.Release();
                         user.Status = "Conectado";
@@ -1705,7 +1712,9 @@ namespace Server.Services
                     {
                         Message = "Te gano el bot",
                         YourScore = score,
-                        OpponentScore = 60
+                        OpponentScore = 60,
+                        Position = receivedUser.Identifier,
+                        YourImpacted = yourImpacted
                     };
                     string messageToSend = JsonSerializer.Serialize(outMessage3, JsonSerializerOptions.Web);
                     tasks.Add(userHandler.SendAsync(messageToSend));
@@ -1942,19 +1951,14 @@ namespace Server.Services
                 string userName = receivedUser.Identifier;
                 List<WebSocketHandler> jugadores = new List<WebSocketHandler>();
 
-                DeleteDto outMessage = new DeleteDto
-                {
-                    Message = "Ir a revancha con opotente anterior",
-                    NickName = userName
-                };
-                string messageToSend = JsonSerializer.Serialize(outMessage, JsonSerializerOptions.Web);
-                tasks.Add(userHandler.SendAsync(messageToSend));
+                
 
                 using (var scope = _serviceProvider.CreateScope())
                 {
                     var _wsHelper = scope.ServiceProvider.GetRequiredService<WSHelper>();
                     var _gameService = scope.ServiceProvider.GetRequiredService<GameService>();
 
+                    User user1 = await _wsHelper.GetUserById(userHandler.Id);
                     User userOpponent = await _wsHelper.GetUserByNickname(userName);
 
                     foreach (var handler in handlers)
@@ -1962,14 +1966,29 @@ namespace Server.Services
                         if(handler.Id == userHandler.Id)
                         {
                             jugadores.Add(handler);
+                            DeleteDto outMessage = new DeleteDto
+                            {
+                                Message = "Ir a revancha con opotente anterior",
+                                NickName = userName
+                            };
+                            string messageToSend = JsonSerializer.Serialize(outMessage, JsonSerializerOptions.Web);
+                            tasks.Add(handler.SendAsync(messageToSend));
                         }
                         if(handler.Id == userOpponent.Id)
                         {
                             jugadores.Add(handler);
+                            DeleteDto outMessage = new DeleteDto
+                            {
+                                Message = "Ir a revancha con opotente anterior",
+                                NickName = user1.NickName
+                            };
+                            string messageToSend = JsonSerializer.Serialize(outMessage, JsonSerializerOptions.Web);
+                            tasks.Add(handler.SendAsync(messageToSend));
                         }
                     }
 
                     StartGameTimer(jugadores [0].Id, jugadores [0]);
+                    StartGameTimer(jugadores [1].Id, jugadores [1]);
                     Game game = await _gameService.CreateGame(0);
                     Partida nuevaPartida = new Partida(game.Id, jugadores [0], jugadores[1]);
                     await _semaphoreplayerdisconnect.WaitAsync();
