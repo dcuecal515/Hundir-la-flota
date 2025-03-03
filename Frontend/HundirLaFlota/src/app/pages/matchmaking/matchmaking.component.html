@@ -1,112 +1,114 @@
-<div class="the-father">
-    @if(partyGuest == null){
-        <button class="exit" (click)="backToTheMenu()"><i class="fa-solid fa-arrow-left fa-xl"></i></button>
-    }
-    @if(partyGuest == null){
-        <div class="title">
-            <h1>Zarpar a los mares</h1>
-        </div>
-        <div id="body" class="body">
-            <div id="buttons" class="buttons">
-                <button id="button-design" class="button-design" (click)="gameBot()">Jugar con bot</button>
-                <button id="button-design2" class="button-design" (click)="gameFriend()">Jugar con amigo</button>
-                <button id="button-design3" class="button-design" (click)="gameRamdon()">Jugar aleatorio</button>
+@if(user!=null){
+    <div class="the-father">
+        @if(partyGuest == null){
+            <button class="exit" (click)="backToTheMenu()"><i class="fa-solid fa-arrow-left fa-xl"></i></button>
+        }
+        @if(partyGuest == null){
+            <div class="title">
+                <h1>Zarpar a los mares</h1>
             </div>
-            @if(gamemode != ""){
-                <div class="player">
-                    @if(gamemode=="partywithbot"){
-                    <div class="player-content">
-                        <div class="players-information">
-                            <img class="image-players" [src]="url" alt="PLAYER">
-                            <h3>{{decoded.nickName}}</h3>
-                        </div>
-                        <h1>VS</h1>
-                        <div class="players-information">
-                            <img class="image-players" src="assets/robot.png" alt="ROBOT">
-                            <h3>Bot1</h3>
-                        </div>
-                    </div>
-                    
-                    }
-                    @if(gamemode=="partywithfriend"){
+            <div id="body" class="body">
+                <div id="buttons" class="buttons">
+                    <button id="button-design" class="button-design" (click)="gameBot()">Jugar con bot</button>
+                    <button id="button-design2" class="button-design" (click)="gameFriend()">Jugar con amigo</button>
+                    <button id="button-design3" class="button-design" (click)="gameRamdon()">Jugar aleatorio</button>
+                </div>
+                @if(gamemode != ""){
+                    <div class="player">
+                        @if(gamemode=="partywithbot"){
                         <div class="player-content">
                             <div class="players-information">
-                                <img class="image-players" [src]="url" alt="PLAYER">
-                                <h3>{{decoded.nickName}}</h3>
+                                <img class="image-players" [src]="user.avatar" alt="PLAYER">
+                                <h3>{{user.nickName}}</h3>
                             </div>
                             <h1>VS</h1>
                             <div class="players-information">
-                                <img (click)="openlist()" class="image-players" src="assets/anadir.jpg" alt="Amigo">
-                                <h3>Amigo</h3>
+                                <img class="image-players" src="assets/robot.png" alt="ROBOT">
+                                <h3>Bot1</h3>
                             </div>
                         </div>
-                    }
-                    @if(gamemode=="partywithrandom"){
-                    <div class="player-content">
-                        <div class="players-information">
-                            <img class="image-players" [src]="url" alt="PLAYER">
-                            <h3>{{decoded.nickName}}</h3>
-                        </div>
-                        <h1>VS</h1>
-                        <div class="players-information">
-                            <img class="image-players" src="assets/aleatorio.jpg" alt="aleatorio">
-                            <h3>??????</h3>
-                        </div>
-                        </div>
-                    
-                    }
+                        
+                        }
+                        @if(gamemode=="partywithfriend"){
+                            <div class="player-content">
+                                <div class="players-information">
+                                    <img class="image-players" [src]="user.avatar" alt="PLAYER">
+                                    <h3>{{user.nickName}}</h3>
+                                </div>
+                                <h1>VS</h1>
+                                <div class="players-information">
+                                    <img (click)="openlist()" class="image-players" src="assets/anadir.jpg" alt="Amigo">
+                                    <h3>Amigo</h3>
+                                </div>
+                            </div>
+                        }
+                        @if(gamemode=="partywithrandom"){
+                        <div class="player-content">
+                            <div class="players-information">
+                                <img class="image-players" [src]="user.avatar" alt="PLAYER">
+                                <h3>{{user.nickName}}</h3>
+                            </div>
+                            <h1>VS</h1>
+                            <div class="players-information">
+                                <img class="image-players" src="assets/aleatorio.jpg" alt="aleatorio">
+                                <h3>??????</h3>
+                            </div>
+                            </div>
+                        
+                        }
+                    </div>
+                }
+                
+            </div>
+            @if(gamemode=="partywithbot"){
+                <div class="button-div">
+                    <button class="button-play" (click)="playgame()">Jugar partida</button>
                 </div>
             }
-            
-        </div>
-        @if(gamemode=="partywithbot"){
-            <div class="button-div">
-                <button class="button-play" (click)="playgame()">Jugar partida</button>
-            </div>
-        }
-        @if(gamemode=="partywithrandom"){
-            <div class="button-div">
-                <button class="button-play" id="button-play" (click)="playGameRamdon()">Jugar partida</button>
-                <button class="cancel" id="cancel" (click)="cancelSearch()">Cancelar busqueda</button>
-            </div>
-        }
-    }@else {
-        <div class="title-friend">
-            <h1>Zarpar a los mares</h1>
-        </div>
-        <!--<p>Host: {{partyHost.nickName}}</p>-->
-        @if(partyHost.nickName == decoded.nickName){
-            <div class="player-friend">
-                <div class="host-data">
-                    <img class="image-player" [src]="partyHost.avatar">
-                    <h2 >{{partyHost.nickName}}</h2>
+            @if(gamemode=="partywithrandom"){
+                <div class="button-div">
+                    <button class="button-play" id="button-play" (click)="playGameRamdon()">Jugar partida</button>
+                    <button class="cancel" id="cancel" (click)="cancelSearch()">Cancelar busqueda</button>
                 </div>
-                <h1>VS</h1>
+            }
+        }@else {
+            <div class="title-friend">
+                <h1>Zarpar a los mares</h1>
+            </div>
+            <!--<p>Host: {{partyHost.nickName}}</p>-->
+            @if(partyHost.nickName == user.nickName){
+                <div class="player-friend">
+                    <div class="host-data">
+                        <img class="image-player" [src]="partyHost.avatar">
+                        <h2 >{{partyHost.nickName}}</h2>
+                    </div>
+                    <h1>VS</h1>
+                    <div class="guest-data">
+                        <img class="image-player" [src]="partyGuest.avatar">
+                        <h2>{{partyGuest.nickName}}</h2>
+                    </div>
+                </div>
+                <div class="button-div-friend">
+                    <button class="button-play" (click)="startGame()">Empezar partida</button>
+                    <br>
+                    <button class="button-play" (click)="exitHost()">Salir</button>
+                </div>
+            }@else {
+                <div class="player-friend">
                 <div class="guest-data">
                     <img class="image-player" [src]="partyGuest.avatar">
                     <h2>{{partyGuest.nickName}}</h2>
                 </div>
-            </div>
-            <div class="button-div-friend">
-                <button class="button-play" (click)="startGame()">Empezar partida</button>
-                <br>
-                <button class="button-play" (click)="exitHost()">Salir</button>
-            </div>
-        }@else {
-            <div class="player-friend">
-            <div class="guest-data">
-                <img class="image-player" [src]="partyGuest.avatar">
-                <h2>{{partyGuest.nickName}}</h2>
-            </div>
-            <h1>VS</h1>
-            <div class="host-data">
-                <img class="image-player" [src]="partyHost.avatar">
-                <h2>{{partyHost.nickName}}</h2>
-            </div>
-            </div>
-            <div class="button-div-friend">
-                <button class="button-play" (click)="exitGuest()">Salir</button>
-            </div>
+                <h1>VS</h1>
+                <div class="host-data">
+                    <img class="image-player" [src]="partyHost.avatar">
+                    <h2>{{partyHost.nickName}}</h2>
+                </div>
+                </div>
+                <div class="button-div-friend">
+                    <button class="button-play" (click)="exitGuest()">Salir</button>
+                </div>
+            }
         }
-    }
-</div>
+    </div>
+}
